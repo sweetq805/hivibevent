@@ -14,6 +14,8 @@
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -52,37 +54,87 @@
         body { background-color: var(--bg); color: var(--dark); font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
         h1, h2, h3, h4, h5, h6 { color: var(--dark); font-family: 'Noto Sans TC', sans-serif; }
         .font-bold { font-weight: 700 !important; }
-        .card-box { background: #ffffff; border: 1.5px solid var(--soft-pink); border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03); padding: 1.25rem; width: 100%; }
+        .card-box { background: #ffffff; border: 1.5px solid var(--soft-pink); border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03); padding: 1rem; width: 100%; }
         
-        table th, table td { padding: 12px 8px !important; }
-        table input, table select { background: #ffffff; border: 1px solid var(--soft-pink); border-radius: 0.5rem; padding: 8px 6px; font-size: 12px; font-weight: 700; width: 100%; }
+        table th, table td { padding: 8px 4px !important; }
+        table input, table select { background: #ffffff; border: 1px solid var(--soft-pink); border-radius: 0.5rem; padding: 5px 3px; font-size: 11px; font-weight: 700; width: 100%; }
         
         th { text-align: center !important; }
         
-        .col-checkbox { width: 40px; text-align: center; }
-        .col-type { width: 100px; }
-        .col-number { width: 110px; }
-        .col-date { width: 110px; }
-        .col-buyer { width: 105px; }
-        .col-sellerid { width: 105px; }
-        .col-category { width: 135px; }
-        .col-seller { width: 120px; white-space: pre-wrap !important; word-break: break-all; line-height: 1.3; }
-        .col-amount { width: 105px !important; }
-        .col-action { width: 65px; text-align: center; }
+        .col-checkbox { width: 35px; text-align: center; }
+        .col-type { width: 95px; }
+        .col-number { width: 105px; }
+        .col-date { width: 120px; }
+        .col-buyer { width: 90px; }
+        .col-sellerid { width: 90px; }
+        .col-category { width: 110px; }
+        .col-seller { width: 100px; white-space: pre-wrap !important; word-break: break-all; line-height: 1.3; }
+        .col-amount { width: 85px !important; }
+        .col-action { width: 45px; text-align: center; }
 
         .system-title { letter-spacing: 0.08em; }
+        .draggable-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: default; z-index: 50; }
+        .modal-header-drag { cursor: move; user-select: none; }
+        
+        .sort-icon-btn {
+            background-color: #d3a9a6;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.3rem;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: opacity 0.2s;
+        }
+        .sort-icon-btn:hover { opacity: 0.85; }
+
+        .print-banner { display: none; }
 
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
         @media print {
+            @page { margin: 1cm; }
             header, aside, button, .no-print { display: none !important; }
-            body { background: #ffffff !important; }
-            main { padding: 0 !important; }
-            section:not(.hidden) { display: block !important; }
-            .card-box { border: none !important; box-shadow: none !important; padding: 0 !important; }
-            table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border: 1px solid #ccc !important; font-size: 11px !important; padding: 6px !important; }
+            body { background: #ffffff !important; color: #000000 !important; }
+            main { padding: 0 !important; width: 100% !important; }
+            section:not(.hidden) { display: block !important; width: 100% !important; }
+            .card-box { border: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; }
+            
+            .print-banner {
+                display: block !important;
+                background-color: #e6c4c2 !important;
+                color: #37352F !important;
+                font-size: 16px !important;
+                font-weight: bold !important;
+                text-align: center !important;
+                padding: 12px 0 !important;
+                margin-bottom: 15px !important;
+                width: 100% !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            table { width: 100% !important; border-collapse: collapse !important; border: none !important; }
+            th, td { border: none !important; border-bottom: 1px solid #e5e5e5 !important; font-size: 10px !important; padding: 6px !important; }
+            th { background-color: #f5f5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            input, select, textarea {
+                border: none !important;
+                background: transparent !important;
+                outline: none !important;
+                box-shadow: none !important;
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                padding: 0 !important;
+                font-size: 10px !important;
+                color: #000000 !important;
+            }
         }
     </style>
 </head>
@@ -114,7 +166,7 @@
     </header>
 
     <!-- 主體排版 -->
-    <div class="w-full px-2 sm:px-4 py-4 flex flex-col md:flex-row gap-3 flex-1 items-start">
+    <div class="w-full px-2 sm:px-4 py-3 flex flex-col md:flex-row gap-3 flex-1 items-start">
         
         <!-- 左側導航區 -->
         <aside class="w-full md:w-64 shrink-0 space-y-3 card-box bg-white">
@@ -130,7 +182,6 @@
                     <option value="perf-cost">🌿 香氛月成本報表</option>
                     <option value="perf-rev">🌸 香氛營收報表</option>
                     <option value="perf-adv">💰 香氛代墊款</option>
-                    <option value="proj-mat">📦 專案物資單</option>
                     <option value="rules">⚖️ 國稅局法規對照</option>
                     <option value="images">📸 紙本憑證月度庫</option>
                 </select>
@@ -144,71 +195,80 @@
                 <button onclick="switchTab('perf-cost')" id="nav-perf-cost" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">🌿 香氛月成本報表</button>
                 <button onclick="switchTab('perf-rev')" id="nav-perf-rev" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">🌸 香氛營收報表</button>
                 <button onclick="switchTab('perf-adv')" id="nav-perf-adv" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">💰 香氛代墊款</button>
-                <button onclick="switchTab('proj-mat')" id="nav-proj-mat" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📦 專案物資單</button>
                 <button onclick="switchTab('rules')" id="nav-rules" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--dark)] hover:bg-[var(--light-blue)] flex items-center gap-2 border border-[var(--soft-pink)]/50">⚖️ 國稅局法規對照</button>
                 <button onclick="switchTab('images')" id="nav-images" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📸 紙本憑證月度庫</button>
             </div>
         </aside>
 
         <!-- 右側內容區 -->
-        <main class="flex-1 w-full min-w-0 space-y-4 pr-1">
+        <main class="flex-1 w-full min-w-0 space-y-2.5 pr-1">
 
             <!-- 1. 總覽儀表板 -->
-            <section id="page-dashboard" class="space-y-4">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <section id="page-dashboard" class="space-y-2.5">
+                <div class="print-banner" id="banner-dashboard">心引力有限公司 - 總覽儀表板</div>
+                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 py-2.5 px-3.5">
                     <div>
-                        <h2 class="text-base sm:text-lg font-bold">心引力公司營運總覽儀表板</h2>
-                        <p class="text-xs text-[var(--medium)] font-bold">活動行銷 ＋ 香氛品牌財務自動結算</p>
+                        <h2 class="text-sm sm:text-base font-bold">心引力公司營運總覽儀表板</h2>
+                        <p class="text-[11px] text-[var(--medium)] font-bold">活動行銷 ＋ 香氛品牌財務自動結算</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <label class="text-xs font-bold text-[var(--medium)]">篩選區間：</label>
-                        <select id="dash-time-selector" onchange="renderDashboard()" class="px-3 py-2 rounded-xl border border-[var(--soft-pink)] text-xs font-bold bg-[#f7dad9]/45">
+                        <select id="dash-time-selector" onchange="renderDashboard()" class="px-2.5 py-1.5 rounded-xl border border-[var(--soft-pink)] text-xs font-bold bg-[#f7dad9]/45">
                             <option value="all">全部歷史總計</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">1. 活動進項成本</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-cost">NT$ 0</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                    <div class="card-box p-2.5">
+                        <p class="text-[11px] font-bold text-[var(--medium)]">1. 活動進項成本</p>
+                        <h3 class="text-sm font-bold mt-0.5" id="kpi-act-cost">NT$ 0</h3>
                     </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">2. 香氛進項成本</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-cost">NT$ 0</h3>
+                    <div class="card-box p-2.5">
+                        <p class="text-[11px] font-bold text-[var(--medium)]">2. 香氛進項成本</p>
+                        <h3 class="text-sm font-bold mt-0.5" id="kpi-perf-cost">NT$ 0</h3>
                     </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">3. 活動營業收入總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-rev">NT$ 0</h3>
+                    <div class="card-box p-2.5">
+                        <p class="text-[11px] font-bold text-[var(--medium)]">3. 活動營業收入</p>
+                        <h3 class="text-sm font-bold mt-0.5" id="kpi-act-rev">NT$ 0</h3>
                     </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">4. 香氛營業收入總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-rev">NT$ 0</h3>
+                    <div class="card-box p-2.5">
+                        <p class="text-[11px] font-bold text-[var(--medium)]">4. 香氛營業收入</p>
+                        <h3 class="text-sm font-bold mt-0.5" id="kpi-perf-rev">NT$ 0</h3>
                     </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">5. 可折抵營業稅額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-vat">NT$ 0</h3>
+                    <div class="card-box p-2.5">
+                        <p class="text-[11px] font-bold text-[var(--medium)]">5. 可折抵營業稅</p>
+                        <h3 class="text-sm font-bold mt-0.5" id="kpi-vat">NT$ 0</h3>
                     </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">6. 代墊款總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-adv">NT$ 0</h3>
+                    <div class="card-box p-2.5">
+                        <p class="text-[11px] font-bold text-[var(--medium)]">6. 代墊款總額</p>
+                        <h3 class="text-sm font-bold mt-0.5" id="kpi-adv">NT$ 0</h3>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div class="card-box flex flex-col">
-                        <h3 class="font-bold text-sm mb-3">事業營收佔比分析</h3>
-                        <div class="relative h-56 flex items-center justify-center"><canvas id="revenueShareChart"></canvas></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    <div class="card-box p-3 flex flex-col">
+                        <h3 class="font-bold text-xs mb-1 text-[var(--dark)]">事業營收佔比分析</h3>
+                        <div class="relative h-52 flex items-center justify-center"><canvas id="revenueShareChart"></canvas></div>
                     </div>
-                    <div class="card-box flex flex-col">
-                        <h3 class="font-bold text-sm mb-3">營業稅可折抵狀態</h3>
-                        <div class="relative h-56 flex items-center justify-center"><canvas id="vatChart"></canvas></div>
+                    <div class="card-box p-3 flex flex-col">
+                        <h3 class="font-bold text-xs mb-1 text-[var(--dark)]">營業稅可折抵狀態</h3>
+                        <div class="relative h-52 flex items-center justify-center"><canvas id="vatChart"></canvas></div>
+                    </div>
+                    <div class="card-box p-3 flex flex-col">
+                        <h3 class="font-bold text-xs mb-1 text-[var(--dark)]">📑 活動月成本 - 品項支出佔比</h3>
+                        <div class="relative h-52 flex items-center justify-center"><canvas id="actCostBarChart"></canvas></div>
+                    </div>
+                    <div class="card-box p-3 flex flex-col">
+                        <h3 class="font-bold text-xs mb-1 text-[var(--dark)]">🌿 香氛月成本 - 品項支出佔比</h3>
+                        <div class="relative h-52 flex items-center justify-center"><canvas id="perfCostBarChart"></canvas></div>
                     </div>
                 </div>
             </section>
 
             <!-- 2. 活動月成本報表 -->
             <section id="page-act-cost" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-act-cost">心引力有限公司 - 活動月成本報表</div>
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div><h2 class="text-base font-bold">活動月成本報表</h2><p class="text-xs text-[var(--medium)]">買方統編: 60676740</p></div>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -217,9 +277,9 @@
                             <input type="month" id="filter-month-act-cost" onchange="onFilterMonthChange('act-cost')" class="bg-transparent text-xs font-bold outline-none">
                             <button onclick="clearFilter('act-cost')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
                         </div>
-                        <button onclick="saveCurrentPage('act-cost')" class="px-3 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('act-cost')" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openGenericModal('act-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button onclick="saveCurrentPage('act-cost')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold shadow-sm">💾 儲存</button>
+                        <button onclick="deleteSelectedRows('act-cost')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">🗑️ 刪除勾選</button>
+                        <button onclick="openGenericModal('act-cost')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold shadow-sm">＋ 新增</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0 w-full">
@@ -229,7 +289,12 @@
                                 <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-act-cost" onclick="toggleSelectAll('act-cost', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold col-type">發票種類</th>
                                 <th class="p-3 font-bold col-number">發票號碼</th>
-                                <th class="p-3 font-bold col-date">日期</th>
+                                <th class="p-3 font-bold col-date">
+                                    <div class="flex items-center justify-center gap-1">
+                                        日期 
+                                        <button onclick="toggleSort('act-cost')" class="sort-icon-btn" title="日期排序">▵ 排序</button>
+                                    </div>
+                                </th>
                                 <th class="p-3 font-bold col-buyer">買方統編</th>
                                 <th class="p-3 font-bold col-sellerid">賣方統編</th>
                                 <th class="p-3 font-bold col-category">用途品項</th>
@@ -259,6 +324,7 @@
 
             <!-- 3. 活動營收報表 -->
             <section id="page-act-rev" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-act-rev">心引力有限公司 - 活動營收報表</div>
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <h2 class="text-base font-bold">活動營收報表</h2>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -267,9 +333,9 @@
                             <input type="month" id="filter-month-act-rev" onchange="onFilterMonthChange('act-rev')" class="bg-transparent text-xs font-bold outline-none">
                             <button onclick="clearFilter('act-rev')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
                         </div>
-                        <button onclick="saveCurrentPage('act-rev')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('act-rev')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openActRevModal()" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button onclick="saveCurrentPage('act-rev')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold shadow-sm">💾 儲存</button>
+                        <button onclick="deleteSelectedRows('act-rev')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">🗑️ 刪除勾選</button>
+                        <button onclick="openActRevModal()" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold shadow-sm">＋ 新增</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
@@ -277,12 +343,19 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-rev" onclick="toggleSelectAll('act-rev', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">活動日期</th>
+                                <th class="p-3 font-bold text-center col-date">
+                                    <div class="flex items-center justify-center gap-1">
+                                        活動日期 
+                                        <button onclick="toggleSort('act-rev')" class="sort-icon-btn" title="日期排序">▵ 排序</button>
+                                    </div>
+                                </th>
                                 <th class="p-3 font-bold text-center" style="width: 110px;">客戶名稱</th>
-                                <th class="p-3 font-bold text-center" style="width: 150px;">品項明細</th>
-                                <th class="p-3 font-bold text-center w-16">數量</th>
-                                <th class="p-3 font-bold text-right col-amount">金額</th>
-                                <th class="p-3 font-bold text-right col-amount text-rose-700">未稅/含稅金額</th>
+                                <th class="p-3 font-bold text-center" style="width: 140px;">品項名稱</th>
+                                <th class="p-3 font-bold text-center w-14">數量</th>
+                                <th class="p-3 font-bold text-right col-amount">單價</th>
+                                <th class="p-3 font-bold text-right col-amount">總金額</th>
+                                <th class="p-3 font-bold text-center" style="width: 95px;">稅額模式</th>
+                                <th class="p-3 font-bold text-right col-amount text-rose-700" style="width: 115px;">未稅/含稅金額</th>
                                 <th class="p-3 font-bold text-center no-print col-action">操作</th>
                             </tr>
                         </thead>
@@ -307,6 +380,7 @@
 
             <!-- 4. 活動代墊款 -->
             <section id="page-act-adv" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-act-adv">心引力有限公司 - 活動代墊款記錄</div>
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <h2 class="text-base font-bold">活動代墊款記錄</h2>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -315,9 +389,9 @@
                             <input type="month" id="filter-month-act-adv" onchange="onFilterMonthChange('act-adv')" class="bg-transparent text-xs font-bold outline-none">
                             <button onclick="clearFilter('act-adv')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
                         </div>
-                        <button onclick="saveCurrentPage('act-adv')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('act-adv')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openAdvanceModal('act')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button onclick="saveCurrentPage('act-adv')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold shadow-sm">💾 儲存</button>
+                        <button onclick="deleteSelectedRows('act-adv')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">🗑️ 刪除勾選</button>
+                        <button onclick="openAdvanceModal('act')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold shadow-sm">＋ 新增</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
@@ -325,7 +399,12 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-adv" onclick="toggleSelectAll('act-adv', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">日期</th>
+                                <th class="p-3 font-bold text-center col-date">
+                                    <div class="flex items-center justify-center gap-1">
+                                        日期 
+                                        <button onclick="toggleSort('act-adv')" class="sort-icon-btn" title="日期排序">▵ 排序</button>
+                                    </div>
+                                </th>
                                 <th class="p-3 font-bold text-center" style="width: 100px;">代墊人</th>
                                 <th class="p-3 font-bold text-center">代墊明細</th>
                                 <th class="p-3 font-bold text-right col-amount">金額</th>
@@ -353,6 +432,7 @@
 
             <!-- 5. 香氛月成本報表 -->
             <section id="page-perf-cost" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-perf-cost">Nuitréver 香氛月成本報表</div>
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div><h2 class="text-base font-bold">Nuitréver 香氛月成本</h2></div>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -361,9 +441,9 @@
                             <input type="month" id="filter-month-perf-cost" onchange="onFilterMonthChange('perf-cost')" class="bg-transparent text-xs font-bold outline-none">
                             <button onclick="clearFilter('perf-cost')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
                         </div>
-                        <button onclick="saveCurrentPage('perf-cost')" class="px-3 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('perf-cost')" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openGenericModal('perf-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button onclick="saveCurrentPage('perf-cost')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold shadow-sm">💾 儲存</button>
+                        <button onclick="deleteSelectedRows('perf-cost')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">🗑️ 刪除勾選</button>
+                        <button onclick="openGenericModal('perf-cost')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold shadow-sm">＋ 新增</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0 w-full">
@@ -373,7 +453,12 @@
                                 <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-perf-cost" onclick="toggleSelectAll('perf-cost', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold col-type">發票種類</th>
                                 <th class="p-3 font-bold col-number">發票號碼</th>
-                                <th class="p-3 font-bold col-date">日期</th>
+                                <th class="p-3 font-bold col-date">
+                                    <div class="flex items-center justify-center gap-1">
+                                        日期 
+                                        <button onclick="toggleSort('perf-cost')" class="sort-icon-btn" title="日期排序">▵ 排序</button>
+                                    </div>
+                                </th>
                                 <th class="p-3 font-bold col-buyer">買方統編</th>
                                 <th class="p-3 font-bold col-sellerid">賣方統編</th>
                                 <th class="p-3 font-bold col-category">用途品項</th>
@@ -403,6 +488,7 @@
 
             <!-- 6. 香氛營收報表 -->
             <section id="page-perf-rev" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-perf-rev">Nuitréver 香氛營收報表</div>
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <h2 class="text-base font-bold">Nuitréver 香氛營收</h2>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -411,28 +497,34 @@
                             <input type="month" id="filter-month-perf-rev" onchange="onFilterMonthChange('perf-rev')" class="bg-transparent text-xs font-bold outline-none">
                             <button onclick="clearFilter('perf-rev')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
                         </div>
-                        <button onclick="saveCurrentPage('perf-rev')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('perf-rev')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openPerfRevModal()" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button onclick="saveCurrentPage('perf-rev')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold shadow-sm">💾 儲存</button>
+                        <button onclick="deleteSelectedRows('perf-rev')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">🗑️ 刪除勾選</button>
+                        <button onclick="openPerfRevModal()" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold shadow-sm">＋ 新增</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
-                    <table class="w-full text-left text-xs">
+                    <table class="w-full text-left text-xs" style="min-width: 1050px;">
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-rev" onclick="toggleSelectAll('perf-rev', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">訂購日期</th>
-                                <th class="p-3 font-bold text-center" style="width: 100px;">客戶名稱</th>
-                                <th class="p-3 font-bold text-center" style="width: 130px;">品項明細</th>
-                                <th class="p-3 font-bold text-center w-12">數量</th>
-                                <th class="p-3 font-bold text-right col-amount">原價</th>
-                                <th class="p-3 font-bold text-right" style="width: 60px;">折扣</th>
-                                <th class="p-3 font-bold text-right col-amount">優惠價格</th>
-                                <th class="p-3 font-bold text-right col-amount text-rose-700">未稅/含稅金額</th>
-                                <th class="p-3 font-bold text-center" style="width: 70px;">贈品</th>
-                                <th class="p-3 font-bold text-center" style="width: 70px;">狀態</th>
-                                <th class="p-3 font-bold text-center">備註</th>
-                                <th class="p-3 font-bold text-center no-print col-action">操作</th>
+                                <th class="p-3 font-bold text-center" style="width: 35px;"><input type="checkbox" id="selectAll-perf-rev" onclick="toggleSelectAll('perf-rev', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                <th class="p-3 font-bold text-center" style="width: 115px;">
+                                    <div class="flex items-center justify-center gap-1">
+                                        訂購日期 
+                                        <button onclick="toggleSort('perf-rev')" class="sort-icon-btn" title="日期排序">▵ 排序</button>
+                                    </div>
+                                </th>
+                                <th class="p-3 font-bold text-center" style="width: 95px;">客戶名稱</th>
+                                <th class="p-3 font-bold text-center" style="width: 120px;">品項名稱</th>
+                                <th class="p-3 font-bold text-center" style="width: 50px;">數量</th>
+                                <th class="p-3 font-bold text-right" style="width: 75px;">原價</th>
+                                <th class="p-3 font-bold text-right" style="width: 50px;">折扣</th>
+                                <th class="p-3 font-bold text-right" style="width: 75px;">優惠價格</th>
+                                <th class="p-3 font-bold text-center" style="width: 85px;">稅額模式</th>
+                                <th class="p-3 font-bold text-right text-rose-700" style="width: 110px;">未稅/含稅金額</th>
+                                <th class="p-3 font-bold text-center" style="width: 65px;">贈品</th>
+                                <th class="p-3 font-bold text-center" style="width: 75px;">狀態</th>
+                                <th class="p-3 font-bold text-center" style="width: 90px;">備註</th>
+                                <th class="p-3 font-bold text-center no-print" style="width: 45px;">操作</th>
                             </tr>
                         </thead>
                         <tbody id="table-perf-rev" class="divide-y divide-[var(--light-pink)]"></tbody>
@@ -456,6 +548,7 @@
 
             <!-- 7. 香氛代墊款 -->
             <section id="page-perf-adv" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-perf-adv">Nuitréver 香氛代墊款記錄</div>
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <h2 class="text-base font-bold">Nuitréver 香氛代墊款</h2>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -464,9 +557,9 @@
                             <input type="month" id="filter-month-perf-adv" onchange="onFilterMonthChange('perf-adv')" class="bg-transparent text-xs font-bold outline-none">
                             <button onclick="clearFilter('perf-adv')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
                         </div>
-                        <button onclick="saveCurrentPage('perf-adv')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('perf-adv')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openAdvanceModal('perf')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button onclick="saveCurrentPage('perf-adv')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold shadow-sm">💾 儲存</button>
+                        <button onclick="deleteSelectedRows('perf-adv')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">🗑️ 刪除勾選</button>
+                        <button onclick="openAdvanceModal('perf')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold shadow-sm">＋ 新增</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
@@ -474,7 +567,12 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-adv" onclick="toggleSelectAll('perf-adv', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">日期</th>
+                                <th class="p-3 font-bold text-center col-date">
+                                    <div class="flex items-center justify-center gap-1">
+                                        日期 
+                                        <button onclick="toggleSort('perf-adv')" class="sort-icon-btn" title="日期排序">▵ 排序</button>
+                                    </div>
+                                </th>
                                 <th class="p-3 font-bold text-center" style="width: 100px;">代墊人</th>
                                 <th class="p-3 font-bold text-center">代墊明細</th>
                                 <th class="p-3 font-bold text-right col-amount">金額</th>
@@ -500,96 +598,9 @@
                 </div>
             </section>
 
-            <!-- 8. 專案物資單 (兩層式架構) -->
-            <section id="page-proj-mat" class="space-y-4 hidden">
-                <!-- 第一層：專案列表視圖 -->
-                <div id="proj-view-list" class="space-y-4">
-                    <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div>
-                            <h2 class="text-base font-bold">📦 專案物資單 - 專案總覽</h2>
-                            <p class="text-xs text-[var(--medium)] font-bold mt-0.5" id="proj-total-summary">總計專案: 0 個</p>
-                        </div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <button onclick="saveProjectFinancials()" class="px-3.5 py-2 bg-[var(--accent)] text-white rounded-xl text-xs font-bold shadow-sm">💾 儲存報價/成本</button>
-                            <button onclick="deleteSelectedProjects()" class="px-3.5 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">🗑️ 刪除勾選專案</button>
-                            <button onclick="openNewProjectModal()" class="px-4 py-2 text-white rounded-xl text-xs font-bold shadow-sm" style="background-color: var(--custom-btn);">＋ 新增專案</button>
-                        </div>
-                    </div>
-                    <div class="card-box overflow-x-auto p-0">
-                        <table class="w-full text-left text-xs">
-                            <thead>
-                                <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                    <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-projects" onclick="toggleSelectAllProjects(this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                    <th class="p-3 font-bold text-center" style="width: 50px;">序號</th>
-                                    <th class="p-3 font-bold text-center" style="width: 120px;">專案日期</th>
-                                    <th class="p-3 font-bold text-center">專案名稱 (點擊進入物資單)</th>
-                                    <th class="p-3 font-bold text-right" style="width: 110px;">專案報價 (NT$)</th>
-                                    <th class="p-3 font-bold text-right" style="width: 110px;">專案成本 (NT$)</th>
-                                    <th class="p-3 font-bold text-right" style="width: 110px;">利潤 (NT$)</th>
-                                    <th class="p-3 font-bold text-center" style="width: 80px;">物資數</th>
-                                    <th class="p-3 font-bold text-center col-action no-print">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-project-list" class="divide-y divide-[var(--light-pink)]"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- 第二層：特定專案之物資明細視圖 -->
-                <div id="proj-view-detail" class="space-y-4 hidden">
-                    <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#f7dad9]/20">
-                        <div class="flex items-center gap-3">
-                            <button onclick="backToProjectList()" class="px-3 py-1.5 bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold shadow-sm">◀ 返回專案列表</button>
-                            <div>
-                                <h2 class="text-base font-bold" id="detail-project-title">專案物資明細</h2>
-                                <p class="text-xs text-[var(--medium)] font-bold" id="detail-project-date">日期：</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <button onclick="saveCurrentPage('proj-mat')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                            <button onclick="deleteSelectedRows('proj-mat')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                            <button onclick="openProjMatModal()" class="px-3.5 py-1.5 text-white rounded-xl text-xs font-bold shadow-sm" style="background-color: var(--custom-btn);">＋ 新增物資</button>
-                        </div>
-                    </div>
-                    <div class="card-box overflow-x-auto p-0">
-                        <table class="w-full text-left text-xs">
-                            <thead>
-                                <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                    <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-proj-mat" onclick="toggleSelectAll('proj-mat', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                    <th class="p-3 font-bold text-center" style="width: 100px;">品項</th>
-                                    <th class="p-3 font-bold text-center" style="width: 120px;">物資名稱</th>
-                                    <th class="p-3 font-bold text-center" style="width: 50px;">數量</th>
-                                    <th class="p-3 font-bold text-center" style="width: 70px;">尺寸</th>
-                                    <th class="p-3 font-bold text-center" style="width: 90px;">網站</th>
-                                    <th class="p-3 font-bold text-right" style="width: 80px;">價錢</th>
-                                    <th class="p-3 font-bold text-center" style="width: 80px;">狀態</th>
-                                    <th class="p-3 font-bold text-center" style="width: 65px;">已檢查</th>
-                                    <th class="p-3 font-bold text-center" style="width: 75px;">工具箱號碼</th>
-                                    <th class="p-3 font-bold text-center no-print col-action">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-proj-mat" class="divide-y divide-[var(--light-pink)]"></tbody>
-                        </table>
-                    </div>
-                    <div class="card-box flex flex-col sm:flex-row justify-between items-center gap-3">
-                        <div class="flex items-center space-x-2 no-print flex-wrap">
-                            <button onclick="changePage('proj-mat', -1)" class="px-3 py-1.5 bg-white border border-[var(--soft-pink)] rounded-xl shadow-sm text-xs font-bold">◀ 上一頁</button>
-                            <span id="page-info-proj-mat" class="text-xs font-bold">第 1 / 1 頁</span>
-                            <button onclick="changePage('proj-mat', 1)" class="px-3 py-1.5 bg-white border border-[var(--soft-pink)] rounded-xl shadow-sm text-xs font-bold">下一頁 ▶</button>
-                            <div class="flex items-center gap-1 ml-2">
-                                <span class="text-xs font-bold">跳至：</span>
-                                <input type="number" id="jump-page-proj-mat" min="1" class="w-14 p-1 text-center text-xs font-bold" placeholder="頁">
-                                <button onclick="jumpToPage('proj-mat')" class="px-2 py-1 bg-[var(--accent)] text-white text-xs rounded-lg font-bold">確定</button>
-                            </div>
-                        </div>
-                        <div id="counter-proj-mat" class="text-sm font-bold text-rose-700 bg-[var(--header-bg)]/60 px-4 py-2 rounded-xl border border-[var(--soft-pink)] text-center">已勾選 0 筆 (總計: NT$ 0)</div>
-                        <div class="text-xs font-bold text-[var(--medium)]" id="total-count-proj-mat">總筆數: 0 筆</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 9. 國稅局法規對照 -->
+            <!-- 8. 國稅局法規對照 -->
             <section id="page-rules" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-rules">國稅局營業稅與營所稅完整法規對照指南</div>
                 <div class="card-box space-y-2">
                     <h2 class="text-base font-bold">⚖️ 國稅局營業稅與營所稅完整法規對照指南</h2>
                     <p class="text-xs text-[var(--medium)] font-bold">心引力有限公司（統編：60676740）專用稅務判定標準。</p>
@@ -646,8 +657,9 @@
                 </div>
             </section>
 
-            <!-- 10. 紙本憑證月度庫 -->
+            <!-- 9. 紙本憑證月度庫 -->
             <section id="page-images" class="space-y-4 hidden">
+                <div class="print-banner" id="banner-images">心引力有限公司 - 紙本憑證月度庫</div>
                 <div class="card-box flex justify-between items-center">
                     <div><h2 class="text-base font-bold">憑證影像庫</h2><p class="text-xs text-[var(--medium)]">拍下的發票自動按月歸納</p></div>
                     <select id="image-month-filter" onchange="renderImageGallery()" class="px-3 py-1.5 rounded-xl border border-[var(--soft-pink)] text-xs bg-[#f7dad9]/40 font-bold">
@@ -661,9 +673,9 @@
     </div>
 
     <!-- 智慧拍照確認視窗 -->
-    <div id="modal-scanner" class="fixed inset-0 bg-black/55 hidden z-50 flex items-center justify-center p-3">
-        <div class="bg-white p-5 rounded-2xl max-w-sm w-full space-y-3 shadow-xl text-xs max-h-[90vh] overflow-y-auto">
-            <h3 class="text-base font-bold text-[var(--dark)] flex items-center gap-1.5">📸 拍照發票確認與校正</h3>
+    <div id="modal-scanner" class="fixed inset-0 bg-black/55 hidden z-50 flex items-center justify-center p-3 pointer-events-none">
+        <div class="bg-white p-5 rounded-2xl max-w-sm w-full space-y-3 shadow-xl text-xs max-h-[90vh] overflow-y-auto draggable-modal pointer-events-auto" id="drag-scanner">
+            <div class="modal-header-drag flex justify-between items-center border-b pb-2"><h3 class="text-base font-bold text-[var(--dark)] flex items-center gap-1.5">📸 拍照發票確認與校正</h3><span class="text-gray-400 text-sm">⠿</span></div>
             <div id="scan-preview-container" class="h-32 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center border border-[var(--soft-pink)]">
                 <img id="scan-preview-img" class="object-cover h-full w-full">
             </div>
@@ -693,9 +705,9 @@
     </div>
 
     <!-- 一般新增成本視窗 -->
-    <div id="modal-generic" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3">
-        <div class="card-box max-w-sm w-full space-y-3 bg-white max-h-[90vh] overflow-y-auto">
-            <h3 id="modal-generic-title" class="text-base font-bold">新增成本憑證</h3>
+    <div id="modal-generic" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3 pointer-events-none">
+        <div class="card-box max-w-sm w-full space-y-3 bg-white max-h-[90vh] overflow-y-auto draggable-modal pointer-events-auto" id="drag-generic">
+            <div class="modal-header-drag flex justify-between items-center border-b pb-2"><h3 id="modal-generic-title" class="text-base font-bold">新增成本憑證</h3><span class="text-gray-400 text-sm">⠿</span></div>
             <form id="form-generic" onsubmit="saveGenericCost(event)" class="space-y-2.5 text-xs">
                 <input type="hidden" id="gen-busniess-type">
                 <div>
@@ -719,9 +731,9 @@
     </div>
 
     <!-- 活動營收新增視窗 -->
-    <div id="modal-act-rev" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3">
-        <div class="card-box max-w-md w-full space-y-3 bg-white max-h-[90vh] overflow-y-auto">
-            <h3 class="text-base font-bold">新增活動營收紀錄</h3>
+    <div id="modal-act-rev" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3 pointer-events-none">
+        <div class="card-box max-w-md w-full space-y-3 bg-white max-h-[90vh] overflow-y-auto draggable-modal pointer-events-auto" id="drag-act-rev">
+            <div class="modal-header-drag flex justify-between items-center border-b pb-2"><h3 class="text-base font-bold">新增活動營收紀錄</h3><span class="text-gray-400 text-sm">⠿</span></div>
             <form onsubmit="saveActRev(event)" class="space-y-3 text-xs">
                 <div><label class="font-bold">活動日期</label><input type="date" id="act-rev-date" required class="w-full p-2.5 border rounded-xl font-bold"></div>
                 <div><label class="font-bold">客戶名稱</label><input type="text" id="act-rev-client" required class="w-full p-2.5 border rounded-xl font-bold"></div>
@@ -740,9 +752,9 @@
     </div>
 
     <!-- 香氛營收新增視窗 -->
-    <div id="modal-perf-rev" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3">
-        <div class="card-box max-w-md w-full space-y-3 bg-white max-h-[90vh] overflow-y-auto">
-            <h3 class="text-base font-bold">新增香氛營收紀錄</h3>
+    <div id="modal-perf-rev" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3 pointer-events-none">
+        <div class="card-box max-w-md w-full space-y-3 bg-white max-h-[90vh] overflow-y-auto draggable-modal pointer-events-auto" id="drag-perf-rev">
+            <div class="modal-header-drag flex justify-between items-center border-b pb-2"><h3 class="text-base font-bold">新增香氛營收紀錄</h3><span class="text-gray-400 text-sm">⠿</span></div>
             <form onsubmit="savePerfRev(event)" class="space-y-3 text-xs">
                 <div><label class="font-bold">訂購日期</label><input type="date" id="perf-rev-date" required class="w-full p-2.5 border rounded-xl font-bold"></div>
                 <div><label class="font-bold">客戶名稱</label><input type="text" id="perf-rev-client" required class="w-full p-2.5 border rounded-xl font-bold"></div>
@@ -759,7 +771,7 @@
                     <div><label class="font-bold">折扣</label><input type="text" id="perf-rev-disc" placeholder="例如: 9折" class="w-full p-2 border rounded-xl font-bold"></div>
                 </div>
                 <div><label class="font-bold">優惠價格</label><input type="number" id="perf-rev-final" min="0" required class="w-full p-2.5 border rounded-xl font-bold"></div>
-                <div><label class="font-bold">稅額計算模式</label><select id="perf-rev-tax-mode" class="w-full p-2.5 border rounded-xl font-bold bg-[#f7dad9]/40"><option value="tax-excluded">未稅 (優惠價格直接加總)</option><option value="tax-included">含稅 (優惠價格 x 1.05)</option></select></div>
+                <div><label class="font-bold">稅額計算模式</label><select id="perf-rev-tax-mode" class="w-full p-2.5 border rounded-xl font-bold bg-[#f7dad9]/40"><option value="tax-excluded">未稅 (優惠價格計算)</option><option value="tax-included">含稅 (優惠價格 x 1.05)</option></select></div>
                 <div><label class="font-bold">贈品</label><input type="text" id="perf-rev-gift" placeholder="例如: 試香小卡" class="w-full p-2 border rounded-xl font-bold"></div>
                 <div><label class="font-bold">入帳狀態</label><select id="perf-rev-status" class="w-full p-2.5 border rounded-xl font-bold bg-[#f7dad9]/40"><option value="已入帳">已入帳</option><option value="未入帳">未入帳</option></select></div>
                 <div><label class="font-bold">備註</label><input type="text" id="perf-rev-note" placeholder="備註說明" class="w-full p-2 border rounded-xl font-bold"></div>
@@ -769,9 +781,9 @@
     </div>
 
     <!-- 一般新增代墊視窗 -->
-    <div id="modal-advance" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3">
-        <div class="card-box max-w-sm w-full space-y-3 bg-white">
-            <h3 class="text-base font-bold">新增代墊款</h3>
+    <div id="modal-advance" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3 pointer-events-none">
+        <div class="card-box max-w-sm w-full space-y-3 bg-white draggable-modal pointer-events-auto" id="drag-advance">
+            <div class="modal-header-drag flex justify-between items-center border-b pb-2"><h3 class="text-base font-bold">新增代墊款</h3><span class="text-gray-400 text-sm">⠿</span></div>
             <form id="form-advance" onsubmit="saveAdvance(event)" class="space-y-2.5 text-xs">
                 <input type="hidden" id="adv-business-type">
                 <div><label class="font-bold">日期</label><input type="date" id="adv-date" required class="w-full p-2.5 border rounded-xl font-bold"></div>
@@ -783,62 +795,7 @@
         </div>
     </div>
 
-    <!-- 步驟 1：新增專案視窗 -->
-    <div id="modal-new-project" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3">
-        <div class="card-box max-w-sm w-full space-y-3 bg-white p-5">
-            <h3 class="text-base font-bold text-[var(--dark)] border-b pb-2">📦 新增專案</h3>
-            <form onsubmit="saveNewProject(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="font-bold block mb-1">專案日期</label>
-                    <input type="date" id="new-proj-date" required class="w-full p-2.5 border rounded-xl font-bold">
-                </div>
-                <div>
-                    <label class="font-bold block mb-1">專案名稱</label>
-                    <input type="text" id="new-proj-name" required placeholder="例如: 2026春夏香氛展" class="w-full p-2.5 border rounded-xl font-bold">
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('modal-new-project')" class="px-3.5 py-1.5 border rounded-xl font-bold bg-white">取消</button>
-                    <button type="submit" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl font-bold">確認建立</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- 步驟 2：新增特定專案物資視窗 -->
-    <div id="modal-proj-mat" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-3">
-        <div class="card-box max-w-lg w-full space-y-3 bg-white max-h-[92vh] overflow-y-auto p-6">
-            <h3 class="text-base font-bold text-lg text-[var(--dark)] border-b pb-2">📦 新增物資至專案：「<span id="modal-target-proj-name" class="text-rose-700"></span>」</h3>
-            <form onsubmit="saveProjMat(event)" class="space-y-3 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div><label class="font-bold block mb-1">品項</label><input type="text" id="proj-item" required placeholder="例如: 展示架 / 包裝" class="w-full p-2.5 border rounded-xl font-bold"></div>
-                    <div><label class="font-bold block mb-1">物資名稱</label><input type="text" id="proj-mat-name" required placeholder="物資名稱" class="w-full p-2.5 border rounded-xl font-bold"></div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div><label class="font-bold block mb-1">數量</label><input type="number" id="proj-qty" value="1" min="1" required class="w-full p-2.5 border rounded-xl font-bold"></div>
-                    <div><label class="font-bold block mb-1">尺寸</label><input type="text" id="proj-size" placeholder="例如: 30x20cm" class="w-full p-2.5 border rounded-xl font-bold"></div>
-                </div>
-                <div><label class="font-bold block mb-1">網站 (純文字說明)</label><input type="text" id="proj-website" placeholder="例如: 蝦皮購物 / 官網 / PChome" class="w-full p-2.5 border rounded-xl font-bold"></div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div><label class="font-bold block mb-1">價錢 (NT$)</label><input type="number" id="proj-price" min="0" required class="w-full p-2.5 border rounded-xl font-bold"></div>
-                    <div>
-                        <label class="font-bold block mb-1">狀態</label>
-                        <select id="proj-status" class="w-full p-2.5 border rounded-xl font-bold bg-[#f7dad9]/40">
-                            <option value="未購買">未購買</option>
-                            <option value="已購買">已購買</option>
-                        </select>
-                    </div>
-                    <div><label class="font-bold block mb-1">工具箱號碼</label><input type="text" id="proj-toolbox" placeholder="例如: Box-03" class="w-full p-2.5 border rounded-xl font-bold"></div>
-                </div>
-                <div class="flex justify-end gap-2 pt-3 border-t">
-                    <button type="button" onclick="closeModal('modal-proj-mat')" class="px-4 py-2 border rounded-xl font-bold bg-white">取消</button>
-                    <button type="submit" class="px-4 py-2 bg-[var(--accent)] text-white rounded-xl font-bold">確認加入</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- JavaScript 核心程式 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://mvpkbiqotdzanoipbfan.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_IW4wlPtqA6_fw30x5g6g8A_kfXSV62b';
@@ -854,24 +811,19 @@
         let db = {
             actCost: [], actRev: [], actAdv: [],
             perfCost: [], perfRev: [], perfAdv: [],
-            projMat: [],
-            projMeta: {}, 
             attachments: []
         };
 
-        let currentActiveProject = null; 
         let undoStack = [];
         let tempScannedImage = null;
-        let selectedProjects = new Set();
         
         let pagination = {
-            'act-cost': { page: 1, size: 20, filterMonth: '' },
-            'act-rev': { page: 1, size: 20, filterMonth: '' },
-            'act-adv': { page: 1, size: 20, filterMonth: '' },
-            'perf-cost': { page: 1, size: 20, filterMonth: '' },
-            'perf-rev': { page: 1, size: 20, filterMonth: '' },
-            'perf-adv': { page: 1, size: 20, filterMonth: '' },
-            'proj-mat': { page: 1, size: 20, filterMonth: '' }
+            'act-cost': { page: 1, size: 20, filterMonth: '', sortDesc: true },
+            'act-rev': { page: 1, size: 20, filterMonth: '', sortDesc: true },
+            'act-adv': { page: 1, size: 20, filterMonth: '', sortDesc: true },
+            'perf-cost': { page: 1, size: 20, filterMonth: '', sortDesc: true },
+            'perf-rev': { page: 1, size: 20, filterMonth: '', sortDesc: true },
+            'perf-adv': { page: 1, size: 20, filterMonth: '', sortDesc: true }
         };
 
         let selectedIds = {
@@ -880,18 +832,57 @@
             'act-adv': new Set(),
             'perf-cost': new Set(),
             'perf-rev': new Set(),
-            'perf-adv': new Set(),
-            'proj-mat': new Set()
+            'perf-adv': new Set()
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
             initCategorySelects('gen-category');
             initCategorySelects('scan-category');
+            
             await loadDataFromSupabase();
+
             initTimeSelectors();
             switchTab('dashboard');
             updateUndoBtn();
+            initDraggableModals();
         });
+
+        function initDraggableModals() {
+            const modals = document.querySelectorAll('.draggable-modal');
+            modals.forEach(modal => {
+                const header = modal.querySelector('.modal-header-drag');
+                if (!header) return;
+
+                let isDragging = false;
+                let startX, startY, initialLeft, initialTop;
+
+                header.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = modal.getBoundingClientRect();
+                    modal.style.position = 'absolute';
+                    modal.style.transform = 'none';
+                    modal.style.left = rect.left + 'px';
+                    modal.style.top = rect.top + 'px';
+                    initialLeft = rect.left;
+                    initialTop = rect.top;
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    modal.style.left = (initialLeft + dx) + 'px';
+                    modal.style.top = (initialTop + dy) + 'px';
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            });
+        }
 
         async function loadDataFromSupabase() {
             try {
@@ -904,7 +895,7 @@
                 if (data && data.data_content) {
                     db = JSON.parse(data.data_content);
                 } else {
-                    const localData = localStorage.getItem('heart_gravity_unified_v47');
+                    const localData = localStorage.getItem('heart_gravity_unified_v55');
                     if (localData) {
                         db = JSON.parse(localData);
                     }
@@ -912,14 +903,14 @@
                 }
             } catch (err) {
                 console.error("載入雲端資料失敗，改用本機快取", err);
-                const localData = localStorage.getItem('heart_gravity_unified_v47');
+                const localData = localStorage.getItem('heart_gravity_unified_v55');
                 if (localData) db = JSON.parse(localData);
             }
         }
 
         async function saveDataToSupabase() {
             try {
-                localStorage.setItem('heart_gravity_unified_v47', JSON.stringify(db));
+                localStorage.setItem('heart_gravity_unified_v55', JSON.stringify(db));
                 const payload = { id: 1, data_content: JSON.stringify(db) };
                 const { error } = await supabaseClient
                     .from('accounting_data')
@@ -947,7 +938,7 @@
             renderDashboard();
             renderAllTables();
             updateUndoBtn();
-            alert("↩ 已成功復原並同步至雲端！");
+            alert("↩ 已成功復原！");
         }
 
         function updateUndoBtn() {
@@ -957,9 +948,11 @@
 
         let revShareChartInst = null;
         let vatChartInst = null;
+        let actCostBarChartInst = null;
+        let perfCostBarChartInst = null;
 
         function switchTab(tabName) {
-            const tabs = ['dashboard', 'act-cost', 'act-rev', 'act-adv', 'perf-cost', 'perf-rev', 'perf-adv', 'proj-mat', 'rules', 'images'];
+            const tabs = ['dashboard', 'act-cost', 'act-rev', 'act-adv', 'perf-cost', 'perf-rev', 'perf-adv', 'rules', 'images'];
             tabs.forEach(t => {
                 const page = document.getElementById(`page-${t}`);
                 if (page) page.classList.add('hidden');
@@ -980,10 +973,6 @@
 
             if (tabName === 'dashboard') renderDashboard();
             else if (tabName === 'images') renderImageGallery();
-            else if (tabName === 'proj-mat') {
-                if (currentActiveProject) openProjectDetail(currentActiveProject);
-                else backToProjectList();
-            }
             else renderAllTables();
         }
 
@@ -996,7 +985,7 @@
 
         function initTimeSelectors() {
             const dashSel = document.getElementById('dash-time-selector');
-            const allDates = [...db.actCost, ...db.actRev, ...db.perfCost, ...db.perfRev, ...db.actAdv, ...db.perfAdv, ...db.projMat, ...db.attachments].map(i => i.date ? i.date.substring(0,7) : '').filter(Boolean);
+            const allDates = [...db.actCost, ...db.actRev, ...db.perfCost, ...db.perfRev, ...db.actAdv, ...db.perfAdv, ...db.attachments].map(i => i.date ? i.date.substring(0,7) : '').filter(Boolean);
             const months = [...new Set(allDates)].sort().reverse();
             const years = [...new Set(months.map(m => m.substring(0,4)))].sort().reverse();
 
@@ -1019,73 +1008,60 @@
         }
 
         function clearFilter(key) {
-            const fInput = document.getElementById(`filter-month-${key}`);
-            if (fInput) fInput.value = '';
+            document.getElementById(`filter-month-${key}`).value = '';
             pagination[key].filterMonth = '';
             pagination[key].page = 1;
             renderTable(key);
         }
 
-        function getFilteredData(key) {
-            const list = getListData(key);
-            const fMonth = pagination[key].filterMonth;
-            if (!fMonth) return list;
-            return list.filter(i => i.date && i.date.startsWith(fMonth));
+        function toggleSort(key) {
+            pagination[key].sortDesc = !pagination[key].sortDesc;
+            renderTable(key);
         }
 
+        function getFilteredData(key) {
+            let list = [...getListData(key)];
+            const fMonth = pagination[key].filterMonth;
+            if (fMonth) {
+                list = list.filter(i => i.date && i.date.startsWith(fMonth));
+            }
+            const desc = pagination[key].sortDesc;
+            list.sort((a, b) => {
+                const dateA = a.date || '';
+                const dateB = b.date || '';
+                if (desc) return dateB.localeCompare(dateA);
+                else return dateA.localeCompare(dateB);
+            });
+            return list;
+        }
+
+        // 核心：點擊「另存 PDF」直接展開所有勾選或篩選資料，並跳出系統列印預覽（在預覽中自由選擇直式或橫式）
         function printSelectedReportPDF() {
             const visibleSection = document.querySelector('main > section:not(.hidden)');
-            if (!visibleSection) { alert("請切換至要列印的報表頁面！"); return; }
+            if (!visibleSection) {
+                alert("請先切換至欲匯出 PDF 的報表頁面！");
+                return;
+            }
             const sectionId = visibleSection.id.replace('page-', '');
-            
-            if (sectionId === 'proj-mat' && !currentActiveProject) {
-                alert("請先點進去特定的專案物資單明細中，再執行另存 PDF！");
-                return;
-            }
 
+            const originalSize = pagination[sectionId].size;
+            const filteredList = getFilteredData(sectionId);
             const selSet = selectedIds[sectionId];
-            if (selSet.size === 0) {
-                if (confirm("您尚未勾選任何項目。是否要列印當前畫面全部資料？")) {
-                    window.print();
-                }
+
+            let printItems = selSet.size > 0 ? filteredList.filter(i => selSet.has(i.id)) : filteredList;
+            if (printItems.length === 0) {
+                alert("沒有可列印的資料！");
                 return;
             }
 
-            renderTableWithOnlySelected(sectionId);
-            window.print();
+            pagination[sectionId].size = printItems.length + 100;
             renderTable(sectionId);
-        }
 
-        function renderTableWithOnlySelected(key) {
-            const dataList = getListData(key);
-            const selSet = selectedIds[key];
-            const selectedItems = dataList.filter(i => selSet.has(i.id));
-            const tbody = document.getElementById(`table-${key}`);
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            if (selectedItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 font-bold">沒有勾選資料</td></tr>`;
-                return;
-            }
-
-            selectedItems.forEach((i, idx) => {
-                if (key === 'proj-mat') {
-                    tbody.innerHTML += `
-                        <tr class="border-b">
-                            <td class="p-2 text-center">${idx + 1}</td>
-                            <td class="p-2">${i.item}</td>
-                            <td class="p-2 font-bold">${i.matName}</td>
-                            <td class="p-2 text-center">${i.qty}</td>
-                            <td class="p-2 text-center">${i.size || '-'}</td>
-                            <td class="p-2">${i.website || '-'}</td>
-                            <td class="p-2 text-right font-bold">NT$ ${i.price.toLocaleString()}</td>
-                            <td class="p-2 text-center">${i.status}</td>
-                            <td class="p-2 text-center">${i.checked ? '☑' : '□'}</td>
-                            <td class="p-2 text-center">${i.toolbox || '-'}</td>
-                        </tr>`;
-                }
-            });
+            setTimeout(() => {
+                window.print();
+                pagination[sectionId].size = originalSize;
+                renderTable(sectionId);
+            }, 300);
         }
 
         async function handleExcelImport(e) {
@@ -1104,64 +1080,36 @@
                     let count = 0;
                     pushState();
                     let importedItems = [];
+
+                    for (let i = 1; i < rows.length; i++) {
+                        const r = rows[i];
+                        if (!r || r.length < 2) continue;
+                        
+                        importedItems.push({
+                            id: 'excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7),
+                            type: r[0] ? String(r[0]) : "電子發票",
+                            number: r[1] ? String(r[1]).toUpperCase() : 'INV' + Math.floor(1000 + Math.random() * 9000),
+                            date: r[2] ? String(r[2]).substring(0,10) : new Date().toISOString().substring(0,10),
+                            buyer: r[3] ? String(r[3]) : "60676740",
+                            sellerId: r[4] ? String(r[4]) : "",
+                            category: r[5] && CATEGORIES.includes(String(r[5])) ? String(r[5]) : "進貨營業成本",
+                            seller: r[6] ? String(r[6]) : "廠商_" + i,
+                            amount: r[7] !== undefined && !isNaN(r[7]) ? parseFloat(r[7]) : 1000
+                        });
+                        count++;
+                    }
+
                     const activeSec = document.querySelector('main > section:not(.hidden)');
-                    const targetKey = activeSec ? activeSec.id.replace('page-', '') : 'act-cost';
+                    const targetKey = (activeSec && activeSec.id === 'page-perf-cost') ? 'perf-cost' : 'act-cost';
 
-                    if (targetKey === 'proj-mat') {
-                        if (!currentActiveProject) {
-                            alert("請先點進去某個專案名稱內，再匯入該專案的 Excel 物資！");
-                            return;
-                        }
-                        for (let i = 1; i < rows.length; i++) {
-                            const r = rows[i];
-                            if (!r || r.length === 0) continue;
-                            if (r.every(cell => cell === undefined || cell === null || String(cell).trim() === '')) continue;
-
-                            importedItems.push({
-                                id: 'proj_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,6),
-                                projName: currentActiveProject,
-                                date: new Date().toISOString().substring(0,10),
-                                item: r[0] !== undefined && r[0] !== null ? String(r[0]).trim() : "一般品項",
-                                matName: r[1] !== undefined && r[1] !== null ? String(r[1]).trim() : "未命名物資",
-                                qty: r[2] !== undefined && !isNaN(r[2]) ? parseInt(r[2]) : 1,
-                                size: r[3] !== undefined && r[3] !== null ? String(r[3]).trim() : "",
-                                website: r[4] !== undefined && r[4] !== null ? String(r[4]).trim() : "",
-                                price: r[5] !== undefined && !isNaN(r[5]) ? parseFloat(r[5]) : 0,
-                                status: r[6] !== undefined && String(r[6]).includes('已') ? "已購買" : "未購買",
-                                checked: r[7] !== undefined && (String(r[7]).includes('是') || String(r[7]).includes('☑') || String(r[7]) === 'true'),
-                                toolbox: r[8] !== undefined && r[8] !== null ? String(r[8]).trim() : ""
-                            });
-                            count++;
-                        }
-                        db.projMat = [...importedItems, ...db.projMat];
-                        alert(`📦 專案「${currentActiveProject}」成功匯入 ${count} 筆物資！`);
-                        openProjectDetail(currentActiveProject);
+                    if (targetKey === 'perf-cost') {
+                        db.perfCost = [...importedItems, ...db.perfCost];
+                        alert(`🌿 成功匯入 ${count} 筆 Excel 到【香氛月成本報表】！`);
+                        switchTab('perf-cost');
                     } else {
-                        for (let i = 1; i < rows.length; i++) {
-                            const r = rows[i];
-                            if (!r || r.length < 2) continue;
-                            importedItems.push({
-                                id: 'excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7),
-                                type: r[0] ? String(r[0]) : "電子發票",
-                                number: r[1] ? String(r[1]).toUpperCase() : 'INV' + Math.floor(1000 + Math.random() * 9000),
-                                date: r[2] ? String(r[2]).substring(0,10) : new Date().toISOString().substring(0,10),
-                                buyer: r[3] ? String(r[3]) : "60676740",
-                                sellerId: r[4] ? String(r[4]) : "",
-                                category: r[5] && CATEGORIES.includes(String(r[5])) ? String(r[5]) : "進貨營業成本",
-                                seller: r[6] ? String(r[6]) : "廠商_" + i,
-                                amount: r[7] !== undefined && !isNaN(r[7]) ? parseFloat(r[7]) : 1000
-                            });
-                            count++;
-                        }
-                        if (targetKey === 'perf-cost') {
-                            db.perfCost = [...importedItems, ...db.perfCost];
-                            alert(`🌿 成功匯入 ${count} 筆 Excel 到【香氛月成本報表】！`);
-                            switchTab('perf-cost');
-                        } else {
-                            db.actCost = [...importedItems, ...db.actCost];
-                            alert(`📑 成功匯入 ${count} 筆 Excel 到【活動月成本報表】！`);
-                            switchTab('act-cost');
-                        }
+                        db.actCost = [...importedItems, ...db.actCost];
+                        alert(`📑 成功匯入 ${count} 筆 Excel 到【活動月成本報表】！`);
+                        switchTab('act-cost');
                     }
 
                     await saveDataToSupabase();
@@ -1196,16 +1144,21 @@
                 dataToExport = exportItems.map((i, idx) => ({ "序號": idx + 1, "發票種類": i.type, "發票號碼": i.number, "日期": i.date, "買方統編": i.buyer, "賣方統編": i.sellerId, "用途品項": i.category, "賣方名稱": i.seller, "金額": i.amount }));
             } else if (sectionId === 'act-rev') {
                 filename = "活動營收報表.xlsx";
-                dataToExport = exportItems.map((i, idx) => ({ "序號": idx + 1, "日期": i.date, "客戶": i.client, "品項": JSON.stringify(i.items), "總數量": i.totalQty, "金額": i.totalAmount, "未稅/含稅金額": i.taxMode === 'tax-included' ? Math.round(i.totalAmount * 1.05) : i.totalAmount }));
+                exportItems.forEach((i, idx) => {
+                    i.items.forEach(it => {
+                        dataToExport.push({ "序號": idx + 1, "日期": i.date, "客戶": i.client, "品項名稱": it.name, "數量": it.qty, "單價": it.price, "總金額": it.qty * it.price, "稅額模式": i.taxMode });
+                    });
+                });
             } else if (sectionId === 'perf-rev') {
                 filename = "香氛營收報表.xlsx";
-                dataToExport = exportItems.map((i, idx) => ({ "序號": idx + 1, "日期": i.date, "客戶": i.client, "品項": JSON.stringify(i.items), "總數量": i.totalQty, "原價": i.origPrice, "折扣": i.discount, "優惠價格": i.finalPrice, "未稅/含稅金額": i.taxMode === 'tax-included' ? Math.round(i.finalPrice * 1.05) : i.finalPrice, "贈品": i.gift, "狀態": i.status, "備註": i.note }));
+                exportItems.forEach((i, idx) => {
+                    i.items.forEach(it => {
+                        dataToExport.push({ "序號": idx + 1, "日期": i.date, "客戶": i.client, "品項名稱": it.name, "數量": it.qty, "原價": i.origPrice, "折扣": i.discount, "優惠價格": i.finalPrice, "贈品": i.gift, "狀態": i.status, "備註": i.note });
+                    });
+                });
             } else if (sectionId === 'act-adv' || sectionId === 'perf-adv') {
                 filename = "代墊款明細報表.xlsx";
                 dataToExport = exportItems.map((i, idx) => ({ "序號": idx + 1, "日期": i.date, "代墊人": i.person, "代墊明細": i.detail, "金額": i.amount }));
-            } else if (sectionId === 'proj-mat') {
-                filename = `${currentActiveProject}_專案物資單.xlsx`;
-                dataToExport = exportItems.map((i, idx) => ({ "序號": idx + 1, "品項": i.item, "物資名稱": i.matName, "數量": i.qty, "尺寸": i.size, "網站": i.website, "價錢": i.price, "狀態": i.status, "已檢查": i.checked ? "已檢查" : "未檢查", "工具箱號碼": i.toolbox }));
             }
 
             const worksheet = XLSX.utils.json_to_sheet(dataToExport);
@@ -1265,13 +1218,11 @@
 
             db.attachments.unshift({ id: 'att_' + Date.now(), date: newItem.date, data: tempScannedImage, name: '憑證_' + num });
             db.actCost.unshift(newItem);
-
             await saveDataToSupabase();
-            closeModal('modal-scanner');
             initTimeSelectors();
             renderDashboard();
             renderAllTables();
-            alert("✨ 拍照憑證已成功存入雲端！");
+            alert("✨ 拍照憑證已成功存入活動月成本！");
             switchTab('act-cost');
         }
 
@@ -1319,6 +1270,114 @@
                         if (realIdx !== -1) dataList[realIdx] = newItem;
                     }
                 });
+            } else if (pageKey === 'act-rev') {
+                const rows = document.querySelectorAll('#table-act-rev tr');
+                let updatedListMap = new Map();
+
+                rows.forEach((row) => {
+                    const orderId = row.dataset.orderId;
+                    if (!orderId) return;
+
+                    const dateInp = row.querySelector('.rev-date');
+                    const clientInp = row.querySelector('.rev-client');
+                    const itemNameInp = row.querySelector('.rev-item-name');
+                    const qtyInp = row.querySelector('.rev-qty');
+                    const priceInp = row.querySelector('.rev-price');
+                    const taxSel = row.querySelector('.rev-tax-mode');
+
+                    if (!updatedListMap.has(orderId)) {
+                        updatedListMap.set(orderId, {
+                            id: orderId,
+                            date: dateInp ? dateInp.value : new Date().toISOString().substring(0,10),
+                            client: clientInp ? clientInp.value.trim() : '',
+                            taxMode: taxSel ? taxSel.value : 'tax-excluded',
+                            items: []
+                        });
+                    }
+
+                    if (itemNameInp && qtyInp && priceInp) {
+                        const q = parseInt(qtyInp.value) || 0;
+                        const p = parseFloat(priceInp.value) || 0;
+                        updatedListMap.get(orderId).items.push({
+                            name: itemNameInp.value.trim(),
+                            qty: q,
+                            price: p
+                        });
+                    }
+                });
+
+                let dataList = getListData('act-rev');
+                updatedListMap.forEach((updatedOrder) => {
+                    let totalQty = 0;
+                    let totalAmount = 0;
+                    updatedOrder.items.forEach(it => {
+                        totalQty += it.qty;
+                        totalAmount += (it.qty * it.price);
+                    });
+                    updatedOrder.totalQty = totalQty;
+                    updatedOrder.totalAmount = totalAmount;
+
+                    const idx = dataList.findIndex(x => x.id === updatedOrder.id);
+                    if (idx !== -1) {
+                        dataList[idx] = updatedOrder;
+                    }
+                });
+            } else if (pageKey === 'perf-rev') {
+                const rows = document.querySelectorAll('#table-perf-rev tr');
+                let updatedListMap = new Map();
+
+                rows.forEach((row) => {
+                    const orderId = row.dataset.orderId;
+                    if (!orderId) return;
+
+                    const dateInp = row.querySelector('.rev-date');
+                    const clientInp = row.querySelector('.rev-client');
+                    const itemNameInp = row.querySelector('.rev-item-name');
+                    const qtyInp = row.querySelector('.rev-qty');
+                    const origInp = row.querySelector('.rev-orig');
+                    const discInp = row.querySelector('.rev-disc');
+                    const finalInp = row.querySelector('.rev-final');
+                    const taxSel = row.querySelector('.rev-tax-mode');
+                    const giftInp = row.querySelector('.rev-gift');
+                    const statusSel = row.querySelector('.rev-status');
+                    const noteInp = row.querySelector('.rev-note');
+
+                    if (!updatedListMap.has(orderId)) {
+                        updatedListMap.set(orderId, {
+                            id: orderId,
+                            date: dateInp ? dateInp.value : new Date().toISOString().substring(0,10),
+                            client: clientInp ? clientInp.value.trim() : '',
+                            origPrice: origInp ? parseFloat(origInp.value) || 0 : 0,
+                            discount: discInp ? discInp.value.trim() : '',
+                            finalPrice: finalInp ? parseFloat(finalInp.value) || 0 : 0,
+                            taxMode: taxSel ? taxSel.value : 'tax-excluded',
+                            gift: giftInp ? giftInp.value.trim() : '',
+                            status: statusSel ? statusSel.value : '已入帳',
+                            note: noteInp ? noteInp.value.trim() : '',
+                            items: []
+                        });
+                    }
+
+                    if (itemNameInp && qtyInp) {
+                        const q = parseInt(qtyInp.value) || 0;
+                        updatedListMap.get(orderId).items.push({
+                            name: itemNameInp.value.trim(),
+                            qty: q
+                        });
+                    }
+                });
+
+                let dataList = getListData('perf-rev');
+                updatedListMap.forEach((updatedOrder) => {
+                    let totalQty = 0;
+                    updatedOrder.items.forEach(it => { totalQty += it.qty; });
+                    updatedOrder.totalQty = totalQty;
+
+                    const idx = dataList.findIndex(x => x.id === updatedOrder.id);
+                    if (idx !== -1) {
+                        dataList[idx] = updatedOrder;
+                    }
+                });
             } else if (pageKey === 'act-adv' || pageKey === 'perf-adv') {
                 const tbodyId = pageKey === 'act-adv' ? 'table-act-adv' : 'table-perf-adv';
                 const rows = document.querySelectorAll(`#${tbodyId} tr`);
@@ -1352,57 +1411,13 @@
                         if (realIdx !== -1) dataList[realIdx] = newItem;
                     }
                 });
-            } else if (pageKey === 'proj-mat') {
-                const rows = document.querySelectorAll('#table-proj-mat tr');
-                let updatedList = [];
-                rows.forEach((row, index) => {
-                    const itemInp = row.querySelector('.proj-item');
-                    const matNameInp = row.querySelector('.proj-mat-name');
-                    const qtyInp = row.querySelector('.proj-qty');
-                    const sizeInp = row.querySelector('.proj-size');
-                    const webInp = row.querySelector('.proj-website');
-                    const priceInp = row.querySelector('.proj-price');
-                    const statusSel = row.querySelector('.proj-status');
-                    const checkedInp = row.querySelector('.proj-checked');
-                    const boxInp = row.querySelector('.proj-toolbox');
-
-                    if (itemInp) {
-                        updatedList.push({
-                            id: itemInp.dataset.id || ('proj_' + Date.now() + '_' + index),
-                            projName: currentActiveProject,
-                            date: new Date().toISOString().substring(0,10),
-                            item: itemInp.value.trim(),
-                            matName: matNameInp.value.trim(),
-                            qty: parseInt(qtyInp.value) || 1,
-                            size: sizeInp.value.trim(),
-                            website: webInp.value.trim(),
-                            price: parseFloat(priceInp.value) || 0,
-                            status: statusSel.value,
-                            checked: checkedInp ? checkedInp.checked : false,
-                            toolbox: boxInp.value.trim()
-                        });
-                    }
-                });
-
-                const dataList = getListData(pageKey);
-                const filtered = getFilteredData(pageKey);
-                const pInfo = pagination[pageKey];
-                const startIdx = (pInfo.page - 1) * pInfo.size;
-                
-                updatedList.forEach((newItem, idx) => {
-                    const target = filtered[startIdx + idx];
-                    if (target) {
-                        const realIdx = dataList.findIndex(x => x.id === target.id);
-                        if (realIdx !== -1) dataList[realIdx] = newItem;
-                    }
-                });
             }
 
             await saveDataToSupabase();
             initTimeSelectors();
             renderDashboard();
             renderAllTables();
-            alert("💾 本頁修改已成功儲存至雲端！");
+            alert("💾 本頁修改已成功儲存！");
         }
 
         async function deleteSelectedRows(key) {
@@ -1417,14 +1432,12 @@
             else if (key === 'perf-rev') db.perfRev = db.perfRev.filter(x => !selSet.has(x.id));
             else if (key === 'act-adv') db.actAdv = db.actAdv.filter(x => !selSet.has(x.id));
             else if (key === 'perf-adv') db.perfAdv = db.perfAdv.filter(x => !selSet.has(x.id));
-            else if (key === 'proj-mat') db.projMat = db.projMat.filter(x => !selSet.has(x.id));
 
             selSet.clear();
-
             await saveDataToSupabase();
             renderAllTables();
             renderDashboard();
-            alert("🗑️ 已成功刪除並同步至雲端！");
+            alert("🗑️ 已成功刪除勾選的記錄！");
         }
 
         function renderAllTables() {
@@ -1434,8 +1447,6 @@
             renderTablePerfRev();
             renderTableAdvance('act-adv');
             renderTableAdvance('perf-adv');
-            renderProjectList();
-            if (currentActiveProject) renderTableProjMat();
         }
 
         function changePage(key, delta) {
@@ -1468,7 +1479,6 @@
             else if (key === 'act-rev') renderTableActRev();
             else if (key === 'perf-rev') renderTablePerfRev();
             else if (key === 'act-adv' || key === 'perf-adv') renderTableAdvance(key);
-            else if (key === 'proj-mat') renderTableProjMat();
         }
 
         function getListData(key) {
@@ -1478,10 +1488,6 @@
             if (key === 'perf-rev') return db.perfRev;
             if (key === 'act-adv') return db.actAdv;
             if (key === 'perf-adv') return db.perfAdv;
-            if (key === 'proj-mat') {
-                if (!currentActiveProject) return [];
-                return db.projMat.filter(i => i.projName === currentActiveProject);
-            }
             return [];
         }
 
@@ -1510,9 +1516,9 @@
 
             dataList.forEach(item => {
                 if (selSet.has(item.id)) {
-                    let amt = item.amount || item.totalAmount || item.finalPrice || item.price || 0;
+                    let amt = item.amount || item.totalAmount || item.finalPrice || 0;
                     if (key === 'act-rev') {
-                        amt = item.taxMode === 'tax-included' ? Math.round(amt * 1.05) : amt;
+                        amt = item.taxMode === 'tax-included' ? Math.round(item.totalAmount * 1.05) : item.totalAmount;
                     } else if (key === 'perf-rev') {
                         amt = item.taxMode === 'tax-included' ? Math.round(amt * 1.05) : amt;
                     }
@@ -1583,6 +1589,40 @@
             updateSelectedCounter(key);
         }
 
+        function calculateActRevLive(inputEl) {
+            const tableRow = inputEl.closest('tr');
+            const orderId = tableRow.dataset.orderId;
+            const containerRows = document.querySelectorAll(`tr[data-order-id="${orderId}"]`);
+            
+            let currentOrderTotal = 0;
+            containerRows.forEach(r => {
+                const q = parseFloat(r.querySelector('.rev-qty').value) || 0;
+                const p = parseFloat(r.querySelector('.rev-price').value) || 0;
+                const lineTotal = q * p;
+                r.querySelector('.rev-total-disp').innerText = `NT$ ${lineTotal.toLocaleString()}`;
+                currentOrderTotal += lineTotal;
+            });
+
+            const taxMode = containerRows[0].querySelector('.rev-tax-mode').value;
+            const finalTaxAmt = taxMode === 'tax-included' ? Math.round(currentOrderTotal * 1.05) : currentOrderTotal;
+            
+            const taxDispElem = containerRows[0].querySelector('.rev-tax-disp');
+            if (taxDispElem) {
+                taxDispElem.innerText = `NT$ ${finalTaxAmt.toLocaleString()} (${taxMode === 'tax-included' ? '含稅' : '未稅'})`;
+            }
+            updateSelectedCounter('act-rev');
+        }
+
+        function calculatePerfRevLive(inputEl) {
+            const row = inputEl.closest('tr');
+            const final = parseFloat(row.querySelector('.rev-final').value) || 0;
+            const taxMode = row.querySelector('.rev-tax-mode').value;
+            const finalTaxAmt = taxMode === 'tax-included' ? Math.round(final * 1.05) : final;
+            
+            row.querySelector('.rev-tax-disp').innerText = `$${finalTaxAmt.toLocaleString()} (${taxMode === 'tax-included' ? '含稅' : '未稅'})`;
+            updateSelectedCounter('perf-rev');
+        }
+
         function renderTableActRev() {
             const tbody = document.getElementById('table-act-rev');
             if (!tbody) return;
@@ -1602,31 +1642,49 @@
             if (masterCb) masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds['act-rev'].has(i.id));
 
             if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-[var(--gray)] font-bold">尚無活動營收資料</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-[var(--gray)] font-bold">尚無活動營收資料</td></tr>`;
                 updateSelectedCounter('act-rev');
                 return;
             }
 
             pageData.forEach(i => {
-                let itemsHtml = i.items.map(it => `<div class="bg-white border px-2 py-0.5 rounded m-0.5 font-bold">${it.name} (x${it.qty}) $${it.price}</div>`).join('');
-                let taxIncAmount = i.taxMode === 'tax-included' ? Math.round(i.totalAmount * 1.05) : i.totalAmount;
-                let taxLabel = i.taxMode === 'tax-included' ? ' (含稅)' : ' (未稅)';
                 const isChecked = selectedIds['act-rev'].has(i.id) ? 'checked' : '';
+                const itemsList = i.items && i.items.length > 0 ? i.items : [{ name: '', qty: 1, price: 0 }];
+                
+                let computedTotalAmount = 0;
+                itemsList.forEach(it => { computedTotalAmount += (it.qty * it.price); });
+                const currentTotalAmount = i.totalAmount !== undefined ? i.totalAmount : computedTotalAmount;
+                const taxIncAmount = i.taxMode === 'tax-included' ? Math.round(currentTotalAmount * 1.05) : currentTotalAmount;
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-[var(--light-pink)]/30">
-                        <td class="p-2.5 text-center col-checkbox"><input type="checkbox" class="act-rev-row-checkbox w-4 h-4 accent-[var(--accent)]" ${isChecked} onchange="toggleRowSelection('act-rev', '${i.id}', this)"></td>
-                        <td class="p-2.5 col-date"><input type="date" class="rev-date" value="${i.date}"></td>
-                        <td class="p-2.5" style="width: 110px;"><input type="text" class="rev-client font-bold" value="${i.client}"></td>
-                        <td class="p-2.5 text-center" style="width: 150px;">${itemsHtml}</td>
-                        <td class="p-2.5 font-bold text-center w-16">${i.totalQty}</td>
-                        <td class="p-2.5 text-right font-bold col-amount">NT$ ${i.totalAmount.toLocaleString()}</td>
-                        <td class="p-2.5 text-right font-bold col-amount text-rose-700">NT$ ${taxIncAmount.toLocaleString()}<span class="text-[10px] text-gray-500">${taxLabel}</span></td>
-                        <td class="p-2.5 text-center no-print col-action">
-                            <button onclick="pushState(); deleteItem('act-rev', '${i.id}');" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-bold shadow-sm" title="刪除">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+                itemsList.forEach((it, itIdx) => {
+                    const lineTotal = it.qty * it.price;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-[var(--light-pink)]/30 border-b" data-order-id="${i.id}">
+                            ${itIdx === 0 ? `
+                                <td class="p-2.5 text-center col-checkbox align-middle" rowspan="${itemsList.length}"><input type="checkbox" class="act-rev-row-checkbox w-4 h-4 accent-[var(--accent)]" ${isChecked} onchange="toggleRowSelection('act-rev', '${i.id}', this)"></td>
+                                <td class="p-2.5 col-date align-middle" rowspan="${itemsList.length}"><input type="date" class="rev-date" data-id="${i.id}" value="${i.date}"></td>
+                                <td class="p-2.5 align-middle" style="width: 110px;" rowspan="${itemsList.length}"><input type="text" class="rev-client font-bold" value="${i.client}"></td>
+                            ` : ''}
+                            <td class="p-2.5" style="width: 140px;"><input type="text" class="rev-item-name font-bold" value="${it.name}"></td>
+                            <td class="p-2.5 font-bold text-center w-14"><input type="number" class="rev-qty font-bold text-center" value="${it.qty}" min="1" oninput="calculateActRevLive(this)"></td>
+                            <td class="p-2.5 text-right font-bold col-amount"><input type="number" class="rev-price font-bold text-right" value="${it.price}" min="0" oninput="calculateActRevLive(this)"></td>
+                            <td class="p-2.5 text-right font-bold col-amount rev-total-disp">NT$ ${lineTotal.toLocaleString()}</td>
+                            ${itIdx === 0 ? `
+                                <td class="p-2.5 text-center align-middle" style="width: 95px;" rowspan="${itemsList.length}">
+                                    <select class="rev-tax-mode font-bold" onchange="calculateActRevLive(this)">
+                                        <option value="tax-excluded" ${i.taxMode === 'tax-excluded' ? 'selected' : ''}>未稅</option>
+                                        <option value="tax-included" ${i.taxMode === 'tax-included' ? 'selected' : ''}>含稅</option>
+                                    </select>
+                                </td>
+                                <td class="p-2.5 text-right font-bold text-rose-700 rev-tax-disp align-middle" style="width: 115px;" rowspan="${itemsList.length}">NT$ ${taxIncAmount.toLocaleString()} (${i.taxMode === 'tax-included' ? '含稅' : '未稅'})</td>
+                                <td class="p-2.5 text-center no-print col-action align-middle" rowspan="${itemsList.length}">
+                                    <button onclick="pushState(); deleteItem('act-rev', '${i.id}');" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-bold shadow-sm" title="刪除">🗑️</button>
+                                </td>
+                            ` : ''}
+                        </tr>
+                    `;
+                });
             });
             updateSelectedCounter('act-rev');
         }
@@ -1650,37 +1708,52 @@
             if (masterCb) masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds['perf-rev'].has(i.id));
 
             if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="13" class="text-center py-6 text-[var(--gray)] font-bold">尚無香氛營收資料</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="14" class="text-center py-6 text-[var(--gray)] font-bold">尚無香氛營收資料</td></tr>`;
                 updateSelectedCounter('perf-rev');
                 return;
             }
 
             pageData.forEach(i => {
-                let itemsHtml = i.items.map(it => `<div class="bg-white border px-1.5 py-0.5 rounded m-0.5 font-bold">${it.name} (x${it.qty})</div>`).join('');
-                let statusBadge = i.status === '已入帳' ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-bold">已入帳</span>' : '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold">未入帳</span>';
-                let taxIncAmount = i.taxMode === 'tax-included' ? Math.round(i.finalPrice * 1.05) : i.finalPrice;
-                let taxLabel = i.taxMode === 'tax-included' ? ' (含稅)' : ' (未稅)';
                 const isChecked = selectedIds['perf-rev'].has(i.id) ? 'checked' : '';
+                const itemsList = i.items && i.items.length > 0 ? i.items : [{ name: '', qty: 1 }];
+                const taxIncAmount = i.taxMode === 'tax-included' ? Math.round(i.finalPrice * 1.05) : i.finalPrice;
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-[var(--light-pink)]/30">
-                        <td class="p-2.5 text-center col-checkbox"><input type="checkbox" class="perf-rev-row-checkbox w-4 h-4 accent-[var(--accent)]" ${isChecked} onchange="toggleRowSelection('perf-rev', '${i.id}', this)"></td>
-                        <td class="p-2.5 col-date"><input type="date" class="rev-date" value="${i.date}"></td>
-                        <td class="p-2.5" style="width: 100px;"><input type="text" class="rev-client font-bold" value="${i.client}"></td>
-                        <td class="p-2.5 text-center" style="width: 130px;">${itemsHtml}</td>
-                        <td class="p-2.5 font-bold text-center w-12">${i.totalQty}</td>
-                        <td class="p-2.5 text-right font-bold col-amount">$${i.origPrice.toLocaleString()}</td>
-                        <td class="p-2.5 text-right font-bold text-[var(--accent)]" style="width: 60px;">${i.discount || '-'}</td>
-                        <td class="p-2.5 text-right font-bold col-amount text-emerald-700">$${i.finalPrice.toLocaleString()}</td>
-                        <td class="p-2.5 text-right font-bold col-amount text-rose-700">$${taxIncAmount.toLocaleString()}<span class="text-[10px] text-gray-500">${taxLabel}</span></td>
-                        <td class="p-2.5 text-center" style="width: 70px;">${i.gift || '-'}</td>
-                        <td class="p-2.5 text-center" style="width: 70px;">${statusBadge}</td>
-                        <td class="p-2.5 text-center">${i.note || '-'}</td>
-                        <td class="p-2.5 text-center no-print col-action">
-                            <button onclick="pushState(); deleteItem('perf-rev', '${i.id}');" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-bold shadow-sm" title="刪除">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+                itemsList.forEach((it, itIdx) => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-[var(--light-pink)]/30 border-b" data-order-id="${i.id}">
+                            ${itIdx === 0 ? `
+                                <td class="p-2.5 text-center align-middle" style="width: 35px;" rowspan="${itemsList.length}"><input type="checkbox" class="perf-rev-row-checkbox w-4 h-4 accent-[var(--accent)]" ${isChecked} onchange="toggleRowSelection('perf-rev', '${i.id}', this)"></td>
+                                <td class="p-2.5 align-middle" style="width: 115px;" rowspan="${itemsList.length}"><input type="date" class="rev-date" data-id="${i.id}" value="${i.date}"></td>
+                                <td class="p-2.5 align-middle" style="width: 95px;" rowspan="${itemsList.length}"><input type="text" class="rev-client font-bold" value="${i.client}"></td>
+                            ` : ''}
+                            <td class="p-2.5 align-middle" style="width: 120px;"><input type="text" class="rev-item-name font-bold" value="${it.name}"></td>
+                            <td class="p-2.5 font-bold text-center align-middle" style="width: 50px;"><input type="number" class="rev-qty font-bold text-center" value="${it.qty}" min="1"></td>
+                            ${itIdx === 0 ? `
+                                <td class="p-2.5 text-right font-bold align-middle" style="width: 75px;" rowspan="${itemsList.length}"><input type="number" class="rev-orig font-bold text-right" value="${i.origPrice}" min="0"></td>
+                                <td class="p-2.5 text-right font-bold text-[var(--accent)] align-middle" style="width: 50px;" rowspan="${itemsList.length}"><input type="text" class="rev-disc font-bold text-center" value="${i.discount || ''}"></td>
+                                <td class="p-2.5 text-right font-bold text-emerald-700 align-middle" style="width: 75px;" rowspan="${itemsList.length}"><input type="number" class="rev-final font-bold text-right" value="${i.finalPrice}" min="0" oninput="calculatePerfRevLive(this)"></td>
+                                <td class="p-2.5 text-center align-middle" style="width: 85px;" rowspan="${itemsList.length}">
+                                    <select class="rev-tax-mode font-bold" onchange="calculatePerfRevLive(this)">
+                                        <option value="tax-excluded" ${i.taxMode === 'tax-excluded' ? 'selected' : ''}>未稅</option>
+                                        <option value="tax-included" ${i.taxMode === 'tax-included' ? 'selected' : ''}>含稅</option>
+                                    </select>
+                                </td>
+                                <td class="p-2.5 text-right font-bold text-rose-700 rev-tax-disp align-middle" style="width: 110px;" rowspan="${itemsList.length}">$${taxIncAmount.toLocaleString()} (${i.taxMode === 'tax-included' ? '含稅' : '未稅'})</td>
+                                <td class="p-2.5 text-center align-middle" style="width: 65px;" rowspan="${itemsList.length}"><input type="text" class="rev-gift font-bold text-center" value="${i.gift || ''}"></td>
+                                <td class="p-2.5 text-center align-middle" style="width: 75px;" rowspan="${itemsList.length}">
+                                    <select class="rev-status font-bold">
+                                        <option value="已入帳" ${i.status === '已入帳' ? 'selected' : ''}>已入帳</option>
+                                        <option value="未入帳" ${i.status === '未入帳' ? 'selected' : ''}>未入帳</option>
+                                    </select>
+                                </td>
+                                <td class="p-2.5 align-middle" style="width: 90px;" rowspan="${itemsList.length}"><input type="text" class="rev-note font-bold" value="${i.note || ''}"></td>
+                                <td class="p-2.5 text-center no-print align-middle" style="width: 45px;" rowspan="${itemsList.length}">
+                                    <button onclick="pushState(); deleteItem('perf-rev', '${i.id}');" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-bold shadow-sm" title="刪除">🗑️</button>
+                                </td>
+                            ` : ''}
+                        </tr>
+                    `;
+                });
             });
             updateSelectedCounter('perf-rev');
         }
@@ -1732,245 +1805,6 @@
             updateSelectedCounter(key);
         }
 
-        function renderProjectList() {
-            const tbody = document.getElementById('table-project-list');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            const projMap = {};
-            db.projMat.forEach(i => {
-                const name = i.projName || '未命名專案';
-                if (!projMap[name]) {
-                    projMap[name] = { projName: name, date: i.date || '2026-01-01', count: 0 };
-                }
-                projMap[name].count++;
-                if (i.date && i.date < projMap[name].date) projMap[name].date = i.date;
-            });
-
-            const projList = Object.values(projMap).sort((a,b) => b.date.localeCompare(a.date));
-            document.getElementById('proj-total-summary').innerText = `總計專案: ${projList.length} 個`;
-
-            if (!db.projMeta) db.projMeta = {};
-
-            const masterCb = document.getElementById('selectAll-projects');
-            if (masterCb) {
-                masterCb.checked = projList.length > 0 && projList.every(p => selectedProjects.has(p.projName));
-            }
-
-            if (projList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-[var(--gray)] font-bold">目前尚無任何專案</td></tr>`;
-                return;
-            }
-
-            projList.forEach((p, idx) => {
-                const isChecked = selectedProjects.has(p.projName) ? 'checked' : '';
-                const meta = db.projMeta[p.projName] || { quote: 0, cost: 0 };
-                const profit = meta.quote - meta.cost;
-                const profitColor = profit >= 0 ? 'text-emerald-700 font-bold' : 'text-rose-600 font-bold';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-[var(--light-pink)]/30 proj-row" data-proj="${p.projName}">
-                        <td class="p-3 text-center col-checkbox" onclick="event.stopPropagation();"><input type="checkbox" class="proj-checkbox w-4 h-4 accent-[var(--accent)]" ${isChecked} onchange="toggleProjectSelection('${p.projName}', this)"></td>
-                        <td class="p-3 text-center font-bold">${idx + 1}</td>
-                        <td class="p-3 text-center font-bold text-[var(--medium)]">${p.date}</td>
-                        <td class="p-3 font-bold text-[var(--dark)] text-base text-center cursor-pointer hover:text-rose-700" onclick="openProjectDetail('${p.projName}')">${p.projName}</td>
-                        <td class="p-3 text-right"><input type="number" class="proj-quote-input text-right font-bold" value="${meta.quote || 0}" oninput="calcProjRowProfit(this)"></td>
-                        <td class="p-3 text-right"><input type="number" class="proj-cost-input text-right font-bold" value="${meta.cost || 0}" oninput="calcProjRowProfit(this)"></td>
-                        <td class="p-3 text-right ${profitColor} proj-profit-cell">NT$ ${profit.toLocaleString()}</td>
-                        <td class="p-3 text-center font-bold">${p.count} 項</td>
-                        <td class="p-3 text-center no-print col-action">
-                            <button onclick="deleteSingleProject('${p.projName}')" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-bold shadow-sm" title="刪除專案">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function calcProjRowProfit(input) {
-            const tr = input.closest('tr');
-            const quote = parseFloat(tr.querySelector('.proj-quote-input').value) || 0;
-            const cost = parseFloat(tr.querySelector('.proj-cost-input').value) || 0;
-            const profit = quote - cost;
-            const profitCell = tr.querySelector('.proj-profit-cell');
-            profitCell.innerText = `NT$ ${profit.toLocaleString()}`;
-            profitCell.className = `p-3 text-right proj-profit-cell font-bold ${profit >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
-        }
-
-        async function saveProjectFinancials() {
-            pushState();
-            const rows = document.querySelectorAll('.proj-row');
-            if (!db.projMeta) db.projMeta = {};
-
-            rows.forEach(tr => {
-                const projName = tr.dataset.proj;
-                const quote = parseFloat(tr.querySelector('.proj-quote-input').value) || 0;
-                const cost = parseFloat(tr.querySelector('.proj-cost-input').value) || 0;
-                db.projMeta[projName] = { quote, cost };
-            });
-
-            await saveDataToSupabase();
-            alert("💾 專案報價與成本已成功同步至雲端！");
-            renderProjectList();
-        }
-
-        function toggleSelectAllProjects(masterCheckbox) {
-            const projMap = {};
-            db.projMat.forEach(i => { if (i.projName) projMap[i.projName] = true; });
-            const allProjNames = Object.keys(projMap);
-
-            if (masterCheckbox.checked) {
-                allProjNames.forEach(name => selectedProjects.add(name));
-            } else {
-                selectedProjects.clear();
-            }
-            renderProjectList();
-        }
-
-        function toggleProjectSelection(projName, checkbox) {
-            if (checkbox.checked) selectedProjects.add(projName);
-            else selectedProjects.delete(projName);
-        }
-
-        async function deleteSelectedProjects() {
-            if (selectedProjects.size === 0) { alert("請先勾選要刪除的專案！"); return; }
-            if (!confirm(`確定要刪除選中的 ${selectedProjects.size} 個專案及其所有物資嗎？`)) return;
-
-            pushState();
-            db.projMat = db.projMat.filter(i => !selectedProjects.has(i.projName));
-            selectedProjects.clear();
-
-            await saveDataToSupabase();
-            renderProjectList();
-            alert("🗑️ 已成功刪除並同步至雲端！");
-        }
-
-        async function deleteSingleProject(projName) {
-            if (!confirm(`確定要刪除專案「${projName}」及其包含的所有物資嗎？`)) return;
-            pushState();
-            db.projMat = db.projMat.filter(i => i.projName !== projName);
-            selectedProjects.delete(projName);
-            if (db.projMeta) delete db.projMeta[projName];
-
-            await saveDataToSupabase();
-            renderProjectList();
-            alert("🗑️ 專案已刪除並同步至雲端！");
-        }
-
-        function openNewProjectModal() {
-            document.getElementById('new-proj-date').value = new Date().toISOString().substring(0,10);
-            document.getElementById('new-proj-name').value = '';
-            document.getElementById('modal-new-project').classList.remove('hidden');
-        }
-
-        async function saveNewProject(e) {
-            e.preventDefault();
-            pushState();
-            const date = document.getElementById('new-proj-date').value;
-            const name = document.getElementById('new-proj-name').value.trim();
-            if (!name) { alert("請輸入專案名稱！"); return; }
-
-            db.projMat.unshift({
-                id: 'proj_' + Date.now(),
-                projName: name,
-                date: date,
-                item: '範例品項',
-                matName: '初始物資',
-                qty: 1,
-                size: '',
-                website: '',
-                price: 0,
-                status: '未購買',
-                checked: false,
-                toolbox: ''
-            });
-
-            if (!db.projMeta) db.projMeta = {};
-            db.projMeta[name] = { quote: 0, cost: 0 };
-
-            await saveDataToSupabase();
-            closeModal('modal-new-project');
-            renderProjectList();
-            openProjectDetail(name);
-            alert(`✨ 專案「${name}」已建立並同步至雲端！`);
-        }
-
-        function openProjectDetail(projName) {
-            currentActiveProject = projName;
-            document.getElementById('proj-view-list').classList.add('hidden');
-            document.getElementById('proj-view-detail').classList.remove('hidden');
-            document.getElementById('detail-project-title').innerText = `專案：${projName}`;
-            
-            const items = db.projMat.filter(i => i.projName === projName);
-            const firstDate = items.length > 0 ? items[0].date : new Date().toISOString().substring(0,10);
-            document.getElementById('detail-project-date').innerText = `專案日期：${firstDate} | 物資總數：${items.length} 筆`;
-            
-            pagination['proj-mat'].page = 1;
-            selectedIds['proj-mat'].clear();
-            renderTableProjMat();
-        }
-
-        function backToProjectList() {
-            currentActiveProject = null;
-            document.getElementById('proj-view-detail').classList.add('hidden');
-            document.getElementById('proj-view-list').classList.remove('hidden');
-            renderProjectList();
-        }
-
-        function renderTableProjMat() {
-            const tbody = document.getElementById('table-proj-mat');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            
-            const filtered = getFilteredData('proj-mat');
-            const pInfo = pagination['proj-mat'];
-            const maxPage = Math.ceil(filtered.length / pInfo.size) || 1;
-            if (pInfo.page > maxPage) pInfo.page = maxPage;
-            const start = (pInfo.page - 1) * pInfo.size;
-            const pageData = filtered.slice(start, start + pInfo.size);
-
-            document.getElementById('page-info-proj-mat').innerText = `第 ${pInfo.page} / ${maxPage} 頁`;
-            document.getElementById('total-count-proj-mat').innerText = `符合條件總筆數: ${filtered.length} 筆`;
-
-            const masterCb = document.getElementById('selectAll-proj-mat');
-            if (masterCb) masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds['proj-mat'].has(i.id));
-
-            if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 text-[var(--gray)] font-bold">此專案尚無物資</td></tr>`;
-                updateSelectedCounter('proj-mat');
-                return;
-            }
-
-            pageData.forEach(i => {
-                const isChecked = selectedIds['proj-mat'].has(i.id) ? 'checked' : '';
-                const isItemChecked = i.checked ? 'checked' : '';
-                const statusColorClass = i.status === '已購買' ? 'text-blue-600 bg-blue-50 font-bold' : 'text-rose-600 bg-rose-50 font-bold';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-[var(--light-pink)]/30">
-                        <td class="p-2.5 text-center col-checkbox"><input type="checkbox" class="proj-mat-row-checkbox w-4 h-4 accent-[var(--accent)]" ${isChecked} onchange="toggleRowSelection('proj-mat', '${i.id}', this)"></td>
-                        <td class="p-2.5" style="width: 100px;"><input type="text" class="proj-item font-bold" data-id="${i.id}" value="${i.item}"></td>
-                        <td class="p-2.5" style="width: 120px;"><input type="text" class="proj-mat-name font-bold" value="${i.matName}"></td>
-                        <td class="p-2.5 text-center" style="width: 50px;"><input type="number" class="proj-qty font-bold text-center" value="${i.qty}" min="1"></td>
-                        <td class="p-2.5 text-center" style="width: 70px;"><input type="text" class="proj-size font-bold text-center" value="${i.size || ''}"></td>
-                        <td class="p-2.5" style="width: 90px;"><input type="text" class="proj-website font-bold" value="${i.website || ''}" placeholder="網站..."></td>
-                        <td class="p-2.5" style="width: 80px;"><input type="number" class="proj-price text-right font-bold" value="${i.price}"></td>
-                        <td class="p-2.5 text-center" style="width: 80px;">
-                            <select class="proj-status font-bold ${statusColorClass}" onchange="this.className = 'proj-status font-bold ' + (this.value === '已購買' ? 'text-blue-600 bg-blue-50' : 'text-rose-600 bg-rose-50')">
-                                <option value="未購買" ${i.status === '未購買' ? 'selected' : ''} class="text-rose-600">未購買</option>
-                                <option value="已購買" ${i.status === '已購買' ? 'selected' : ''} class="text-blue-600">已購買</option>
-                            </select>
-                        </td>
-                        <td class="p-2.5 text-center" style="width: 65px;"><input type="checkbox" class="proj-checked w-4 h-4 accent-[var(--accent)]" ${isItemChecked}></td>
-                        <td class="p-2.5 text-center" style="width: 75px;"><input type="text" class="proj-toolbox font-bold text-center" value="${i.toolbox || ''}"></td>
-                        <td class="p-2.5 text-center no-print col-action">
-                            <button onclick="pushState(); deleteItem('proj-mat', '${i.id}');" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-bold shadow-sm" title="刪除">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            updateSelectedCounter('proj-mat');
-        }
-
         async function deleteItem(key, id) {
             if (key === 'act-cost') db.actCost = db.actCost.filter(x => x.id !== id);
             else if (key === 'perf-cost') db.perfCost = db.perfCost.filter(x => x.id !== id);
@@ -1978,10 +1812,8 @@
             else if (key === 'perf-rev') db.perfRev = db.perfRev.filter(x => x.id !== id);
             else if (key === 'act-adv') db.actAdv = db.actAdv.filter(x => x.id !== id);
             else if (key === 'perf-adv') db.perfAdv = db.perfAdv.filter(x => x.id !== id);
-            else if (key === 'proj-mat') db.projMat = db.projMat.filter(x => x.id !== id);
 
             selectedIds[key].delete(id);
-
             await saveDataToSupabase();
             renderAllTables();
             renderDashboard();
@@ -1997,11 +1829,21 @@
         function openActRevModal() {
             document.getElementById('act-rev-date').value = new Date().toISOString().substring(0,10);
             document.getElementById('act-rev-client').value = '';
+            document.getElementById('act-rev-items').innerHTML = `
+                <div class="flex gap-2"><input type="text" placeholder="品項名稱" class="flex-1 p-2 border rounded-xl font-bold item-name" required><input type="number" placeholder="數量" value="1" min="1" class="w-16 p-2 border rounded-xl font-bold item-qty" required><input type="number" placeholder="單價" min="0" class="w-24 p-2 border rounded-xl font-bold item-price" required></div>
+                <div class="flex gap-2"><input type="text" placeholder="品項名稱" class="flex-1 p-2 border rounded-xl font-bold item-name"><input type="number" placeholder="數量" value="1" min="1" class="w-16 p-2 border rounded-xl font-bold item-qty"><input type="number" placeholder="單價" min="0" class="w-24 p-2 border rounded-xl font-bold item-price"></div>
+                <div class="flex gap-2"><input type="text" placeholder="品項名稱" class="flex-1 p-2 border rounded-xl font-bold item-name"><input type="number" placeholder="數量" value="1" min="1" class="w-16 p-2 border rounded-xl font-bold item-qty"><input type="number" placeholder="單價" min="0" class="w-24 p-2 border rounded-xl font-bold item-price"></div>
+            `;
             document.getElementById('modal-act-rev').classList.remove('hidden');
         }
         function openPerfRevModal() {
             document.getElementById('perf-rev-date').value = new Date().toISOString().substring(0,10);
             document.getElementById('perf-rev-client').value = '';
+            document.getElementById('perf-rev-items').innerHTML = `
+                <div class="flex gap-2"><input type="text" placeholder="品項名稱" class="flex-1 p-2 border rounded-xl font-bold item-name" required><input type="number" placeholder="數量" value="1" min="1" class="w-16 p-2 border rounded-xl font-bold item-qty" required></div>
+                <div class="flex gap-2"><input type="text" placeholder="品項名稱" class="flex-1 p-2 border rounded-xl font-bold item-name"><input type="number" placeholder="數量" value="1" min="1" class="w-16 p-2 border rounded-xl font-bold item-qty"></div>
+                <div class="flex gap-2"><input type="text" placeholder="品項名稱" class="flex-1 p-2 border rounded-xl font-bold item-name"><input type="number" placeholder="數量" value="1" min="1" class="w-16 p-2 border rounded-xl font-bold item-qty"></div>
+            `;
             document.getElementById('perf-rev-orig').value = '';
             document.getElementById('perf-rev-disc').value = '';
             document.getElementById('perf-rev-final').value = '';
@@ -2014,19 +1856,6 @@
             document.getElementById('form-advance').reset();
             document.getElementById('adv-date').value = new Date().toISOString().substring(0,10);
             document.getElementById('modal-advance').classList.remove('hidden');
-        }
-        function openProjMatModal() {
-            if (!currentActiveProject) { alert("請先選擇進入一個專案！"); return; }
-            document.getElementById('modal-target-proj-name').innerText = currentActiveProject;
-            document.getElementById('proj-item').value = '';
-            document.getElementById('proj-mat-name').value = '';
-            document.getElementById('proj-qty').value = '1';
-            document.getElementById('proj-size').value = '';
-            document.getElementById('proj-website').value = '';
-            document.getElementById('proj-price').value = '';
-            document.getElementById('proj-toolbox').value = '';
-            document.getElementById('proj-status').value = '未購買';
-            document.getElementById('modal-proj-mat').classList.remove('hidden');
         }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
@@ -2059,7 +1888,6 @@
             };
             if (type === 'act-cost') db.actCost.unshift(item);
             else db.perfCost.unshift(item);
-
             await saveDataToSupabase();
             initTimeSelectors();
             renderAllTables();
@@ -2087,13 +1915,12 @@
             });
 
             if (items.length === 0) { alert("請至少填寫一個有效的品項！"); return; }
-
             const taxMode = document.getElementById('act-rev-tax-mode').value;
 
             const record = {
                 id: 'act_rev_' + Date.now(),
                 date: document.getElementById('act-rev-date').value,
-                client: document.getElementById('act-rev-client').value,
+                client: document.getElementById('act-rev-client').value.trim(),
                 items: items,
                 totalQty: totalQty,
                 totalAmount: rawAmount,
@@ -2101,7 +1928,6 @@
             };
 
             db.actRev.unshift(record);
-
             await saveDataToSupabase();
             initTimeSelectors();
             renderAllTables();
@@ -2131,7 +1957,7 @@
             const record = {
                 id: 'perf_rev_' + Date.now(),
                 date: document.getElementById('perf-rev-date').value,
-                client: document.getElementById('perf-rev-client').value,
+                client: document.getElementById('perf-rev-client').value.trim(),
                 items: items,
                 totalQty: totalQty,
                 origPrice: parseFloat(document.getElementById('perf-rev-orig').value) || 0,
@@ -2144,7 +1970,6 @@
             };
 
             db.perfRev.unshift(record);
-
             await saveDataToSupabase();
             initTimeSelectors();
             renderAllTables();
@@ -2166,41 +1991,11 @@
             };
             if (type === 'act') db.actAdv.unshift(item);
             else db.perfAdv.unshift(item);
-
             await saveDataToSupabase();
             initTimeSelectors();
             renderAllTables();
             renderDashboard();
             closeModal('modal-advance');
-        }
-
-        async function saveProjMat(e) {
-            e.preventDefault();
-            if (!currentActiveProject) return;
-            pushState();
-            const item = {
-                id: 'proj_' + Date.now(),
-                projName: currentActiveProject,
-                date: new Date().toISOString().substring(0,10),
-                item: document.getElementById('proj-item').value.trim(),
-                matName: document.getElementById('proj-mat-name').value.trim(),
-                qty: parseInt(document.getElementById('proj-qty').value) || 1,
-                size: document.getElementById('proj-size').value.trim(),
-                website: document.getElementById('proj-website').value.trim(),
-                price: parseFloat(document.getElementById('proj-price').value) || 0,
-                status: document.getElementById('proj-status').value,
-                checked: false,
-                toolbox: document.getElementById('proj-toolbox').value.trim()
-            };
-            db.projMat.unshift(item);
-
-            await saveDataToSupabase();
-            initTimeSelectors();
-            renderAllTables();
-            renderDashboard();
-            closeModal('modal-proj-mat');
-            openProjectDetail(currentActiveProject);
-            alert("📦 新增物資成功並同步至雲端！");
         }
 
         function renderDashboard() {
@@ -2229,7 +2024,10 @@
 
             const actCostTotal = aCost.reduce((s, i) => s + i.amount, 0);
             const perfCostTotal = pCost.reduce((s, i) => s + i.amount, 0);
-            const actRevTotal = aRev.reduce((s, i) => s + (i.taxMode === 'tax-included' ? Math.round(i.totalAmount * 1.05) : i.totalAmount), 0);
+            const actRevTotal = aRev.reduce((s, i) => {
+                const tot = i.totalAmount || (i.items && i.items[0] ? i.items[0].qty * i.items[0].price : 0);
+                return s + (i.taxMode === 'tax-included' ? Math.round(tot * 1.05) : tot);
+            }, 0);
             const perfRevTotal = pRev.reduce((s, i) => s + (i.taxMode === 'tax-included' ? Math.round(i.finalPrice * 1.05) : i.finalPrice), 0);
             const totalVat = [...aCost, ...pCost].reduce((s, i) => s + Math.round(i.amount - (i.amount / 1.05)), 0);
             const totalAdv = [...aAdv, ...pAdv].reduce((s, i) => s + i.amount, 0);
@@ -2249,7 +2047,7 @@
                     labels: ['活動行銷', '香氛品牌'],
                     datasets: [{ data: [actRevTotal || 1, perfRevTotal || 1], backgroundColor: ['#8e7f7f', '#d3a9a6'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
             });
 
             const ctx2 = document.getElementById('vatChart').getContext('2d');
@@ -2262,9 +2060,75 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
+
+            // 📊 活動成本品項佔比長條圖
+            const actCatMap = {};
+            CATEGORIES.forEach(cat => actCatMap[cat] = 0);
+            aCost.forEach(i => {
+                if (actCatMap[i.category] !== undefined) actCatMap[i.category] += i.amount;
+                else actCatMap[i.category] = i.amount;
+            });
+            const actBarLabels = Object.keys(actCatMap).filter(cat => actCatMap[cat] > 0);
+            const actBarData = actBarLabels.map(cat => actCatMap[cat]);
+
+            const ctx3 = document.getElementById('actCostBarChart').getContext('2d');
+            if (actCostBarChartInst) actCostBarChartInst.destroy();
+            actCostBarChartInst = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: actBarLabels.length > 0 ? actBarLabels : ['尚無支出資料'],
+                    datasets: [{
+                        data: actBarData.length > 0 ? actBarData : [0],
+                        backgroundColor: '#8e7f7f',
+                        borderRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 } },
+                        y: { ticks: { font: { size: 9 } } }
+                    }
+                }
+            });
+
+            // 🌿 香氛成本品項佔比長條圖
+            const perfCatMap = {};
+            CATEGORIES.forEach(cat => perfCatMap[cat] = 0);
+            pCost.forEach(i => {
+                if (perfCatMap[i.category] !== undefined) perfCatMap[i.category] += i.amount;
+                else perfCatMap[i.category] = i.amount;
+            });
+            const perfBarLabels = Object.keys(perfCatMap).filter(cat => perfCatMap[cat] > 0);
+            const perfBarData = perfBarLabels.map(cat => perfCatMap[cat]);
+
+            const ctx4 = document.getElementById('perfCostBarChart').getContext('2d');
+            if (perfCostBarChartInst) perfCostBarChartInst.destroy();
+            perfCostBarChartInst = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: perfBarLabels.length > 0 ? perfBarLabels : ['尚無支出資料'],
+                    datasets: [{
+                        data: perfBarData.length > 0 ? perfBarData : [0],
+                        backgroundColor: '#d3a9a6',
+                        borderRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 } },
+                        y: { ticks: { font: { size: 9 } } }
+                    }
+                }
+            });
         }
 
-        function renderImageGallery() {
+        async function renderImageGallery() {
             const grid = document.getElementById('image-gallery-grid');
             const monthFilter = document.getElementById('image-month-filter').value;
             if (!grid) return;
