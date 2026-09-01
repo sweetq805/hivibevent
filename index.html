@@ -119,6 +119,20 @@
             table { width: 100% !important; border-collapse: collapse !important; }
             th, td { border: 1px solid #ccc !important; font-size: 11px !important; padding: 6px !important; }
         }
+    
+        .sort-btn {
+            display: inline-block;
+            margin-left: 3px;
+            padding: 0 2px;
+            font-size: 10px;
+            line-height: 1;
+            cursor: pointer;
+            vertical-align: middle;
+            opacity: .55;
+            user-select: none;
+        }
+        .sort-btn:hover { opacity: 1; transform: translateY(-1px); }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -163,8 +177,9 @@
                     <option value="perf-rev">🌸 香氛營收報表</option>
                     <option value="perf-adv">💰 香氛代墊款</option>
                     <option value="proj-mat">📦 專案物資單</option>
-                    <option value="rules">⚖️ 國稅局法規對照</option>
+                    <option value="stocks">📊 股票投資報表</option>
                     <option value="images">📸 每月紙本憑證圖庫</option>
+                    <option value="rules">⚖️ 國稅局法規對照</option>
                 </select>
             </div>
 
@@ -177,8 +192,9 @@
                 <button onclick="switchTab('perf-rev')" id="nav-perf-rev" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">🌸 香氛營收報表</button>
                 <button onclick="switchTab('perf-adv')" id="nav-perf-adv" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">💰 香氛代墊款</button>
                 <button onclick="switchTab('proj-mat')" id="nav-proj-mat" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📦 專案物資單</button>
-                <button onclick="switchTab('rules')" id="nav-rules" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--dark)] hover:bg-[var(--light-blue)] flex items-center gap-2 border border-[var(--soft-pink)]/50">⚖️ 國稅局法規對照</button>
+                <button onclick="switchTab('stocks')" id="nav-stocks" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📊 股票投資報表</button>
                 <button onclick="switchTab('images')" id="nav-images" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📸 每月紙本憑證圖庫</button>
+                <button onclick="switchTab('rules')" id="nav-rules" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--dark)] hover:bg-[var(--light-blue)] flex items-center gap-2 border border-[var(--soft-pink)]/50">⚖️ 國稅局法規對照</button>
             </div>
         </aside>
 
@@ -190,7 +206,7 @@
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
                         <h2 class="text-base sm:text-lg font-bold">心引力公司營運總覽儀表板</h2>
-                        <p class="text-xs text-[var(--medium)] font-bold">活動行銷 ＋ 香氛品牌財務自動結算</p>
+                        
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
                         <label class="text-xs font-bold text-[var(--medium)]">篩選區間：</label>
@@ -224,6 +240,10 @@
                     <div class="card-box">
                         <p class="text-xs font-bold text-[var(--medium)]">6. 代墊款總額</p>
                         <h3 class="text-xl font-bold mt-1.5" id="kpi-adv">NT$ 0</h3>
+                    </div>
+                    <div class="card-box">
+                        <p class="text-xs font-bold text-[var(--medium)]">7. 股票盈利總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-stock-profit">NT$ 0</h3>
                     </div>
                 </div>
 
@@ -271,9 +291,9 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-act-cost" onclick="toggleSelectAll('act-cost', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold col-type">發票種類</th>
+                                <th class="p-3 font-bold col-type">發票種類 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-cost', 'type')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold col-number">發票號碼</th>
-                                <th class="p-3 font-bold col-date">日期</th>
+                                <th class="p-3 font-bold col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-cost', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold col-buyer">買方統編</th>
                                 <th class="p-3 font-bold col-sellerid">賣方統編</th>
                                 <th class="p-3 font-bold col-category">用途品項</th>
@@ -321,8 +341,8 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-rev" onclick="toggleSelectAll('act-rev', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">活動日期</th>
-                                <th class="p-3 font-bold text-center" style="width: 110px;">客戶名稱</th>
+                                <th class="p-3 font-bold text-center col-date">活動日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-rev', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
+                                <th class="p-3 font-bold text-center" style="width: 110px;">客戶名稱 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-rev', 'client')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 150px;">品項明細</th>
                                 <th class="p-3 font-bold text-center w-16">數量</th>
                                 <th class="p-3 font-bold text-right col-amount">金額</th>
@@ -369,8 +389,8 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-adv" onclick="toggleSelectAll('act-adv', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">日期</th>
-                                <th class="p-3 font-bold text-center" style="width: 100px;">代墊人</th>
+                                <th class="p-3 font-bold text-center col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-adv', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
+                                <th class="p-3 font-bold text-center" style="width: 100px;">代墊人 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-adv', 'person')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center">代墊明細</th>
                                 <th class="p-3 font-bold text-right col-amount">金額</th>
                                 <th class="p-3 font-bold text-center no-print col-action">操作</th>
@@ -416,9 +436,9 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-perf-cost" onclick="toggleSelectAll('perf-cost', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold col-type">發票種類</th>
+                                <th class="p-3 font-bold col-type">發票種類 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-cost', 'type')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold col-number">發票號碼</th>
-                                <th class="p-3 font-bold col-date">日期</th>
+                                <th class="p-3 font-bold col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-cost', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold col-buyer">買方統編</th>
                                 <th class="p-3 font-bold col-sellerid">賣方統編</th>
                                 <th class="p-3 font-bold col-category">用途品項</th>
@@ -466,8 +486,8 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-rev" onclick="toggleSelectAll('perf-rev', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">訂購日期</th>
-                                <th class="p-3 font-bold text-center" style="width: 100px;">客戶名稱</th>
+                                <th class="p-3 font-bold text-center col-date">訂購日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-rev', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
+                                <th class="p-3 font-bold text-center" style="width: 100px;">客戶名稱 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-rev', 'client')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 130px;">品項明細</th>
                                 <th class="p-3 font-bold text-center w-12">數量</th>
                                 <th class="p-3 font-bold text-right col-amount">原價</th>
@@ -519,8 +539,8 @@
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                 <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-adv" onclick="toggleSelectAll('perf-adv', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
-                                <th class="p-3 font-bold text-center col-date">日期</th>
-                                <th class="p-3 font-bold text-center" style="width: 100px;">代墊人</th>
+                                <th class="p-3 font-bold text-center col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-adv', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
+                                <th class="p-3 font-bold text-center" style="width: 100px;">代墊人 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-adv', 'person')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center">代墊明細</th>
                                 <th class="p-3 font-bold text-right col-amount">金額</th>
                                 <th class="p-3 font-bold text-center no-print col-action">操作</th>
@@ -566,8 +586,8 @@
                                 <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
                                     <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-projects" onclick="toggleSelectAllProjects(this)" class="w-4 h-4 accent-[var(--accent)]"></th>
                                     <th class="p-3 font-bold text-center" style="width: 50px;">序號</th>
-                                    <th class="p-3 font-bold text-center" style="width: 120px;">專案日期</th>
-                                    <th class="p-3 font-bold text-center">專案名稱 (點擊進入物資單)</th>
+                                    <th class="p-3 font-bold text-center" style="width: 120px;">專案日期 <button type="button" class="sort-btn no-print" onclick="toggleProjectSort('date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
+                                    <th class="p-3 font-bold text-center">專案名稱 <button type="button" class="sort-btn no-print" onclick="toggleProjectSort('projName')" title="排序 A-Z / 排序 Z-A">▲</button><span class="text-[10px] font-normal"> (點擊進入物資單)</span></th>
                                     <th class="p-3 font-bold text-right" style="width: 110px;">專案報價 (NT$)</th>
                                     <th class="p-3 font-bold text-right" style="width: 110px;">專案成本 (NT$)</th>
                                     <th class="p-3 font-bold text-right" style="width: 110px;">利潤 (NT$)</th>
@@ -633,7 +653,20 @@
                 </div>
             </section>
 
-            <!-- 9. 國稅局法規對照 -->
+
+            <!-- 9. 股票投資報表 -->
+            <section id="page-stocks" class="space-y-4 hidden">
+                <div class="card-box">
+                    <div>
+                        <h2 class="text-base font-bold">📊 股票投資報表</h2>
+                    </div>
+                </div>
+                <div class="card-box min-h-[220px] flex items-center justify-center">
+                    <p class="text-sm font-bold text-[var(--medium)]">股票投資報表已建立，報表欄位可再依你的需求新增。</p>
+                </div>
+            </section>
+
+            <!-- 10. 國稅局法規對照 -->
             <section id="page-rules" class="space-y-4 hidden">
                 <div class="card-box space-y-2">
                     <h2 class="text-base font-bold">⚖️ 國稅局營業稅與營所稅完整法規對照指南</h2>
@@ -691,7 +724,7 @@
                 </div>
             </section>
 
-            <!-- 10. 每月紙本憑證圖庫 -->
+            <!-- 11. 每月紙本憑證圖庫 -->
             <section id="page-images" class="space-y-4 hidden">
                 <div class="card-box space-y-3">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -1036,7 +1069,7 @@
         let vatChartInst = null;
 
         function switchTab(tabName) {
-            const tabs = ['dashboard', 'act-cost', 'act-rev', 'act-adv', 'perf-cost', 'perf-rev', 'perf-adv', 'proj-mat', 'rules', 'images'];
+            const tabs = ['dashboard', 'act-cost', 'act-rev', 'act-adv', 'perf-cost', 'perf-rev', 'perf-adv', 'proj-mat', 'stocks', 'images', 'rules'];
             tabs.forEach(t => {
                 const page = document.getElementById(`page-${t}`);
                 if (page) page.classList.add('hidden');
@@ -1103,11 +1136,53 @@
             renderTable(key);
         }
 
+        // 清單排序：各報表互相獨立，第一次點擊為 A-Z／日期舊→新，再點一次反向。
+        const reportSortState = {};
+
+        function compareSortValues(a, b, field, dir) {
+            const av = (a && a[field] != null) ? String(a[field]).trim() : '';
+            const bv = (b && b[field] != null) ? String(b[field]).trim() : '';
+            let result = 0;
+
+            if (field === 'date') {
+                result = av.localeCompare(bv);
+            } else {
+                result = av.localeCompare(bv, 'zh-Hant', { numeric: true, sensitivity: 'base' });
+            }
+            return dir === 'desc' ? -result : result;
+        }
+
+        function toggleReportSort(key, field) {
+            const current = reportSortState[key];
+            const nextDir = current && current.field === field && current.dir === 'asc' ? 'desc' : 'asc';
+            reportSortState[key] = { field, dir: nextDir };
+            if (pagination[key]) pagination[key].page = 1;
+            updateSortButtonIcons(key, field, nextDir);
+            renderTable(key);
+        }
+
+        function updateSortButtonIcons(key, activeField, dir) {
+            document.querySelectorAll(`#page-${key} .sort-btn`).forEach(btn => {
+                btn.textContent = '▲';
+                btn.style.opacity = '0.55';
+            });
+            const active = document.querySelector(`#page-${key} .sort-btn[onclick*="'${activeField}'"]`);
+            if (active) {
+                active.textContent = dir === 'asc' ? '▲' : '▼';
+                active.style.opacity = '1';
+                active.title = dir === 'asc' ? '目前 A-Z；點擊改為 Z-A' : '目前 Z-A；點擊改為 A-Z';
+            }
+        }
+
         function getFilteredData(key) {
-            const list = getListData(key);
+            const list = [...getListData(key)];
             const fMonth = pagination[key].filterMonth;
-            if (!fMonth) return list;
-            return list.filter(i => i.date && i.date.startsWith(fMonth));
+            let result = fMonth ? list.filter(i => i.date && i.date.startsWith(fMonth)) : list;
+            const sort = reportSortState[key];
+            if (sort) {
+                result = [...result].sort((a, b) => compareSortValues(a, b, sort.field, sort.dir));
+            }
+            return result;
         }
 
         function printSelectedReportPDF() {
@@ -2106,6 +2181,26 @@
             updateSelectedCounter(key);
         }
 
+        const projectSortState = { field: '', dir: 'asc' };
+
+        function toggleProjectSort(field) {
+            projectSortState.dir = projectSortState.field === field && projectSortState.dir === 'asc' ? 'desc' : 'asc';
+            projectSortState.field = field;
+
+            document.querySelectorAll('#proj-view-list .sort-btn').forEach(btn => {
+                btn.textContent = '▲';
+                btn.style.opacity = '0.55';
+                btn.title = '排序 A-Z / 排序 Z-A';
+            });
+            const active = document.querySelector(`#proj-view-list .sort-btn[onclick*="'${field}'"]`);
+            if (active) {
+                active.textContent = projectSortState.dir === 'asc' ? '▲' : '▼';
+                active.style.opacity = '1';
+                active.title = projectSortState.dir === 'asc' ? '目前 A-Z；點擊改為 Z-A' : '目前 Z-A；點擊改為 A-Z';
+            }
+            renderProjectList();
+        }
+
         function renderProjectList() {
             const tbody = document.getElementById('table-project-list');
             if (!tbody) return;
@@ -2121,7 +2216,12 @@
                 if (i.date && i.date < projMap[name].date) projMap[name].date = i.date;
             });
 
-            const projList = Object.values(projMap).sort((a,b) => b.date.localeCompare(a.date));
+            let projList = Object.values(projMap);
+            if (projectSortState.field) {
+                projList.sort((a, b) => compareSortValues(a, b, projectSortState.field, projectSortState.dir));
+            } else {
+                projList.sort((a,b) => b.date.localeCompare(a.date));
+            }
             document.getElementById('proj-total-summary').innerText = `總計專案: ${projList.length} 個`;
 
             if (!db.projMeta) db.projMeta = {};
@@ -2605,7 +2705,18 @@
             const perfCostTotal = pCost.reduce((s, i) => s + i.amount, 0);
             const actRevTotal = aRev.reduce((s, i) => s + (i.taxMode === 'tax-included' ? Math.round(i.totalAmount * 1.05) : i.totalAmount), 0);
             const perfRevTotal = pRev.reduce((s, i) => s + (i.taxMode === 'tax-included' ? Math.round(i.finalPrice * 1.05) : i.finalPrice), 0);
-            const totalVat = [...aCost, ...pCost].reduce((s, i) => s + Math.round(i.amount - (i.amount / 1.05)), 0);
+            // 可折抵營業稅額：
+            // ① 自動抓取目前總覽篩選區間內的活動＋香氛月成本每筆發票
+            // ② 排除發票種類「紙本收據」
+            // ③ 排除用途品項「餐飲膳食費」
+            // ④ 篩選後總金額 -（篩選後總金額 ÷ 1.05）
+            const vatEligibleRows = [...aCost, ...pCost].filter(i => {
+                const invoiceType = String(i.type || '').trim();
+                const category = String(i.category || '').trim();
+                return invoiceType !== '紙本收據' && category !== '餐飲膳食費';
+            });
+            const vatEligibleTotal = vatEligibleRows.reduce((s, i) => s + (Number(i.amount) || 0), 0);
+            const totalVat = Math.round(vatEligibleTotal - (vatEligibleTotal / 1.05));
             const totalAdv = [...aAdv, ...pAdv].reduce((s, i) => s + i.amount, 0);
 
             document.getElementById('kpi-act-cost').innerText = `NT$ ${actCostTotal.toLocaleString()}`;
@@ -4287,6 +4398,30 @@ window.onload = function(){
         return { aCost, pCost };
     }
 
+    const categoryValueLabelPlugin = {
+        id: 'categoryValueLabelPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            const dataset = chart.data.datasets[0];
+            const meta = chart.getDatasetMeta(0);
+            if (!dataset || !meta) return;
+
+            ctx.save();
+            ctx.fillStyle = '#6b5555';
+            ctx.font = 'bold 11px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            meta.data.forEach((bar, index) => {
+                const value = Number(dataset.data[index] || 0);
+                if (!Number.isFinite(value)) return;
+                const label = `NT$ ${value.toLocaleString()}`;
+                ctx.fillText(label, bar.x, Math.max(bar.y - 6, 14));
+            });
+            ctx.restore();
+        }
+    };
+
     function drawCategoryBarChart(canvasId, rows, oldInstance) {
         const canvas = document.getElementById(canvasId);
         if (!canvas || typeof Chart === 'undefined') return oldInstance;
@@ -4296,6 +4431,7 @@ window.onload = function(){
         const values = rows.length ? rows.map(r => r[1]) : [0];
         return new Chart(canvas.getContext('2d'), {
             type: 'bar',
+            plugins: [categoryValueLabelPlugin],
             data: {
                 labels,
                 datasets: [{ data: values, backgroundColor: '#d3a9a6', borderRadius: 6 }]
@@ -4303,13 +4439,14 @@ window.onload = function(){
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: { padding: { top: 26 } },
                 plugins: {
                     legend: { display: false },
                     tooltip: { callbacks: { label: ctx => `NT$ ${Number(ctx.raw || 0).toLocaleString()}` } }
                 },
                 scales: {
                     x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0, font: { size: 10 } } },
-                    y: { beginAtZero: true, ticks: { callback: value => `NT$ ${Number(value).toLocaleString()}` } }
+                    y: { beginAtZero: true, grace: '18%', ticks: { callback: value => `NT$ ${Number(value).toLocaleString()}` } }
                 }
             }
         });
