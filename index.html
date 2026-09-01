@@ -132,21 +132,48 @@
             user-select: none;
         }
         .sort-btn:hover { opacity: 1; transform: translateY(-1px); }
-
-    
-        @media (max-width: 640px) {
-            header .flex.items-center.gap-2 button {
-                font-size: 10px !important;
-                padding: 6px 7px !important;
-                min-width: 0 !important;
-                width: auto !important;
-                height: 34px !important;
-                gap: 2px !important;
-                white-space: nowrap !important;
-                border-radius: 10px !important;
-            }
             header .flex.items-center.gap-2 {
                 gap: 5px !important;
+            }
+        }
+
+    
+        /* 手機版頂部操作列：精準縮小三個檔案按鈕，不遮住公司名稱／統編 */
+        @media (max-width: 640px) {
+            header > div {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+                gap: 4px !important;
+            }
+            header .top-file-action {
+                font-size: 10px !important;
+                padding: 6px 6px !important;
+                min-width: 0 !important;
+                width: auto !important;
+                height: 32px !important;
+                line-height: 1 !important;
+                gap: 2px !important;
+                white-space: nowrap !important;
+                border-radius: 9px !important;
+                flex: 0 0 auto !important;
+            }
+            header #undo-btn {
+                padding: 5px 5px !important;
+                font-size: 9px !important;
+                min-width: 32px !important;
+            }
+            header .flex.items-center.space-x-2.shrink-0 {
+                gap: 4px !important;
+                column-gap: 4px !important;
+            }
+            header .flex.items-center.space-x-2.shrink-0 > * + * {
+                margin-left: 0 !important;
+            }
+            header .system-title {
+                font-size: 10px !important;
+            }
+            header .system-title + p {
+                font-size: 9px !important;
             }
         }
 
@@ -167,9 +194,9 @@
             
             <div class="flex items-center space-x-2 shrink-0">
                 <button onclick="undo()" id="undo-btn" class="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-white shadow-sm disabled:opacity-40">↩(<span id="undo-count">0</span>)</button>
-                <button onclick="exportCurrentTableExcel()" class="px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">📊 匯出 Excel</button>
-                <button onclick="printSelectedReportPDF()" class="px-4 py-2.5 text-sm font-bold rounded-xl text-white shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--custom-btn);">🖨️ 另存 PDF</button>
-                <label class="px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm cursor-pointer flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">
+                <button onclick="exportCurrentTableExcel()" class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">📊 匯出 Excel</button>
+                <button onclick="printSelectedReportPDF()" class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-white shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--custom-btn);">🖨️ 另存 PDF</button>
+                <label class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm cursor-pointer flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">
                     📂 匯入 Excel <input type="file" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport(event)">
                 </label>
             </div>
@@ -1021,32 +1048,36 @@
         });
 
 
-        // iPhone Safari 可能從 BFCache 恢復舊頁面；回到網站時重新抓 Supabase 最新資料。
+        // 手機／電腦跨裝置同步：每次回到頁面都重新向 Supabase 讀取最新 accounting_data。
         let deviceSyncBusy = false;
         let deviceSyncLastAt = 0;
 
-        async function syncLatestCloudData() {
+        async function syncLatestCloudData(force = false) {
             const now = Date.now();
-            if (deviceSyncBusy || now - deviceSyncLastAt < 1500) return;
+            if (deviceSyncBusy || (!force && now - deviceSyncLastAt < 1500)) return;
             deviceSyncBusy = true;
             try {
-                await loadDataFromSupabase();
+                const ok = await loadDataFromSupabase();
                 initTimeSelectors();
                 renderDashboard();
                 renderAllTables();
                 if (typeof renderProjectList === 'function') renderProjectList();
                 deviceSyncLastAt = Date.now();
-            } catch (err) {
-                console.warn('重新同步最新雲端資料失敗：', err);
+
+                if (!ok) {
+                    console.warn('目前顯示的是本機快取；Supabase 雲端讀取未成功。');
+                }
             } finally {
                 deviceSyncBusy = false;
             }
         }
 
-        window.addEventListener('pageshow', () => setTimeout(syncLatestCloudData, 120));
-        window.addEventListener('focus', () => setTimeout(syncLatestCloudData, 120));
+        window.addEventListener('pageshow', () => setTimeout(() => syncLatestCloudData(true), 120));
+        window.addEventListener('focus', () => setTimeout(() => syncLatestCloudData(true), 120));
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') setTimeout(syncLatestCloudData, 120);
+            if (document.visibilityState === 'visible') {
+                setTimeout(() => syncLatestCloudData(true), 120);
+            }
         });
 
         async function loadDataFromSupabase() {
@@ -1055,25 +1086,41 @@
                     .from('accounting_data')
                     .select('data_content')
                     .eq('id', 1)
-                    .single();
+                    .maybeSingle();
+
+                if (error) throw error;
 
                 if (data && data.data_content) {
-                    db = JSON.parse(data.data_content);
-                } else {
-                    const localData = localStorage.getItem('heart_gravity_unified_v47');
-                    if (localData) {
-                        db = JSON.parse(localData);
+                    const cloudDb = typeof data.data_content === 'string'
+                        ? JSON.parse(data.data_content)
+                        : data.data_content;
+
+                    if (cloudDb && typeof cloudDb === 'object') {
+                        db = cloudDb;
+                        // 雲端資料抓成功後，同步更新本機快取，確保手機畫面與電腦一致。
+                        localStorage.setItem('heart_gravity_unified_v47', JSON.stringify(db));
+                        return true;
                     }
-                    await saveDataToSupabase();
                 }
+
+                // 雲端完全沒有資料時，才允許本機既有資料作為第一次初始化來源。
+                const localData = localStorage.getItem('heart_gravity_unified_v47');
+                if (localData) {
+                    db = JSON.parse(localData);
+                    const ok = await saveDataToSupabase(true);
+                    return !!ok;
+                }
+                return true;
             } catch (err) {
-                console.error("載入雲端資料失敗，改用本機快取", err);
+                console.error("載入 Supabase 最新資料失敗：", err);
+                // 讀取失敗時只顯示本機快取，不再把空資料誤寫回雲端。
                 const localData = localStorage.getItem('heart_gravity_unified_v47');
                 if (localData) db = JSON.parse(localData);
+                return false;
             }
         }
 
-        async function saveDataToSupabase() {
+        async function saveDataToSupabase(silent = false) {
             try {
                 localStorage.setItem('heart_gravity_unified_v47', JSON.stringify(db));
                 const payload = { id: 1, data_content: JSON.stringify(db) };
@@ -1083,9 +1130,18 @@
 
                 if (error) {
                     console.error("同步至 Supabase 發生錯誤：", error.message);
+                    if (!silent) {
+                        alert("⚠️ 雲端同步失敗：資料目前只存在這台裝置。\n\n" + error.message);
+                    }
+                    return false;
                 }
+                return true;
             } catch (err) {
                 console.error("雲端同步異常：", err);
+                if (!silent) {
+                    alert("⚠️ 雲端同步失敗：資料目前只存在這台裝置。");
+                }
+                return false;
             }
         }
 
