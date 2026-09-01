@@ -133,6 +133,23 @@
         }
         .sort-btn:hover { opacity: 1; transform: translateY(-1px); }
 
+    
+        @media (max-width: 640px) {
+            header .flex.items-center.gap-2 button {
+                font-size: 10px !important;
+                padding: 6px 7px !important;
+                min-width: 0 !important;
+                width: auto !important;
+                height: 34px !important;
+                gap: 2px !important;
+                white-space: nowrap !important;
+                border-radius: 10px !important;
+            }
+            header .flex.items-center.gap-2 {
+                gap: 5px !important;
+            }
+        }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -1001,6 +1018,35 @@
             initTimeSelectors();
             switchTab('dashboard');
             updateUndoBtn();
+        });
+
+
+        // iPhone Safari 可能從 BFCache 恢復舊頁面；回到網站時重新抓 Supabase 最新資料。
+        let deviceSyncBusy = false;
+        let deviceSyncLastAt = 0;
+
+        async function syncLatestCloudData() {
+            const now = Date.now();
+            if (deviceSyncBusy || now - deviceSyncLastAt < 1500) return;
+            deviceSyncBusy = true;
+            try {
+                await loadDataFromSupabase();
+                initTimeSelectors();
+                renderDashboard();
+                renderAllTables();
+                if (typeof renderProjectList === 'function') renderProjectList();
+                deviceSyncLastAt = Date.now();
+            } catch (err) {
+                console.warn('重新同步最新雲端資料失敗：', err);
+            } finally {
+                deviceSyncBusy = false;
+            }
+        }
+
+        window.addEventListener('pageshow', () => setTimeout(syncLatestCloudData, 120));
+        window.addEventListener('focus', () => setTimeout(syncLatestCloudData, 120));
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') setTimeout(syncLatestCloudData, 120);
         });
 
         async function loadDataFromSupabase() {
