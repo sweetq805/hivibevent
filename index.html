@@ -177,6 +177,45 @@
             }
         }
 
+    
+        /* 手機版頂部列最終修正：三個檔案按鈕改為緊湊尺寸，保留左側公司/統編空間 */
+        @media (max-width: 640px) {
+            header .top-file-action {
+                height: 30px !important;
+                padding: 4px 5px !important;
+                font-size: 9px !important;
+                line-height: 1 !important;
+                border-radius: 8px !important;
+                gap: 0 !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                width: auto !important;
+                flex: 0 0 auto !important;
+                white-space: nowrap !important;
+                box-shadow: none !important;
+            }
+
+            /* 手機頂部操作區縮小間距 */
+            header .flex.items-center.space-x-2.shrink-0 {
+                gap: 3px !important;
+                column-gap: 3px !important;
+                margin-left: 4px !important;
+            }
+            header .flex.items-center.space-x-2.shrink-0 > * + * {
+                margin-left: 0 !important;
+            }
+
+            /* 返回/復原按鈕也縮小，避免整列超寬 */
+            header #undo-btn {
+                width: 28px !important;
+                min-width: 28px !important;
+                height: 30px !important;
+                padding: 3px !important;
+                font-size: 9px !important;
+                border-radius: 8px !important;
+            }
+        }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -194,10 +233,10 @@
             
             <div class="flex items-center space-x-2 shrink-0">
                 <button onclick="undo()" id="undo-btn" class="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-white shadow-sm disabled:opacity-40">↩(<span id="undo-count">0</span>)</button>
-                <button onclick="exportCurrentTableExcel()" class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">📊 匯出 Excel</button>
-                <button onclick="printSelectedReportPDF()" class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-white shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--custom-btn);">🖨️ 另存 PDF</button>
+                <button onclick="exportCurrentTableExcel()" class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);"><span class="hidden sm:inline">📊 匯出 Excel</span><span class="sm:hidden">匯出</span></button>
+                <button onclick="printSelectedReportPDF()" class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-white shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--custom-btn);"><span class="hidden sm:inline">🖨️ 另存 PDF</span><span class="sm:hidden">PDF</span></button>
                 <label class="top-file-action px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm cursor-pointer flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">
-                    📂 匯入 Excel <input type="file" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport(event)">
+                    <span class="hidden sm:inline">📂 匯入 Excel</span><span class="sm:hidden">匯入</span> <input type="file" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport(event)">
                 </label>
             </div>
         </div>
