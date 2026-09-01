@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<!-- 3A 圖庫最終版：僅保留圖片/PDF上傳、資料夾管理、預覽與開啟檔案；不含OCR -->
+
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -12,6 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- heic2any iPhone 拍照轉檔 -->
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heic-to@1.5.2/dist/iife/heic-to.js"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -72,6 +75,38 @@
 
         .system-title { letter-spacing: 0.08em; }
 
+        /* ===== 本次修改 1：桌機側欄收合；手機 RWD 不受影響 ===== */
+        #sidebar-nav { transition: width .22s ease, padding .22s ease; overflow: hidden; }
+        #sidebar-toggle {
+            display: none;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 0 0 8px 0 !important;
+            margin: 0 !important;
+            width: 36px;
+            min-width: 36px;
+            font-size: 30px;
+            line-height: 1;
+            text-align: left;
+            color: var(--dark);
+            cursor: pointer;
+        }
+        @media (min-width: 768px) {
+            #sidebar-toggle { display: block; }
+            #sidebar-nav.sidebar-collapsed { width: 64px !important; padding-left: 12px !important; padding-right: 12px !important; }
+            #sidebar-nav.sidebar-collapsed .desktop-nav-list button {
+                width: 36px !important;
+                min-width: 36px !important;
+                max-width: 36px !important;
+                padding-left: 8px !important;
+                padding-right: 0 !important;
+                gap: 0 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+            }
+        }
+
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
@@ -101,13 +136,10 @@
             
             <div class="flex items-center space-x-2 shrink-0">
                 <button onclick="undo()" id="undo-btn" class="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-white shadow-sm disabled:opacity-40">↩(<span id="undo-count">0</span>)</button>
-                <button onclick="exportCurrentTableExcel()" class="px-3 py-1.5 text-xs font-bold rounded-xl text-[var(--dark)] shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">📊 匯出 Excel</button>
-                <button onclick="printSelectedReportPDF()" class="px-3 py-1.5 text-xs font-bold rounded-xl text-white shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--custom-btn);">🖨️ 另存 PDF</button>
-                <label class="px-3 py-1.5 text-xs font-bold rounded-xl text-[var(--dark)] shadow-sm cursor-pointer flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">
+                <button onclick="exportCurrentTableExcel()" class="px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">📊 匯出 Excel</button>
+                <button onclick="printSelectedReportPDF()" class="px-4 py-2.5 text-sm font-bold rounded-xl text-white shadow-sm flex items-center gap-1 font-bold" style="background-color: var(--custom-btn);">🖨️ 另存 PDF</button>
+                <label class="px-4 py-2.5 text-sm font-bold rounded-xl text-[var(--dark)] shadow-sm cursor-pointer flex items-center gap-1 font-bold" style="background-color: var(--excel-btn);">
                     📂 匯入 Excel <input type="file" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport(event)">
-                </label>
-                <label class="px-3 py-1.5 text-xs font-bold rounded-xl text-white shadow-sm cursor-pointer flex items-center gap-1 font-bold" style="background-color: var(--custom-btn);">
-                    📷 拍照發票 <input type="file" accept="image/*, .heic, .heif" capture="environment" class="hidden" onchange="handleCameraImport(event)">
                 </label>
             </div>
         </div>
@@ -117,8 +149,8 @@
     <div class="w-full px-2 sm:px-4 py-4 flex flex-col md:flex-row gap-3 flex-1 items-start">
         
         <!-- 左側導航區 -->
-        <aside class="w-full md:w-64 shrink-0 space-y-3 card-box bg-white">
-            <h3 class="text-sm font-bold text-[var(--medium)] mb-2 uppercase tracking-wider hidden md:block">導航與報表清單</h3>
+        <aside id="sidebar-nav" class="w-full md:w-64 shrink-0 space-y-3 card-box bg-white">
+            <button id="sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="收合或展開左側清單" title="收合 / 展開">≣</button>
             
             <div class="md:hidden">
                 <label class="block text-xs font-bold text-[var(--medium)] mb-1.5">📂 請選擇要檢視的報表或清單：</label>
@@ -132,11 +164,11 @@
                     <option value="perf-adv">💰 香氛代墊款</option>
                     <option value="proj-mat">📦 專案物資單</option>
                     <option value="rules">⚖️ 國稅局法規對照</option>
-                    <option value="images">📸 紙本憑證月度庫</option>
+                    <option value="images">📸 每月紙本憑證圖庫</option>
                 </select>
             </div>
 
-            <div class="hidden md:flex flex-col space-y-2.5">
+            <div class="desktop-nav-list hidden md:flex flex-col space-y-2.5">
                 <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition bg-[var(--header-bg)] text-[var(--dark)] shadow-sm flex items-center gap-2">📊 總覽儀表板</button>
                 <button onclick="switchTab('act-cost')" id="nav-act-cost" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📑 活動月成本報表</button>
                 <button onclick="switchTab('act-rev')" id="nav-act-rev" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📈 活動營收報表</button>
@@ -146,7 +178,7 @@
                 <button onclick="switchTab('perf-adv')" id="nav-perf-adv" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">💰 香氛代墊款</button>
                 <button onclick="switchTab('proj-mat')" id="nav-proj-mat" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📦 專案物資單</button>
                 <button onclick="switchTab('rules')" id="nav-rules" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--dark)] hover:bg-[var(--light-blue)] flex items-center gap-2 border border-[var(--soft-pink)]/50">⚖️ 國稅局法規對照</button>
-                <button onclick="switchTab('images')" id="nav-images" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📸 紙本憑證月度庫</button>
+                <button onclick="switchTab('images')" id="nav-images" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2">📸 每月紙本憑證圖庫</button>
             </div>
         </aside>
 
@@ -160,7 +192,7 @@
                         <h2 class="text-base sm:text-lg font-bold">心引力公司營運總覽儀表板</h2>
                         <p class="text-xs text-[var(--medium)] font-bold">活動行銷 ＋ 香氛品牌財務自動結算</p>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <label class="text-xs font-bold text-[var(--medium)]">篩選區間：</label>
                         <select id="dash-time-selector" onchange="renderDashboard()" class="px-3 py-2 rounded-xl border border-[var(--soft-pink)] text-xs font-bold bg-[#f7dad9]/45">
                             <option value="all">全部歷史總計</option>
@@ -205,12 +237,23 @@
                         <div class="relative h-56 flex items-center justify-center"><canvas id="vatChart"></canvas></div>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="card-box flex flex-col">
+                        <h3 class="font-bold text-sm mb-3">活動月成本｜用途品項</h3>
+                        <div class="relative h-56"><canvas id="actCategoryChart"></canvas></div>
+                    </div>
+                    <div class="card-box flex flex-col">
+                        <h3 class="font-bold text-sm mb-3">香氛月成本｜用途品項</h3>
+                        <div class="relative h-56"><canvas id="perfCategoryChart"></canvas></div>
+                    </div>
+                </div>
             </section>
 
             <!-- 2. 活動月成本報表 -->
             <section id="page-act-cost" class="space-y-4 hidden">
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div><h2 class="text-base font-bold">活動月成本報表</h2><p class="text-xs text-[var(--medium)]">買方統編: 60676740</p></div>
+                    <div><h2 class="text-base font-bold">活動月成本報表</h2><p class="text-xs text-[var(--medium)]">心引力有限公司統一編號：60676740</p></div>
                     <div class="flex items-center gap-2 flex-wrap">
                         <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
                             <label class="text-xs font-bold">📅 日曆篩選：</label>
@@ -219,7 +262,8 @@
                         </div>
                         <button onclick="saveCurrentPage('act-cost')" class="px-3 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
                         <button onclick="deleteSelectedRows('act-cost')" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openGenericModal('act-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button type="button" onclick="addCustomCategory()" class="px-3 py-1.5 bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button>
+                        <button onclick="openGenericModal('act-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0 w-full">
@@ -354,7 +398,7 @@
             <!-- 5. 香氛月成本報表 -->
             <section id="page-perf-cost" class="space-y-4 hidden">
                 <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div><h2 class="text-base font-bold">Nuitréver 香氛月成本</h2></div>
+                    <div><h2 class="text-base font-bold">Nuitréver 香氛月成本</h2><p class="text-xs text-[var(--medium)]">心引力有限公司統一編號：60676740</p></div>
                     <div class="flex items-center gap-2 flex-wrap">
                         <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
                             <label class="text-xs font-bold">📅 日曆篩選：</label>
@@ -363,7 +407,8 @@
                         </div>
                         <button onclick="saveCurrentPage('perf-cost')" class="px-3 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
                         <button onclick="deleteSelectedRows('perf-cost')" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openGenericModal('perf-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <button type="button" onclick="addCustomCategory()" class="px-3 py-1.5 bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button>
+                        <button onclick="openGenericModal('perf-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button>
                     </div>
                 </div>
                 <div class="card-box overflow-x-auto p-0 w-full">
@@ -646,15 +691,46 @@
                 </div>
             </section>
 
-            <!-- 10. 紙本憑證月度庫 -->
+            <!-- 10. 每月紙本憑證圖庫 -->
             <section id="page-images" class="space-y-4 hidden">
-                <div class="card-box flex justify-between items-center">
-                    <div><h2 class="text-base font-bold">憑證影像庫</h2><p class="text-xs text-[var(--medium)]">拍下的發票自動按月歸納</p></div>
-                    <select id="image-month-filter" onchange="renderImageGallery()" class="px-3 py-1.5 rounded-xl border border-[var(--soft-pink)] text-xs bg-[#f7dad9]/40 font-bold">
-                        <option value="">全部月份</option>
-                    </select>
+                <div class="card-box space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div><h2 class="text-base font-bold">每月紙本憑證圖庫</h2><p class="text-xs text-[var(--medium)]">建立月份或自訂資料夾，集中管理紙本發票、收據照片與 PDF 掃描檔。</p></div>
+                        <button type="button" onclick="createVoucherFolder()" class="px-4 py-2 rounded-xl bg-[var(--dark)] text-white text-xs font-bold">＋ 新增資料夾</button>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                        <span class="font-bold text-[var(--medium)]">資料夾排序：</span>
+                        <select id="voucher-folder-sort" onchange="renderVoucherFolders()" class="px-3 py-2 rounded-xl border bg-white font-bold">
+                            <option value="date-desc">日期｜新到舊</option><option value="date-asc">日期｜舊到新</option>
+                            <option value="name-asc">名稱｜A→Z</option><option value="name-desc">名稱｜Z→A</option>
+                        </select>
+                        <button type="button" onclick="deleteSelectedVoucherFolders()" class="px-3 py-2 rounded-xl border border-rose-200 text-rose-600 font-bold">🗑 刪除勾選資料夾</button>
+                    </div>
                 </div>
-                <div id="image-gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                <div id="voucher-folder-view">
+                    <div id="voucher-folder-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+                <div id="voucher-folder-detail" class="hidden space-y-4">
+                    <div class="card-box space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex items-center gap-2"><button type="button" onclick="closeVoucherFolder()" class="px-3 py-2 rounded-xl border text-xs font-bold">← 返回資料夾</button><div><h3 id="voucher-current-folder-name" class="font-bold"></h3><p id="voucher-current-folder-count" class="text-xs text-[var(--medium)]"></p></div></div>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" onclick="document.getElementById('voucher-image-input').click()" class="px-3 py-2 rounded-xl bg-[var(--light-pink)] text-xs font-bold">🖼️ 選擇照片</button>
+                                <button type="button" onclick="document.getElementById('voucher-pdf-input').click()" class="px-3 py-2 rounded-xl bg-[var(--light-pink)] text-xs font-bold">📎 選擇 PDF</button>
+                                <button type="button" onclick="confirmVoucherUpload()" id="voucher-confirm-upload" class="px-3 py-2 rounded-xl bg-[var(--dark)] text-white text-xs font-bold hidden">✓ 確認上傳</button>
+                            </div>
+                        </div>
+                        <input id="voucher-image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif" multiple class="hidden" onchange="stageVoucherFiles(this.files,'image')">
+                        <input id="voucher-pdf-input" type="file" accept="application/pdf,.pdf" multiple class="hidden" onchange="stageVoucherFiles(this.files,'pdf')">
+                        <div id="voucher-upload-stage" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs"></div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="font-bold text-[var(--medium)] text-xs">檔案排序：</span>
+                            <select id="voucher-file-sort" onchange="renderVoucherFolderDetail()" class="px-3 py-2 rounded-xl border bg-white text-xs font-bold"><option value="date-desc">日期｜新到舊</option><option value="date-asc">日期｜舊到新</option><option value="name-asc">種類/名稱｜A→Z</option><option value="name-desc">種類/名稱｜Z→A</option></select>
+                            <button type="button" onclick="deleteSelectedVoucherFiles()" class="px-3 py-2 rounded-xl border border-rose-200 text-rose-600 text-xs font-bold">🗑 刪除勾選檔案</button>
+                        </div>
+                    </div>
+                    <div id="voucher-file-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
             </section>
 
         </main>
@@ -856,7 +932,8 @@
             perfCost: [], perfRev: [], perfAdv: [],
             projMat: [],
             projMeta: {}, 
-            attachments: []
+            attachments: [],
+            voucherFolders: []
         };
 
         let currentActiveProject = null; 
@@ -1089,88 +1166,385 @@
         }
 
         async function handleExcelImport(e) {
-            let file = e.target.files[0];
+            const file = e.target.files && e.target.files[0];
             if (!file) return;
+
+            // 先記住「按下匯入 Excel 當下」所在的報表，
+            // 避免讀檔完成後頁面狀態改變，造成資料被丟到活動月成本。
+            const activeSecAtClick = document.querySelector('main > section:not(.hidden)');
+            const targetKey = activeSecAtClick ? activeSecAtClick.id.replace('page-', '') : '';
+
+            const allowedTargets = ['act-cost', 'perf-cost', 'act-rev', 'perf-rev', 'act-adv', 'perf-adv', 'proj-mat'];
+            if (!allowedTargets.includes(targetKey)) {
+                alert('請先切換到要匯入 Excel 的報表頁面，再按「匯入 Excel」。');
+                e.target.value = '';
+                return;
+            }
 
             const reader = new FileReader();
             reader.readAsArrayBuffer(file);
+
             reader.onload = async function(evt) {
                 try {
                     const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-                    
-                    let count = 0;
-                    pushState();
-                    let importedItems = [];
-                    const activeSec = document.querySelector('main > section:not(.hidden)');
-                    const targetKey = activeSec ? activeSec.id.replace('page-', '') : 'act-cost';
+                    const rows = XLSX.utils.sheet_to_json(firstSheet, {
+                        header: 1,
+                        raw: true,
+                        defval: ''
+                    });
 
+                    if (!rows || rows.length < 2) {
+                        alert('Excel 裡沒有可匯入的資料。');
+                        e.target.value = '';
+                        return;
+                    }
+
+                    function cleanCell(value) {
+                        return value === undefined || value === null ? '' : String(value).trim();
+                    }
+
+                    function toNumber(value) {
+                        if (value === undefined || value === null || value === '') return 0;
+                        const cleaned = String(value).replace(/NT\$|[$,\s]/g, '');
+                        const n = Number(cleaned);
+                        return Number.isFinite(n) ? n : 0;
+                    }
+
+                    function formatImportedDate(value) {
+                        if (!value) return new Date().toISOString().substring(0, 10);
+
+                        if (value instanceof Date && !isNaN(value.getTime())) {
+                            const y = value.getFullYear();
+                            const m = String(value.getMonth() + 1).padStart(2, '0');
+                            const d = String(value.getDate()).padStart(2, '0');
+                            return `${y}-${m}-${d}`;
+                        }
+
+                        if (typeof value === 'number' && typeof XLSX !== 'undefined' && XLSX.SSF) {
+                            const parsed = XLSX.SSF.parse_date_code(value);
+                            if (parsed) {
+                                return `${String(parsed.y).padStart(4, '0')}-${String(parsed.m).padStart(2, '0')}-${String(parsed.d).padStart(2, '0')}`;
+                            }
+                        }
+
+                        const raw = cleanCell(value);
+                        const normalized = raw.replace(/[./]/g, '-');
+
+                        const ymd = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+                        if (ymd) {
+                            return `${ymd[1]}-${String(ymd[2]).padStart(2, '0')}-${String(ymd[3]).padStart(2, '0')}`;
+                        }
+
+                        const roc = normalized.match(/^(\d{2,3})-(\d{1,2})-(\d{1,2})$/);
+                        if (roc) {
+                            const y = Number(roc[1]) + 1911;
+                            return `${y}-${String(roc[2]).padStart(2, '0')}-${String(roc[3]).padStart(2, '0')}`;
+                        }
+
+                        const dt = new Date(raw);
+                        if (!isNaN(dt.getTime())) {
+                            const y = dt.getFullYear();
+                            const m = String(dt.getMonth() + 1).padStart(2, '0');
+                            const d = String(dt.getDate()).padStart(2, '0');
+                            return `${y}-${m}-${d}`;
+                        }
+
+                        return new Date().toISOString().substring(0, 10);
+                    }
+
+                    function normalizeHeader(value) {
+                        return cleanCell(value)
+                            .replace(/\s+/g, '')
+                            .replace(/[（）()]/g, '')
+                            .replace(/[:：]/g, '')
+                            .toLowerCase();
+                    }
+
+                    const headerMap = {};
+                    rows[0].forEach((h, idx) => {
+                        const key = normalizeHeader(h);
+                        if (key && headerMap[key] === undefined) headerMap[key] = idx;
+                    });
+
+                    function getCell(row, aliases, fallbackIndex) {
+                        for (const alias of aliases) {
+                            const key = normalizeHeader(alias);
+                            if (headerMap[key] !== undefined) return row[headerMap[key]];
+                        }
+                        return fallbackIndex !== undefined ? row[fallbackIndex] : '';
+                    }
+
+                    function parseJsonItems(raw, fallbackQty, fallbackAmount, includePrice) {
+                        const str = cleanCell(raw);
+                        if (!str) return [];
+
+                        try {
+                            const parsed = JSON.parse(str);
+                            if (Array.isArray(parsed)) {
+                                return parsed.map(x => {
+                                    const name = cleanCell(x.name || x.item || x.品項 || '');
+                                    const qty = Number(x.qty || x.quantity || x.數量 || 1) || 1;
+                                    const item = { name, qty };
+                                    if (includePrice) {
+                                        item.price = toNumber(x.price || x.unitPrice || x.單價 || 0);
+                                    }
+                                    return item;
+                                }).filter(x => x.name);
+                            }
+                        } catch (err) {}
+
+                        const qty = Number(fallbackQty) || 1;
+                        const item = { name: str, qty };
+                        if (includePrice) {
+                            const total = Number(fallbackAmount) || 0;
+                            item.price = qty > 0 ? total / qty : total;
+                        }
+                        return [item];
+                    }
+
+                    function inferTaxMode(rawAmount, shownAmount) {
+                        const raw = toNumber(rawAmount);
+                        const shown = toNumber(shownAmount);
+                        if (raw > 0 && shown > raw && Math.abs(shown - Math.round(raw * 1.05)) <= 2) {
+                            return 'tax-included';
+                        }
+                        return 'tax-excluded';
+                    }
+
+                    pushState();
+                    let count = 0;
+                    let memoryClassifiedCount = 0;
+                    let unclassifiedCount = 0;
+                    const importedItems = [];
+
+                    // ===== 專案物資 =====
                     if (targetKey === 'proj-mat') {
                         if (!currentActiveProject) {
-                            alert("請先點進去某個專案名稱內，再匯入該專案的 Excel 物資！");
+                            alert('請先點進去某個專案名稱內，再匯入該專案的 Excel 物資！');
+                            e.target.value = '';
                             return;
                         }
+
                         for (let i = 1; i < rows.length; i++) {
                             const r = rows[i];
-                            if (!r || r.length === 0) continue;
-                            if (r.every(cell => cell === undefined || cell === null || String(cell).trim() === '')) continue;
+                            if (!r || r.every(v => cleanCell(v) === '')) continue;
 
                             importedItems.push({
-                                id: 'proj_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,6),
+                                id: 'proj_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 6),
                                 projName: currentActiveProject,
-                                date: new Date().toISOString().substring(0,10),
-                                item: r[0] !== undefined && r[0] !== null ? String(r[0]).trim() : "一般品項",
-                                matName: r[1] !== undefined && r[1] !== null ? String(r[1]).trim() : "未命名物資",
-                                qty: r[2] !== undefined && !isNaN(r[2]) ? parseInt(r[2]) : 1,
-                                size: r[3] !== undefined && r[3] !== null ? String(r[3]).trim() : "",
-                                website: r[4] !== undefined && r[4] !== null ? String(r[4]).trim() : "",
-                                price: r[5] !== undefined && !isNaN(r[5]) ? parseFloat(r[5]) : 0,
-                                status: r[6] !== undefined && String(r[6]).includes('已') ? "已購買" : "未購買",
-                                checked: r[7] !== undefined && (String(r[7]).includes('是') || String(r[7]).includes('☑') || String(r[7]) === 'true'),
-                                toolbox: r[8] !== undefined && r[8] !== null ? String(r[8]).trim() : ""
+                                date: formatImportedDate(getCell(r, ['日期'], undefined)),
+                                item: cleanCell(getCell(r, ['品項'], 0)) || '一般品項',
+                                matName: cleanCell(getCell(r, ['物資名稱'], 1)) || '未命名物資',
+                                qty: toNumber(getCell(r, ['數量'], 2)) || 1,
+                                size: cleanCell(getCell(r, ['尺寸'], 3)),
+                                website: cleanCell(getCell(r, ['網站'], 4)),
+                                price: toNumber(getCell(r, ['價錢', '價格', '單價'], 5)),
+                                status: cleanCell(getCell(r, ['狀態'], 6)).includes('已') ? '已購買' : '未購買',
+                                checked: /是|已|☑|true/i.test(cleanCell(getCell(r, ['已檢查'], 7))),
+                                toolbox: cleanCell(getCell(r, ['工具箱號碼'], 8))
                             });
                             count++;
                         }
+
                         db.projMat = [...importedItems, ...db.projMat];
-                        alert(`📦 專案「${currentActiveProject}」成功匯入 ${count} 筆物資！`);
-                        openProjectDetail(currentActiveProject);
-                    } else {
+                    }
+
+                    // ===== 活動 / 香氛 月成本 =====
+                    else if (targetKey === 'act-cost' || targetKey === 'perf-cost') {
                         for (let i = 1; i < rows.length; i++) {
                             const r = rows[i];
-                            if (!r || r.length < 2) continue;
+                            if (!r || r.every(v => cleanCell(v) === '')) continue;
+
+                            const rawType = cleanCell(getCell(r, ['發票種類'], 0));
+                            const invoiceType = ['電子發票', '紙本發票', '紙本收據'].includes(rawType) ? rawType : '電子發票';
+                            const sellerId = cleanCell(getCell(r, ['賣方統編', '賣方統一編號'], 4)).replace(/\.0$/, '');
+                            const sellerName = cleanCell(getCell(r, ['賣方名稱'], 6));
+
+                            let matchedRule = null;
+                            if (typeof window.findClassificationMemory === 'function') {
+                                matchedRule = window.findClassificationMemory({
+                                    sellerId,
+                                    sellerName,
+                                    text: ''
+                                });
+                            }
+
+                            const rememberedCategory = matchedRule && CATEGORIES.includes(cleanCell(matchedRule.category))
+                                ? cleanCell(matchedRule.category)
+                                : '';
+
+                            if (rememberedCategory) memoryClassifiedCount++;
+                            else unclassifiedCount++;
+
                             importedItems.push({
-                                id: 'excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7),
-                                type: r[0] ? String(r[0]) : "電子發票",
-                                number: r[1] ? String(r[1]).toUpperCase() : 'INV' + Math.floor(1000 + Math.random() * 9000),
-                                date: r[2] ? String(r[2]).substring(0,10) : new Date().toISOString().substring(0,10),
-                                buyer: r[3] ? String(r[3]) : "60676740",
-                                sellerId: r[4] ? String(r[4]) : "",
-                                category: r[5] && CATEGORIES.includes(String(r[5])) ? String(r[5]) : "進貨營業成本",
-                                seller: r[6] ? String(r[6]) : "廠商_" + i,
-                                amount: r[7] !== undefined && !isNaN(r[7]) ? parseFloat(r[7]) : 1000
+                                id: 'excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 7),
+                                type: invoiceType,
+                                number: cleanCell(getCell(r, ['發票號碼'], 1)).toUpperCase(),
+                                date: formatImportedDate(getCell(r, ['日期', '發票日期'], 2)),
+                                buyer: cleanCell(getCell(r, ['買方統編', '買方統一編號'], 3)).replace(/\.0$/, '') || '60676740',
+                                sellerId,
+                                category: rememberedCategory,
+                                seller: sellerName,
+                                amount: toNumber(getCell(r, ['金額'], 7)),
+                                classificationSource: rememberedCategory ? '分類記憶庫' : '',
+                                classificationMatched: rememberedCategory && matchedRule ? (matchedRule.value || '') : '',
+                                classificationUpdatedAt: rememberedCategory ? new Date().toISOString() : ''
                             });
                             count++;
                         }
-                        if (targetKey === 'perf-cost') {
-                            db.perfCost = [...importedItems, ...db.perfCost];
-                            alert(`🌿 成功匯入 ${count} 筆 Excel 到【香氛月成本報表】！`);
-                            switchTab('perf-cost');
-                        } else {
+
+                        if (targetKey === 'act-cost') {
                             db.actCost = [...importedItems, ...db.actCost];
-                            alert(`📑 成功匯入 ${count} 筆 Excel 到【活動月成本報表】！`);
-                            switchTab('act-cost');
+                        } else {
+                            db.perfCost = [...importedItems, ...db.perfCost];
+                        }
+                    }
+
+                    // ===== 活動月營收 =====
+                    else if (targetKey === 'act-rev') {
+                        for (let i = 1; i < rows.length; i++) {
+                            const r = rows[i];
+                            if (!r || r.every(v => cleanCell(v) === '')) continue;
+
+                            const amount = toNumber(getCell(r, ['金額', '總金額', '營收金額'], 5));
+                            const totalQty = toNumber(getCell(r, ['總數量', '數量'], 4)) || 1;
+                            const shownAmount = getCell(r, ['未稅/含稅金額', '含稅金額'], 6);
+                            let items = parseJsonItems(
+                                getCell(r, ['品項', '品項明細'], 3),
+                                totalQty,
+                                amount,
+                                true
+                            );
+
+                            if (!items.length) {
+                                items = [{ name: '未填品項', qty: totalQty, price: totalQty ? amount / totalQty : amount }];
+                            }
+
+                            importedItems.push({
+                                id: 'act_rev_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 7),
+                                date: formatImportedDate(getCell(r, ['日期', '活動日期'], 1)),
+                                client: cleanCell(getCell(r, ['客戶', '客戶名稱'], 2)),
+                                items,
+                                totalQty: totalQty || items.reduce((sum, x) => sum + (Number(x.qty) || 0), 0) || 1,
+                                totalAmount: amount,
+                                taxMode: inferTaxMode(amount, shownAmount)
+                            });
+                            count++;
+                        }
+
+                        // 關鍵修正：活動月營收只寫入 actRev，不碰 actCost。
+                        db.actRev = [...importedItems, ...db.actRev];
+                    }
+
+                    // ===== 香氛月營收 =====
+                    else if (targetKey === 'perf-rev') {
+                        for (let i = 1; i < rows.length; i++) {
+                            const r = rows[i];
+                            if (!r || r.every(v => cleanCell(v) === '')) continue;
+
+                            const totalQty = toNumber(getCell(r, ['總數量', '數量'], 4)) || 1;
+                            const origPrice = toNumber(getCell(r, ['原價'], 5));
+                            const finalPrice = toNumber(getCell(r, ['優惠價格', '金額', '營收金額'], 7));
+                            const shownAmount = getCell(r, ['未稅/含稅金額', '含稅金額'], 8);
+
+                            let items = parseJsonItems(
+                                getCell(r, ['品項', '品項明細'], 3),
+                                totalQty,
+                                finalPrice,
+                                false
+                            );
+
+                            if (!items.length) {
+                                items = [{ name: '未填品項', qty: totalQty }];
+                            }
+
+                            importedItems.push({
+                                id: 'perf_rev_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 7),
+                                date: formatImportedDate(getCell(r, ['日期', '訂購日期'], 1)),
+                                client: cleanCell(getCell(r, ['客戶', '客戶名稱'], 2)),
+                                items,
+                                totalQty: totalQty || items.reduce((sum, x) => sum + (Number(x.qty) || 0), 0) || 1,
+                                origPrice,
+                                discount: cleanCell(getCell(r, ['折扣'], 6)),
+                                finalPrice,
+                                taxMode: inferTaxMode(finalPrice, shownAmount),
+                                gift: cleanCell(getCell(r, ['贈品'], 9)),
+                                status: cleanCell(getCell(r, ['狀態', '入帳狀態'], 10)) || '未入帳',
+                                note: cleanCell(getCell(r, ['備註'], 11))
+                            });
+                            count++;
+                        }
+
+                        // 關鍵修正：香氛月營收只寫入 perfRev，不碰 actCost / perfCost。
+                        db.perfRev = [...importedItems, ...db.perfRev];
+                    }
+
+                    // ===== 活動 / 香氛 代墊款 =====
+                    else if (targetKey === 'act-adv' || targetKey === 'perf-adv') {
+                        for (let i = 1; i < rows.length; i++) {
+                            const r = rows[i];
+                            if (!r || r.every(v => cleanCell(v) === '')) continue;
+
+                            importedItems.push({
+                                id: 'adv_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 7),
+                                date: formatImportedDate(getCell(r, ['日期'], 1)),
+                                person: cleanCell(getCell(r, ['代墊人'], 2)) || 'Nita',
+                                detail: cleanCell(getCell(r, ['代墊明細', '明細'], 3)),
+                                amount: toNumber(getCell(r, ['金額'], 4)),
+                                status: '未請款'
+                            });
+                            count++;
+                        }
+
+                        if (targetKey === 'act-adv') {
+                            db.actAdv = [...importedItems, ...db.actAdv];
+                        } else {
+                            db.perfAdv = [...importedItems, ...db.perfAdv];
                         }
                     }
 
                     await saveDataToSupabase();
                     initTimeSelectors();
-                    renderDashboard();
                     renderAllTables();
+                    renderDashboard();
+
+                    if (targetKey === 'proj-mat') {
+                        openProjectDetail(currentActiveProject);
+                    } else {
+                        // 匯入完成後留在原本的報表，不再跳去活動月成本。
+                        switchTab(targetKey);
+                    }
+
+                    const reportNames = {
+                        'act-cost': '活動月成本報表',
+                        'perf-cost': '香氛月成本報表',
+                        'act-rev': '活動月營收報表',
+                        'perf-rev': '香氛月營收報表',
+                        'act-adv': '活動代墊款',
+                        'perf-adv': '香氛代墊款',
+                        'proj-mat': currentActiveProject ? `專案「${currentActiveProject}」物資單` : '專案物資單'
+                    };
+
+                    let extra = '';
+                    if (targetKey === 'act-cost' || targetKey === 'perf-cost') {
+                        extra =
+                            `\n🔖 記憶庫自動分類：${memoryClassifiedCount} 筆` +
+                            `\n⚠️ 尚未建立分類：${unclassifiedCount} 筆`;
+                    }
+
+                    alert(
+                        `📂 Excel 匯入完成\n\n` +
+                        `匯入到：${reportNames[targetKey]}\n` +
+                        `共匯入：${count} 筆${extra}`
+                    );
+
                     e.target.value = '';
                 } catch (err) {
-                    alert("解析 Excel 失敗：" + err);
+                    console.error('Excel / CSV 匯入錯誤：', err);
+                    alert('解析 Excel / CSV 失敗：' + (err && err.message ? err.message : err));
+                    e.target.value = '';
                 }
             };
         }
@@ -2264,7 +2638,7 @@
             });
         }
 
-        function renderImageGallery() {
+        function renderImageGalleryLegacy() {
             const grid = document.getElementById('image-gallery-grid');
             const monthFilter = document.getElementById('image-month-filter').value;
             if (!grid) return;
@@ -2290,7 +2664,600 @@
 <!-- =========================================================
      心引力會計系統｜第一階段 V1 + V2
      免費分類記憶庫 + 手動修正後自動學習
-     請放在 </body> 前面
+     請放在 <script>
+(function () {
+    'use strict';
+
+    function currentReportKey() {
+        const sec = document.querySelector('main > section:not(.hidden)');
+        return sec ? sec.id.replace('page-', '') : 'act-cost';
+    }
+
+    function cleanCell(v) {
+        return v === undefined || v === null ? '' : String(v).trim();
+    }
+
+    function numberCell(v) {
+        if (v === undefined || v === null || v === '') return 0;
+        const n = Number(String(v).replace(/NT\$|\$|,|\s/g, ''));
+        return Number.isFinite(n) ? n : 0;
+    }
+
+    function formatImportedDate(value) {
+        if (!value) return new Date().toISOString().substring(0, 10);
+        if (value instanceof Date && !isNaN(value.getTime())) {
+            const y = value.getFullYear();
+            const m = String(value.getMonth() + 1).padStart(2, '0');
+            const d = String(value.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+        if (typeof value === 'number' && typeof XLSX !== 'undefined' && XLSX.SSF) {
+            const p = XLSX.SSF.parse_date_code(value);
+            if (p) return `${String(p.y).padStart(4, '0')}-${String(p.m).padStart(2, '0')}-${String(p.d).padStart(2, '0')}`;
+        }
+        const raw = cleanCell(value);
+        const normalized = raw.replace(/[./]/g, '-');
+        const m = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (m) return `${m[1]}-${String(m[2]).padStart(2, '0')}-${String(m[3]).padStart(2, '0')}`;
+        const roc = raw.match(/^(\d{2,3})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+        if (roc) return `${Number(roc[1]) + 1911}-${String(roc[2]).padStart(2, '0')}-${String(roc[3]).padStart(2, '0')}`;
+        const dt = new Date(raw);
+        if (!isNaN(dt.getTime())) {
+            const y = dt.getFullYear();
+            const mo = String(dt.getMonth() + 1).padStart(2, '0');
+            const d = String(dt.getDate()).padStart(2, '0');
+            return `${y}-${mo}-${d}`;
+        }
+        return new Date().toISOString().substring(0, 10);
+    }
+
+    function normalizeHeader(v) {
+        return cleanCell(v).replace(/\s+/g, '').replace(/[（）()]/g, '').replace(/[:：]/g, '').toLowerCase();
+    }
+
+    function buildHeaderMap(headerRow) {
+        const map = {};
+        (headerRow || []).forEach((h, idx) => {
+            const k = normalizeHeader(h);
+            if (k && map[k] === undefined) map[k] = idx;
+        });
+        return map;
+    }
+
+    function getByHeader(row, map, aliases, fallbackIndex) {
+        for (const alias of aliases) {
+            const k = normalizeHeader(alias);
+            if (map[k] !== undefined) return row[map[k]];
+        }
+        return fallbackIndex !== undefined ? row[fallbackIndex] : undefined;
+    }
+
+    function parseItems(raw, totalQty, totalAmount, includePrice) {
+        if (Array.isArray(raw)) return raw;
+        const s = cleanCell(raw);
+        if (!s) return [];
+        try {
+            const parsed = JSON.parse(s);
+            if (Array.isArray(parsed)) {
+                return parsed.map(x => {
+                    const item = {
+                        name: cleanCell(x.name || x.item || x['品項'] || ''),
+                        qty: Number(x.qty || x.quantity || x['數量'] || 1) || 1
+                    };
+                    if (includePrice) item.price = numberCell(x.price || x.unitPrice || x['單價'] || 0);
+                    return item;
+                }).filter(x => x.name);
+            }
+        } catch (e) {}
+        const qty = Number(totalQty) || 1;
+        const item = { name: s, qty: qty };
+        if (includePrice) item.price = qty > 0 ? Math.round((Number(totalAmount) || 0) / qty) : 0;
+        return [item];
+    }
+
+    function detectTaxMode(row, map, rawAmount, displayedAmount) {
+        const explicit = cleanCell(getByHeader(row, map, ['稅額計算模式', 'taxMode', '稅別']));
+        if (/含稅|tax-included/i.test(explicit)) return 'tax-included';
+        if (/未稅|tax-excluded/i.test(explicit)) return 'tax-excluded';
+        const disp = numberCell(displayedAmount);
+        const raw = numberCell(rawAmount);
+        if (raw > 0 && disp > raw && Math.abs(disp - Math.round(raw * 1.05)) <= 2) return 'tax-included';
+        return 'tax-excluded';
+    }
+
+    function reportName(key) {
+        const names = {
+            'act-cost': '活動月成本報表',
+            'perf-cost': '香氛月成本報表',
+            'act-rev': '活動月營收報表',
+            'perf-rev': '香氛月營收報表',
+            'act-adv': '活動代墊款',
+            'perf-adv': '香氛代墊款',
+            'proj-mat': '專案物資單'
+        };
+        return names[key] || '目前報表';
+    }
+
+    async function newHandleExcelImport(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const targetKey = currentReportKey();
+        const supported = ['act-cost','perf-cost','act-rev','perf-rev','act-adv','perf-adv','proj-mat'];
+        if (!supported.includes(targetKey)) {
+            alert('目前頁面不是可匯入 Excel 的報表，請先切換到要匯入的清單。');
+            e.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onload = async function(evt) {
+            try {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                const ws = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+                if (!rows || rows.length < 2) {
+                    alert('Excel 裡沒有可匯入的資料。');
+                    e.target.value = '';
+                    return;
+                }
+
+                const headerMap = buildHeaderMap(rows[0]);
+                const imported = [];
+                let memoryClassifiedCount = 0;
+                let unclassifiedCount = 0;
+                pushState();
+
+                if (targetKey === 'proj-mat') {
+                    if (!currentActiveProject) {
+                        alert('請先點進去某個專案名稱內，再匯入該專案的 Excel 物資！');
+                        e.target.value = '';
+                        return;
+                    }
+                    for (let i = 1; i < rows.length; i++) {
+                        const r = rows[i];
+                        if (!r || r.every(v => cleanCell(v) === '')) continue;
+                        imported.push({
+                            id: 'proj_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,6),
+                            projName: currentActiveProject,
+                            date: formatImportedDate(getByHeader(r, headerMap, ['日期','專案日期'], undefined)),
+                            item: cleanCell(getByHeader(r, headerMap, ['品項'], 0)) || '一般品項',
+                            matName: cleanCell(getByHeader(r, headerMap, ['物資名稱'], 1)) || '未命名物資',
+                            qty: numberCell(getByHeader(r, headerMap, ['數量'], 2)) || 1,
+                            size: cleanCell(getByHeader(r, headerMap, ['尺寸'], 3)),
+                            website: cleanCell(getByHeader(r, headerMap, ['網站'], 4)),
+                            price: numberCell(getByHeader(r, headerMap, ['價錢','價格','單價'], 5)),
+                            status: cleanCell(getByHeader(r, headerMap, ['狀態'], 6)).includes('已') ? '已購買' : '未購買',
+                            checked: /已|是|true|☑/i.test(cleanCell(getByHeader(r, headerMap, ['已檢查'], 7))),
+                            toolbox: cleanCell(getByHeader(r, headerMap, ['工具箱號碼'], 8))
+                        });
+                    }
+                    db.projMat = [...imported, ...db.projMat];
+
+                } else if (targetKey === 'act-cost' || targetKey === 'perf-cost') {
+                    for (let i = 1; i < rows.length; i++) {
+                        const r = rows[i];
+                        if (!r || r.every(v => cleanCell(v) === '')) continue;
+                        const rawType = cleanCell(getByHeader(r, headerMap, ['發票種類'], 0));
+                        const invoiceType = ['電子發票','紙本發票','紙本收據'].includes(rawType) ? rawType : '電子發票';
+                        const sellerId = cleanCell(getByHeader(r, headerMap, ['賣方統編','賣方統一編號'], 4)).replace(/\.0$/, '');
+                        const sellerName = cleanCell(getByHeader(r, headerMap, ['賣方名稱'], 6));
+                        let matchedRule = null;
+                        if (typeof window.findClassificationMemory === 'function') {
+                            matchedRule = window.findClassificationMemory({ sellerId, sellerName, text: '' });
+                        }
+                        const rememberedCategory = matchedRule && CATEGORIES.includes(cleanCell(matchedRule.category)) ? cleanCell(matchedRule.category) : '';
+                        if (rememberedCategory) memoryClassifiedCount++; else unclassifiedCount++;
+                        imported.push({
+                            id: 'excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,7),
+                            type: invoiceType,
+                            number: cleanCell(getByHeader(r, headerMap, ['發票號碼'], 1)).toUpperCase(),
+                            date: formatImportedDate(getByHeader(r, headerMap, ['日期','發票日期'], 2)),
+                            buyer: cleanCell(getByHeader(r, headerMap, ['買方統編','買方統一編號'], 3)).replace(/\.0$/, '') || '60676740',
+                            sellerId,
+                            category: rememberedCategory,
+                            seller: sellerName,
+                            amount: numberCell(getByHeader(r, headerMap, ['金額'], 7)),
+                            classificationSource: rememberedCategory ? '分類記憶庫' : '',
+                            classificationMatched: rememberedCategory && matchedRule ? (matchedRule.value || '') : '',
+                            classificationUpdatedAt: rememberedCategory ? new Date().toISOString() : ''
+                        });
+                    }
+                    if (targetKey === 'act-cost') db.actCost = [...imported, ...db.actCost];
+                    else db.perfCost = [...imported, ...db.perfCost];
+
+                } else if (targetKey === 'act-rev') {
+                    for (let i = 1; i < rows.length; i++) {
+                        const r = rows[i];
+                        if (!r || r.every(v => cleanCell(v) === '')) continue;
+                        const amount = numberCell(getByHeader(r, headerMap, ['金額','總金額','營收金額'], 5));
+                        const qty = numberCell(getByHeader(r, headerMap, ['總數量','數量'], 4)) || 1;
+                        const shownAmount = getByHeader(r, headerMap, ['未稅/含稅金額','含稅金額'], 6);
+                        const rawItems = getByHeader(r, headerMap, ['品項','品項明細'], 3);
+                        const items = parseItems(rawItems, qty, amount, true);
+                        imported.push({
+                            id: 'act_rev_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,7),
+                            date: formatImportedDate(getByHeader(r, headerMap, ['日期','活動日期'], 1)),
+                            client: cleanCell(getByHeader(r, headerMap, ['客戶','客戶名稱'], 2)),
+                            items: items.length ? items : [{name:'未填品項', qty:qty, price:qty ? Math.round(amount/qty) : amount}],
+                            totalQty: qty,
+                            totalAmount: amount,
+                            taxMode: detectTaxMode(r, headerMap, amount, shownAmount)
+                        });
+                    }
+                    db.actRev = [...imported, ...db.actRev];
+
+                } else if (targetKey === 'perf-rev') {
+                    for (let i = 1; i < rows.length; i++) {
+                        const r = rows[i];
+                        if (!r || r.every(v => cleanCell(v) === '')) continue;
+                        const qty = numberCell(getByHeader(r, headerMap, ['總數量','數量'], 4)) || 1;
+                        const origPrice = numberCell(getByHeader(r, headerMap, ['原價'], 5));
+                        const finalPrice = numberCell(getByHeader(r, headerMap, ['優惠價格','金額','營收金額'], 7));
+                        const shownAmount = getByHeader(r, headerMap, ['未稅/含稅金額','含稅金額'], 8);
+                        const rawItems = getByHeader(r, headerMap, ['品項','品項明細'], 3);
+                        const items = parseItems(rawItems, qty, finalPrice, false);
+                        imported.push({
+                            id: 'perf_rev_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,7),
+                            date: formatImportedDate(getByHeader(r, headerMap, ['日期','訂購日期'], 1)),
+                            client: cleanCell(getByHeader(r, headerMap, ['客戶','客戶名稱'], 2)),
+                            items: items.length ? items : [{name:'未填品項', qty:qty}],
+                            totalQty: qty,
+                            origPrice,
+                            discount: cleanCell(getByHeader(r, headerMap, ['折扣'], 6)),
+                            finalPrice,
+                            taxMode: detectTaxMode(r, headerMap, finalPrice, shownAmount),
+                            gift: cleanCell(getByHeader(r, headerMap, ['贈品'], 9)),
+                            status: cleanCell(getByHeader(r, headerMap, ['狀態','入帳狀態'], 10)) || '未入帳',
+                            note: cleanCell(getByHeader(r, headerMap, ['備註'], 11))
+                        });
+                    }
+                    db.perfRev = [...imported, ...db.perfRev];
+
+                } else if (targetKey === 'act-adv' || targetKey === 'perf-adv') {
+                    for (let i = 1; i < rows.length; i++) {
+                        const r = rows[i];
+                        if (!r || r.every(v => cleanCell(v) === '')) continue;
+                        imported.push({
+                            id: 'adv_excel_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,7),
+                            date: formatImportedDate(getByHeader(r, headerMap, ['日期'], 1)),
+                            person: cleanCell(getByHeader(r, headerMap, ['代墊人'], 2)) || 'Nita',
+                            detail: cleanCell(getByHeader(r, headerMap, ['代墊明細','明細'], 3)),
+                            amount: numberCell(getByHeader(r, headerMap, ['金額'], 4)),
+                            status: '未請款'
+                        });
+                    }
+                    if (targetKey === 'act-adv') db.actAdv = [...imported, ...db.actAdv];
+                    else db.perfAdv = [...imported, ...db.perfAdv];
+                }
+
+                await saveDataToSupabase();
+                initTimeSelectors();
+                renderAllTables();
+                renderDashboard();
+                if (targetKey === 'proj-mat') openProjectDetail(currentActiveProject);
+                else switchTab(targetKey);
+
+                let extra = '';
+                if (targetKey === 'act-cost' || targetKey === 'perf-cost') {
+                    extra = `\n🔖 記憶庫自動分類：${memoryClassifiedCount} 筆\n⚠️ 尚未建立分類：${unclassifiedCount} 筆`;
+                }
+                alert(`📂 Excel 匯入完成\n\n匯入到：${reportName(targetKey)}\n共匯入：${imported.length} 筆${extra}`);
+                e.target.value = '';
+            } catch (err) {
+                console.error('Excel 匯入錯誤：', err);
+                alert('解析 Excel / CSV 失敗：' + (err && err.message ? err.message : err));
+                e.target.value = '';
+            }
+        };
+    }
+
+        window.handleExcelImport = newHandleExcelImport;
+        try { handleExcelImport = newHandleExcelImport; } catch (e) {}
+
+        function getSelectedReportMonthLabel(key) {
+        // 優先從目前頁面中找「月份」篩選 select。
+        const section = document.querySelector(`#page-${key}`) || document.querySelector('main > section:not(.hidden)');
+        if (!section) return '';
+
+        const selects = Array.from(section.querySelectorAll('select'));
+        for (const sel of selects) {
+            const selectedText = (sel.options?.[sel.selectedIndex]?.textContent || '').trim();
+            const selectedValue = String(sel.value || '').trim();
+
+            // 常見：2026-08 / 2026年8月 / 8月
+            let m = selectedValue.match(/(?:^|[-\/])(\d{1,2})$/);
+            if (m && Number(m[1]) >= 1 && Number(m[1]) <= 12) return `${Number(m[1])}月`;
+
+            m = selectedText.match(/(\d{1,2})\s*月/);
+            if (m && Number(m[1]) >= 1 && Number(m[1]) <= 12) return `${Number(m[1])}月`;
+        }
+
+        return '';
+    }
+
+    function getPrintReportTitle(key) {
+        const month = getSelectedReportMonthLabel(key);
+        const prefix = month || '';
+
+        const map = {
+            'act-cost': `${prefix}活動成本報表`,
+            'perf-cost': `${prefix}香氛成本報表`,
+            'act-rev': `${prefix}活動營收報表`,
+            'perf-rev': `${prefix}香氛月營收報表`,
+            'act-adv': `${prefix}活動代墊款`,
+            'perf-adv': `${prefix}香氛代墊款`,
+            'proj-mat': `${currentActiveProject || ''} 專案物資單`
+        };
+        return map[key] || '會計報表';
+    }
+
+    window.printSelectedReportPDF = function () {
+        const visibleSection = document.querySelector('main > section:not(.hidden)');
+        if (!visibleSection) {
+            alert('請先切換到要另存 PDF 的清單或報表。');
+            return;
+        }
+
+        const key = visibleSection.id.replace('page-', '');
+        const printableKeys = ['act-cost','perf-cost','act-rev','perf-rev','act-adv','perf-adv','proj-mat'];
+        if (!printableKeys.includes(key)) {
+            alert('目前頁面不是可另存 PDF 的報表。');
+            return;
+        }
+
+        if (key === 'proj-mat' && !currentActiveProject) {
+            alert('請先點進去特定的專案物資單明細中，再另存 PDF。');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank', 'width=1200,height=900');
+        if (!printWindow) {
+            alert('瀏覽器阻擋了另存 PDF 視窗。請允許此網站的彈出式視窗後再試一次。');
+            return;
+        }
+
+        const hasSelectedSet =
+            typeof selectedIds !== 'undefined' &&
+            selectedIds[key] instanceof Set &&
+            selectedIds[key].size > 0;
+
+        let restorePagination = null;
+
+        if (typeof pagination !== 'undefined' && pagination[key] && typeof renderTable === 'function') {
+            restorePagination = {
+                page: pagination[key].page,
+                size: pagination[key].size
+            };
+            pagination[key].page = 1;
+            pagination[key].size = 1000000;
+            renderTable(key);
+        }
+
+        const sourceSection = document.querySelector(`#page-${key}`) || visibleSection;
+        const clone = sourceSection.cloneNode(true);
+
+        freezeFormControls(sourceSection, clone);
+
+        if (hasSelectedSet) {
+            removeUnselectedRows(sourceSection, clone);
+        }
+
+        cleanPrintSection(clone);
+        preparePrintTables(sourceSection, clone);
+
+        if (restorePagination) {
+            pagination[key].page = restorePagination.page;
+            pagination[key].size = restorePagination.size;
+            renderTable(key);
+        }
+
+        const title = getPrintReportTitle(key);
+
+        const sectionHeading = clone.querySelector('h2');
+        if (sectionHeading) sectionHeading.textContent = title;
+
+        const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+            .map(el => el.outerHTML)
+            .join('\n');
+
+        printWindow.document.open();
+        printWindow.document.write(`<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title></title>
+${styles}
+<style>
+    @page {
+        size: auto;
+        margin: 0;
+    }
+
+    * {
+        box-sizing: border-box !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    html, body {
+        background: #fff !important;
+        color: #111 !important;
+        font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 粉色標題列直接往上移，頁面上方不再放任何自訂文字。 */
+    body {
+        padding: 4mm 12mm 10mm 12mm !important;
+    }
+
+    .pdf-page-wrap {
+        width: 100%;
+        margin: 0 auto;
+        padding: 0 !important;
+    }
+
+    .pdf-main-title {
+        width: 88%;
+        margin: 0 auto 10px auto;
+        padding: 9px 12px;
+        background: #e7c1bd !important;
+        text-align: center;
+        font-weight: 900;
+        font-size: 13px;
+        letter-spacing: .2px;
+    }
+
+    section {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    section > .card-box,
+    .card-box {
+        box-shadow: none !important;
+        border: 0 !important;
+        background: #fff !important;
+    }
+
+    h2 {
+        font-size: 13px !important;
+        font-weight: 900 !important;
+        margin: 0 0 2px 0 !important;
+    }
+
+    h3 {
+        font-size: 11px !important;
+        font-weight: 800 !important;
+    }
+
+    p, label, span, div {
+        color: #111;
+    }
+
+    select, input {
+        border: 1px solid #e5bdb8 !important;
+        border-radius: 10px !important;
+        padding: 4px 8px !important;
+        font-size: 9px !important;
+        background: #fff !important;
+    }
+
+    .pdf-value {
+        display: inline-block !important;
+        width: auto !important;
+        font-weight: 700 !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        font-size: inherit !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        margin-top: 8px !important;
+        page-break-inside: auto !important;
+    }
+
+    thead {
+        display: table-header-group !important;
+    }
+
+    tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+
+    th {
+        background: #f3f3f3 !important;
+        font-weight: 900 !important;
+        text-align: center !important;
+        border: 0 !important;
+        border-bottom: 1px solid #d8d8d8 !important;
+        padding: 6px 4px !important;
+        font-size: 8.5px !important;
+        line-height: 1.25 !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+
+    td {
+        border: 0 !important;
+        border-bottom: 1px solid #dedede !important;
+        padding: 6px 4px !important;
+        font-size: 8.5px !important;
+        font-weight: 650 !important;
+        line-height: 1.3 !important;
+        vertical-align: middle !important;
+        text-align: center !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    th.pdf-seq,
+    td.pdf-seq {
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        text-align: center !important;
+        font-weight: 900 !important;
+    }
+
+    th:last-child,
+    td:last-child {
+        text-align: right !important;
+        padding-right: 8px !important;
+    }
+
+    button,
+    .no-print,
+    .pagination-controls,
+    input[type="checkbox"] {
+        display: none !important;
+    }
+
+    .overflow-x-auto,
+    .overflow-auto {
+        overflow: visible !important;
+    }
+
+    @media print {
+        body { zoom: 1; }
+    }
+</style>
+</head>
+<body>
+<div class="pdf-page-wrap">
+    <div class="pdf-main-title">${title}</div>
+    ${clone.outerHTML}
+</div>
+<script>
+window.onload = function(){
+    document.title = '';
+    setTimeout(function(){
+        window.focus();
+        window.print();
+    }, 300);
+};
+<\/script>
+</body>
+</html>`);
+
+        printWindow.document.close();
+    };
+    try { printSelectedReportPDF = window.printSelectedReportPDF; } catch (e) {}
+})();
+
+</script>
+</body> 前面
 ========================================================= -->
 <script>
 (function () {
@@ -3208,5 +4175,1029 @@
 })();
 </script>
 
+
+<!-- =========================================================
+     本次僅修改 5 項：
+     1. 左側清單桌機收合 / 展開
+     2. 儀表板新增活動 / 香氛用途品項長條圖
+     3. 新增品項並同步兩份月成本下拉選單及圖表
+     4. 移除「導航與報表清單」文字
+     5. 修復所有清單頁另存 PDF
+========================================================= -->
+<script>
+(function () {
+    'use strict';
+
+    /* ---------- 1. 左側清單收合 / 展開 ---------- */
+    window.toggleSidebar = function () {
+        if (window.innerWidth < 768) return; // 手機維持原本 RWD
+        const sidebar = document.getElementById('sidebar-nav');
+        if (!sidebar) return;
+        sidebar.classList.toggle('sidebar-collapsed');
+        localStorage.setItem('heart_gravity_sidebar_collapsed', sidebar.classList.contains('sidebar-collapsed') ? '1' : '0');
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 240);
+    };
+
+    function restoreSidebarState() {
+        if (window.innerWidth < 768) return;
+        const sidebar = document.getElementById('sidebar-nav');
+        if (sidebar && localStorage.getItem('heart_gravity_sidebar_collapsed') === '1') {
+            sidebar.classList.add('sidebar-collapsed');
+        }
+    }
+
+    /* ---------- 3. 自訂用途品項 ---------- */
+    function syncCustomCategories() {
+        if (typeof db === 'undefined' || typeof CATEGORIES === 'undefined') return;
+        if (!Array.isArray(db.customCategories)) db.customCategories = [];
+        db.customCategories.forEach(name => {
+            if (name && !CATEGORIES.includes(name)) CATEGORIES.push(name);
+        });
+    }
+
+    const originalLoadDataFromSupabaseForCustomCategory = window.loadDataFromSupabase;
+    if (typeof originalLoadDataFromSupabaseForCustomCategory === 'function') {
+        window.loadDataFromSupabase = async function () {
+            const result = await originalLoadDataFromSupabaseForCustomCategory.apply(this, arguments);
+            syncCustomCategories();
+            return result;
+        };
+        try { loadDataFromSupabase = window.loadDataFromSupabase; } catch (e) {}
+    }
+
+    window.addCustomCategory = async function () {
+        syncCustomCategories();
+        const raw = prompt('請輸入新的用途品項名稱：');
+        if (raw === null) return;
+        const name = raw.trim();
+        if (!name) { alert('請輸入品項名稱。'); return; }
+        if (CATEGORIES.includes(name)) { alert('這個品項已經存在。'); return; }
+
+        if (!Array.isArray(db.customCategories)) db.customCategories = [];
+        db.customCategories.push(name);
+        CATEGORIES.push(name);
+
+        if (typeof saveDataToSupabase === 'function') await saveDataToSupabase();
+        if (typeof initCategorySelects === 'function') {
+            initCategorySelects('gen-category');
+            initCategorySelects('scan-category');
+        }
+        const memorySelect = document.getElementById('memory-category');
+        if (memorySelect) {
+            const current = memorySelect.value;
+            memorySelect.innerHTML = '';
+            CATEGORIES.forEach(c => memorySelect.add(new Option(c, c)));
+            if (current && CATEGORIES.includes(current)) memorySelect.value = current;
+        }
+        if (typeof renderAllTables === 'function') renderAllTables();
+        if (typeof renderDashboard === 'function') renderDashboard();
+        alert(`✅ 已新增用途品項「${name}」\n活動月成本與香氛月成本的用途品項下拉選單已同步更新。`);
+    };
+
+    /* ---------- 2. 兩張用途品項長條圖 ---------- */
+    let actCategoryChartInst = null;
+    let perfCategoryChartInst = null;
+
+    function sumByCategory(list) {
+        const totals = {};
+        (list || []).forEach(item => {
+            const category = (item.category || '未分類').trim() || '未分類';
+            const amount = Number(item.amount) || 0;
+            totals[category] = (totals[category] || 0) + amount;
+        });
+        return Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    }
+
+    function getDashboardFilteredCosts() {
+        let aCost = Array.isArray(db.actCost) ? db.actCost : [];
+        let pCost = Array.isArray(db.perfCost) ? db.perfCost : [];
+        const selector = document.getElementById('dash-time-selector');
+        const timeVal = selector ? selector.value : 'all';
+
+        if (timeVal && timeVal !== 'all') {
+            if (timeVal.startsWith('year_')) {
+                const yr = timeVal.replace('year_', '');
+                aCost = aCost.filter(i => i.date && i.date.startsWith(yr));
+                pCost = pCost.filter(i => i.date && i.date.startsWith(yr));
+            } else {
+                aCost = aCost.filter(i => i.date && i.date.startsWith(timeVal));
+                pCost = pCost.filter(i => i.date && i.date.startsWith(timeVal));
+            }
+        }
+        return { aCost, pCost };
+    }
+
+    function drawCategoryBarChart(canvasId, rows, oldInstance) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || typeof Chart === 'undefined') return oldInstance;
+        if (oldInstance) oldInstance.destroy();
+
+        const labels = rows.length ? rows.map(r => r[0]) : ['尚無資料'];
+        const values = rows.length ? rows.map(r => r[1]) : [0];
+        return new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{ data: values, backgroundColor: '#d3a9a6', borderRadius: 6 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `NT$ ${Number(ctx.raw || 0).toLocaleString()}` } }
+                },
+                scales: {
+                    x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0, font: { size: 10 } } },
+                    y: { beginAtZero: true, ticks: { callback: value => `NT$ ${Number(value).toLocaleString()}` } }
+                }
+            }
+        });
+    }
+
+    function renderExtraCategoryCharts() {
+        if (typeof db === 'undefined') return;
+        const { aCost, pCost } = getDashboardFilteredCosts();
+        actCategoryChartInst = drawCategoryBarChart('actCategoryChart', sumByCategory(aCost), actCategoryChartInst);
+        perfCategoryChartInst = drawCategoryBarChart('perfCategoryChart', sumByCategory(pCost), perfCategoryChartInst);
+    }
+
+    const originalRenderDashboardForCategoryCharts = window.renderDashboard;
+    if (typeof originalRenderDashboardForCategoryCharts === 'function') {
+        window.renderDashboard = function () {
+            const result = originalRenderDashboardForCategoryCharts.apply(this, arguments);
+            renderExtraCategoryCharts();
+            return result;
+        };
+        try { renderDashboard = window.renderDashboard; } catch (e) {}
+    }
+
+    /* ---------- 5. 所有清單頁另存 PDF：不鎖定橫式，讓瀏覽器列印對話框可選橫/直式與縮放 ---------- */
+    function freezeFormControls(source, clone) {
+        const sourceInputs = source.querySelectorAll('input');
+        const cloneInputs = clone.querySelectorAll('input');
+        sourceInputs.forEach((el, idx) => {
+            const c = cloneInputs[idx];
+            if (!c) return;
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                c.remove();
+                return;
+            }
+            const span = document.createElement('span');
+            span.textContent = el.value || '';
+            span.className = 'pdf-value';
+            c.replaceWith(span);
+        });
+
+        const sourceSelects = source.querySelectorAll('select');
+        const cloneSelects = clone.querySelectorAll('select');
+        sourceSelects.forEach((el, idx) => {
+            const c = cloneSelects[idx];
+            if (!c) return;
+            const span = document.createElement('span');
+            span.textContent = el.options[el.selectedIndex]?.text || el.value || '';
+            span.className = 'pdf-value';
+            c.replaceWith(span);
+        });
+
+        const sourceTextareas = source.querySelectorAll('textarea');
+        const cloneTextareas = clone.querySelectorAll('textarea');
+        sourceTextareas.forEach((el, idx) => {
+            const c = cloneTextareas[idx];
+            if (!c) return;
+            const span = document.createElement('span');
+            span.textContent = el.value || '';
+            span.className = 'pdf-value';
+            c.replaceWith(span);
+        });
+    }
+
+    function removeUnselectedRows(source, clone) {
+        const sourceBodies = source.querySelectorAll('tbody');
+        const cloneBodies = clone.querySelectorAll('tbody');
+        sourceBodies.forEach((body, bodyIndex) => {
+            const cloneBody = cloneBodies[bodyIndex];
+            if (!cloneBody) return;
+            const sourceRows = Array.from(body.querySelectorAll(':scope > tr'));
+            const cloneRows = Array.from(cloneBody.querySelectorAll(':scope > tr'));
+            const checkedRows = sourceRows.map((row, idx) => ({ row, idx, cb: row.querySelector('input[type="checkbox"]') })).filter(x => x.cb && x.cb.checked);
+            if (!checkedRows.length) return;
+            cloneRows.forEach((row, idx) => {
+                if (!checkedRows.some(x => x.idx === idx)) row.remove();
+            });
+        });
+    }
+
+    function preparePrintTables(source, clone) {
+        const sourceTables = Array.from(source.querySelectorAll('table'));
+        const cloneTables = Array.from(clone.querySelectorAll('table'));
+
+        cloneTables.forEach((table, tableIndex) => {
+            const sourceTable = sourceTables[tableIndex];
+            if (!sourceTable) return;
+
+            const sourceHeaders = Array.from(sourceTable.querySelectorAll('thead th'));
+            const cloneHeaders = Array.from(table.querySelectorAll('thead th'));
+
+            const removeIndexes = [];
+
+            // PDF 不需要勾選框欄。
+            sourceHeaders.forEach((th, idx) => {
+                if (th.querySelector('input[type="checkbox"]')) removeIndexes.push(idx);
+                const label = (th.textContent || '').trim();
+                if (label === '操作') removeIndexes.push(idx);
+            });
+
+            // 有些表頭沒有 checkbox，但資料列第一欄有 checkbox。
+            if (!removeIndexes.includes(0)) {
+                const firstSourceRow = sourceTable.querySelector('tbody tr');
+                if (firstSourceRow) {
+                    const firstCell = firstSourceRow.children[0];
+                    if (firstCell && firstCell.querySelector('input[type="checkbox"]')) {
+                        removeIndexes.push(0);
+                    }
+                }
+            }
+
+            [...new Set(removeIndexes)].sort((a,b)=>b-a).forEach(idx => {
+                table.querySelectorAll('tr').forEach(row => {
+                    if (row.children[idx]) row.children[idx].remove();
+                });
+            });
+
+            // 每一筆資料前面加入流水號。
+            const theadRow = table.querySelector('thead tr');
+            if (theadRow) {
+                const th = document.createElement('th');
+                th.textContent = '序號';
+                th.className = 'pdf-seq';
+                theadRow.insertBefore(th, theadRow.firstChild);
+            }
+
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            rows.forEach((row, idx) => {
+                const td = document.createElement('td');
+                td.textContent = String(idx + 1);
+                td.className = 'pdf-seq';
+                row.insertBefore(td, row.firstChild);
+            });
+        });
+    }
+
+    function cleanPrintSection(clone) {
+        // 不列印分頁器、儲存按鈕、刪除按鈕與一般操作按鈕。
+        clone.querySelectorAll('button, .no-print').forEach(el => el.remove());
+
+        // 清掉表格裡殘留的空白控制項/圖示，但保留日期篩選等文字資訊。
+        clone.querySelectorAll('input[type="checkbox"]').forEach(el => el.remove());
+
+        // PDF 中不需要手機版導覽或其他隱藏區塊被意外展開。
+        clone.querySelectorAll('[id^="mobile-"], .mobile-only').forEach(el => el.remove());
+    }
+
+    window.printSelectedReportPDF = function () {
+        const visibleSection = document.querySelector('main > section:not(.hidden)');
+        if (!visibleSection) {
+            alert('請先切換到要另存 PDF 的清單或報表。');
+            return;
+        }
+
+        const key = visibleSection.id.replace('page-', '');
+        const printableKeys = ['act-cost','perf-cost','act-rev','perf-rev','act-adv','perf-adv','proj-mat'];
+        if (!printableKeys.includes(key)) {
+            alert('目前頁面不是可另存 PDF 的報表。');
+            return;
+        }
+
+        if (key === 'proj-mat' && !currentActiveProject) {
+            alert('請先點進去特定的專案物資單明細中，再另存 PDF。');
+            return;
+        }
+
+        // 不再開新分頁：建立同頁隱藏 iframe，直接叫出瀏覽器列印預覽。
+        const oldPrintFrame = document.getElementById('same-page-print-frame');
+        if (oldPrintFrame) oldPrintFrame.remove();
+
+        const printFrame = document.createElement('iframe');
+        printFrame.id = 'same-page-print-frame';
+        printFrame.setAttribute('aria-hidden', 'true');
+        printFrame.style.position = 'fixed';
+        printFrame.style.right = '0';
+        printFrame.style.bottom = '0';
+        printFrame.style.width = '1px';
+        printFrame.style.height = '1px';
+        printFrame.style.border = '0';
+        printFrame.style.opacity = '0';
+        printFrame.style.pointerEvents = 'none';
+        document.body.appendChild(printFrame);
+
+        const printWindow = printFrame.contentWindow;
+        if (!printWindow) {
+            printFrame.remove();
+            alert('無法開啟列印預覽，請重新整理頁面後再試一次。');
+            return;
+        }
+
+        const hasSelected =
+            selectedIds[key] instanceof Set &&
+            selectedIds[key].size > 0;
+
+        let restore = null;
+
+        if (pagination[key] && typeof renderTable === 'function') {
+            restore = {
+                page: pagination[key].page,
+                size: pagination[key].size
+            };
+            pagination[key].page = 1;
+            pagination[key].size = 1000000;
+            renderTable(key);
+        }
+
+        const sourceSection = document.querySelector(`#page-${key}`) || visibleSection;
+        const clone = sourceSection.cloneNode(true);
+
+        // 先把表單欄位轉成純文字，再依勾選狀態刪除未選資料。
+        freezeFormControls(sourceSection, clone);
+        if (hasSelected) removeUnselectedRows(sourceSection, clone);
+
+        // 不列印操作按鈕、勾選框、分頁器。
+        clone.querySelectorAll('button, .no-print, input[type="checkbox"]').forEach(el => el.remove());
+
+        // 表格移除操作欄並加序號。
+        const tables = Array.from(clone.querySelectorAll('table'));
+        tables.forEach(table => {
+            const headerRow = table.querySelector('thead tr');
+            if (!headerRow) return;
+
+            const headerCells = Array.from(headerRow.children);
+            const removeIndexes = [];
+
+            headerCells.forEach((th, idx) => {
+                const label = (th.textContent || '').trim();
+                if (label === '操作') removeIndexes.push(idx);
+            });
+
+            [...new Set(removeIndexes)].sort((a,b)=>b-a).forEach(idx => {
+                table.querySelectorAll('tr').forEach(row => {
+                    if (row.children[idx]) row.children[idx].remove();
+                });
+            });
+
+            const seqTh = document.createElement('th');
+            seqTh.textContent = '序號';
+            seqTh.className = 'pdf-seq';
+            headerRow.insertBefore(seqTh, headerRow.firstChild);
+
+            Array.from(table.querySelectorAll('tbody tr')).forEach((row, idx) => {
+                const td = document.createElement('td');
+                td.textContent = String(idx + 1);
+                td.className = 'pdf-seq';
+                row.insertBefore(td, row.firstChild);
+            });
+        });
+
+        if (restore) {
+            pagination[key].page = restore.page;
+            pagination[key].size = restore.size;
+            renderTable(key);
+        }
+
+        function monthLabelFromPage() {
+            if (key === 'proj-mat') return '';
+
+            const page = document.querySelector(`#page-${key}`);
+            if (!page) return '';
+
+            // 優先找該報表自己的月份 input。
+            const monthInput = page.querySelector('input[type="month"]');
+            if (monthInput && /^\d{4}-\d{2}$/.test(monthInput.value || '')) {
+                return `${Number(monthInput.value.slice(5,7))}月`;
+            }
+
+            // 若沒有 month input，再從 select 文字判斷。
+            const selects = Array.from(page.querySelectorAll('select'));
+            for (const sel of selects) {
+                const txt = (sel.options?.[sel.selectedIndex]?.textContent || '').trim();
+                const m = txt.match(/(\d{1,2})\s*月/);
+                if (m) return `${Number(m[1])}月`;
+            }
+            return '';
+        }
+
+        const month = monthLabelFromPage();
+        const titleMap = {
+            'act-cost': `${month}活動成本報表`,
+            'perf-cost': `${month}香氛成本報表`,
+            'act-rev': `${month}活動營收報表`,
+            'perf-rev': `${month}香氛月營收報表`,
+            'act-adv': `${month}活動代墊款`,
+            'perf-adv': `${month}香氛代墊款`,
+            'proj-mat': `${currentActiveProject || ''} 專案物資單`
+        };
+        const title = titleMap[key] || '會計報表';
+
+        // 內文左側報表名稱同步顯示月份。
+        const heading = clone.querySelector('h2');
+        if (heading) heading.textContent = title;
+
+        // 7 類列印報表的公司統編文字全部統一。
+        // 不論原頁面寫「買方統編」、「買方統一編號」或沒有這一行，
+        // PDF 列印時都固定顯示：心引力有限公司統一編號：60676740
+        const companyIdText = '心引力有限公司統一編號：60676740';
+        const headingForCompanyId = clone.querySelector('h2');
+
+        let companyIdLine = null;
+        clone.querySelectorAll('p').forEach(p => {
+            const txt = (p.textContent || '').trim();
+            if (
+                /買方統編/.test(txt) ||
+                /買方統一編號/.test(txt) ||
+                /心引力有限公司統一編號/.test(txt)
+            ) {
+                if (!companyIdLine) {
+                    companyIdLine = p;
+                    p.textContent = companyIdText;
+                } else {
+                    p.remove();
+                }
+            }
+        });
+
+        // 某些營收／代墊／專案物資單原本沒有買方統編這一行，
+        // 列印時自動補在報表名稱下方。
+        if (!companyIdLine && headingForCompanyId) {
+            companyIdLine = document.createElement('p');
+            companyIdLine.textContent = companyIdText;
+            companyIdLine.className = 'text-xs text-[var(--medium)]';
+            headingForCompanyId.insertAdjacentElement('afterend', companyIdLine);
+        }
+
+        const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+            .map(el => el.outerHTML).join('\n');
+
+        printWindow.document.open();
+        printWindow.document.write(`<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title></title>
+${styles}
+<style>
+    /*
+      關鍵：
+      不再建立任何粉色標題上方的 DOM。
+      @page margin:0 + body 自己留 4mm，避免網站自己產生頁首內容。
+    */
+    @page {
+        size: auto;
+        margin: 0 !important;
+    }
+
+    * {
+        box-sizing: border-box !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        color: #111 !important;
+        font-family: 'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif !important;
+    }
+
+    body {
+        padding: 4mm 16mm 10mm 16mm !important;
+    }
+
+    .pdf-page-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* 第一個可見元素就是粉色標題列 */
+    .pdf-main-title {
+        width: 88% !important;
+        margin: 0 auto 10px auto !important;
+        padding: 9px 12px !important;
+        background: #e7c1bd !important;
+        color: #111 !important;
+        text-align: center !important;
+        font-size: 13px !important;
+        font-weight: 900 !important;
+        line-height: 1.25 !important;
+    }
+
+    section {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    .card-box {
+        box-shadow: none !important;
+        border: 0 !important;
+        background: #fff !important;
+    }
+
+    h2 {
+        font-size: 13px !important;
+        font-weight: 900 !important;
+        margin: 0 0 2px 0 !important;
+    }
+
+    h3 {
+        font-size: 11px !important;
+        font-weight: 800 !important;
+    }
+
+    p {
+        font-size: 9px !important;
+        margin-top: 1px !important;
+    }
+
+    select, input {
+        border: 1px solid #e5bdb8 !important;
+        border-radius: 10px !important;
+        padding: 4px 8px !important;
+        font-size: 9px !important;
+        background: #fff !important;
+    }
+
+    .pdf-value {
+        display: inline-block !important;
+        width: auto !important;
+        font-weight: 700 !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+
+    table {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        margin-top: 8px !important;
+        page-break-inside: auto !important;
+    }
+
+    thead {
+        display: table-header-group !important;
+    }
+
+    tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+
+    th {
+        background: #f3f3f3 !important;
+        border: 0 !important;
+        border-bottom: 1px solid #d8d8d8 !important;
+        padding: 6px 4px !important;
+        font-size: 8.5px !important;
+        font-weight: 900 !important;
+        line-height: 1.25 !important;
+        text-align: center !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+
+    td {
+        border: 0 !important;
+        border-bottom: 1px solid #dedede !important;
+        padding: 6px 4px !important;
+        font-size: 8.5px !important;
+        font-weight: 650 !important;
+        line-height: 1.3 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    th.pdf-seq,
+    td.pdf-seq {
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        font-weight: 900 !important;
+        text-align: center !important;
+    }
+
+    th:last-child,
+    td:last-child {
+        text-align: right !important;
+        padding-right: 8px !important;
+    }
+
+    button,
+    .no-print,
+    input[type="checkbox"] {
+        display: none !important;
+    }
+
+    .overflow-x-auto,
+    .overflow-auto {
+        overflow: visible !important;
+    }
+
+    @media print {
+        html, body {
+            margin: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        body {
+            padding: 4mm 16mm 10mm 16mm !important;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="pdf-page-wrap">
+    <div class="pdf-main-title">${title}</div>
+    ${clone.outerHTML}
+</div>
+<script>
+window.onload = function(){
+    document.title = '';
+    setTimeout(function(){
+        window.focus();
+        window.print();
+    }, 250);
+};
+window.onafterprint = function(){
+    try {
+        const frame = window.frameElement;
+        if (frame) setTimeout(function(){ frame.remove(); }, 100);
+    } catch (e) {}
+};
+<\/script>
+</body>
+</html>`);
+
+        printWindow.document.close();
+    };
+    try { printSelectedReportPDF = window.printSelectedReportPDF; } catch (e) {}
+
+    function initThisPatch() {
+        restoreSidebarState();
+        syncCustomCategories();
+        renderExtraCategoryCharts();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initThisPatch);
+    else initThisPatch();
+})();
+</script>
+
+<script>
+/* 第三階段 3A｜每月紙本憑證圖庫 */
+(function(){
+'use strict';
+const STORAGE_BUCKET = 'paper-vouchers';
+let currentVoucherFolderId = null;
+let stagedVoucherFiles = [];
+
+function ensureVoucherData(){
+  if(!Array.isArray(db.voucherFolders)) db.voucherFolders=[];
+  if(!Array.isArray(db.attachments)) db.attachments=[];
+}
+function safeText(v){ return String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c])); }
+function folderDate(f){ return f.sortDate || f.createdAt || ''; }
+
+window.renderImageGallery = function(){ renderVoucherFolders(); };
+window.renderVoucherFolders = function(){
+  ensureVoucherData(); currentVoucherFolderId=null; stagedVoucherFiles=[];
+  const view=document.getElementById('voucher-folder-view'), detail=document.getElementById('voucher-folder-detail'), grid=document.getElementById('voucher-folder-grid');
+  if(!grid) return; view?.classList.remove('hidden'); detail?.classList.add('hidden');
+  const sort=document.getElementById('voucher-folder-sort')?.value||'date-desc';
+  let folders=[...db.voucherFolders];
+  folders.sort((a,b)=> sort==='date-asc'?folderDate(a).localeCompare(folderDate(b)):sort==='name-asc'?String(a.name).localeCompare(String(b.name),'zh-Hant'):sort==='name-desc'?String(b.name).localeCompare(String(a.name),'zh-Hant'):folderDate(b).localeCompare(folderDate(a)));
+  if(!folders.length){ grid.innerHTML='<div class="sm:col-span-2 lg:col-span-3 card-box text-center py-10 text-[var(--gray)] font-bold">尚未建立資料夾，請按「＋ 新增資料夾」。</div>'; return; }
+  grid.innerHTML=folders.map(f=>{ const count=db.attachments.filter(a=>a.folderId===f.id).length; return `<div class="card-box space-y-3"><div class="flex justify-between gap-2"><label class="flex items-start gap-2"><input type="checkbox" class="voucher-folder-check mt-1" value="${f.id}"><span><span class="font-bold">📁 ${safeText(f.name)}</span><span class="block text-[11px] text-[var(--medium)] mt-1">${safeText(f.sortDate||'')} · ${count} 個檔案</span></span></label></div><div class="flex gap-2"><button onclick="openVoucherFolder('${f.id}')" class="flex-1 px-3 py-2 rounded-xl bg-[var(--light-pink)] text-xs font-bold">開啟</button><button onclick="renameVoucherFolder('${f.id}')" class="px-3 py-2 rounded-xl border text-xs font-bold">重新命名</button></div></div>`; }).join('');
+};
+window.createVoucherFolder = async function(){
+  ensureVoucherData(); const name=prompt('請輸入資料夾名稱，例如：2026年8月'); if(!name?.trim()) return;
+  const sortDate=prompt('請輸入資料夾日期（YYYY-MM-DD），用於日期排序：', new Date().toISOString().slice(0,10)); if(sortDate===null) return;
+  if(!confirm(`確認新增資料夾「${name.trim()}」？`)) return;
+  pushState?.(); db.voucherFolders.push({id:'vf_'+Date.now(),name:name.trim(),sortDate:sortDate.trim(),createdAt:new Date().toISOString()}); await saveDataToSupabase(); renderVoucherFolders();
+};
+window.renameVoucherFolder = async function(id){ const f=db.voucherFolders.find(x=>x.id===id); if(!f)return; const n=prompt('修改資料夾名稱：',f.name); if(!n?.trim()||n.trim()===f.name)return; if(!confirm(`確認將「${f.name}」重新命名為「${n.trim()}」？`))return; f.name=n.trim(); await saveDataToSupabase(); renderVoucherFolders(); };
+window.deleteSelectedVoucherFolders = async function(){
+ const ids=[...document.querySelectorAll('.voucher-folder-check:checked')].map(x=>x.value); if(!ids.length){alert('請先勾選要刪除的資料夾。');return;}
+ const files=db.attachments.filter(a=>ids.includes(a.folderId)); if(!confirm(`確認刪除 ${ids.length} 個資料夾？
+資料夾內共 ${files.length} 個檔案也會一起刪除，此動作無法復原。`))return;
+ for(const a of files){ if(a.storagePath){ try{ await supabaseClient.storage.from(STORAGE_BUCKET).remove([a.storagePath]); }catch(e){} } }
+ pushState?.(); db.attachments=db.attachments.filter(a=>!ids.includes(a.folderId)); db.voucherFolders=db.voucherFolders.filter(f=>!ids.includes(f.id)); await saveDataToSupabase(); renderVoucherFolders();
+};
+window.openVoucherFolder=function(id){ currentVoucherFolderId=id; stagedVoucherFiles=[]; document.getElementById('voucher-folder-view')?.classList.add('hidden'); document.getElementById('voucher-folder-detail')?.classList.remove('hidden'); renderVoucherFolderDetail(); };
+window.closeVoucherFolder=function(){ revokeVoucherObjectUrls(); currentVoucherFolderId=null; stagedVoucherFiles=[]; renderVoucherFolders(); };
+window.stageVoucherFiles=function(fileList,kind){
+ const files=[...fileList]; if(!files.length)return; stagedVoucherFiles.push(...files.map(file=>({file,kind})));
+ const box=document.getElementById('voucher-upload-stage'), btn=document.getElementById('voucher-confirm-upload'); box.classList.remove('hidden'); btn.classList.remove('hidden');
+ box.innerHTML=`<div class="flex items-start justify-between gap-4"><div class="min-w-0"><b>已選擇 ${stagedVoucherFiles.length} 個檔案，尚未上傳。</b><br>${stagedVoucherFiles.map(x=>'• '+safeText(x.file.name)).join('<br>')}<br><span class="text-rose-600 font-bold">請確認無誤後按「✓ 確認上傳」。</span></div><button type="button" onclick="cancelVoucherUpload()" class="shrink-0 px-3 py-2 rounded-xl border border-rose-200 bg-white text-rose-600 font-bold whitespace-nowrap">✕ 取消上傳</button></div>`;
+};
+window.cancelVoucherUpload=function(){
+ if(!stagedVoucherFiles.length)return;
+ if(!confirm(`確認取消這 ${stagedVoucherFiles.length} 個尚未上傳的檔案？`))return;
+ stagedVoucherFiles=[];
+ const box=document.getElementById('voucher-upload-stage'), btn=document.getElementById('voucher-confirm-upload');
+ if(box){ box.innerHTML=''; box.classList.add('hidden'); }
+ if(btn){ btn.classList.add('hidden'); btn.disabled=false; btn.textContent='✓ 確認上傳'; }
+ const img=document.getElementById('voucher-image-input'), pdf=document.getElementById('voucher-pdf-input');
+ if(img)img.value=''; if(pdf)pdf.value='';
+};
+
+let voucherObjectUrls = [];
+
+function revokeVoucherObjectUrls(){
+  for(const url of voucherObjectUrls){
+    try{ URL.revokeObjectURL(url); }catch(e){}
+  }
+  voucherObjectUrls = [];
+}
+
+async function convertHeicToJpeg(file){
+  // 優先使用新版 heic-to，對較新的 iPhone HEIC 支援較完整。
+  try{
+    if(typeof window.HeicTo !== 'undefined'){
+      let isHeicFile = true;
+      if(typeof window.HeicTo.isHeic === 'function'){
+        try{ isHeicFile = await window.HeicTo.isHeic(file); }catch(e){}
+      }
+      if(isHeicFile){
+        const jpegBlob = await window.HeicTo({
+          blob: file,
+          type: 'image/jpeg',
+          quality: 0.9
+        });
+        if(jpegBlob && jpegBlob.size > 0) return jpegBlob;
+      }
+    }
+  }catch(e){
+    console.warn('heic-to 轉換失敗：', e);
+  }
+
+  // 第二層保留舊 heic2any，處理部分舊格式 HEIC。
+  try{
+    if(typeof heic2any === 'function'){
+      const result = await heic2any({
+        blob:file,
+        toType:'image/jpeg',
+        quality:0.9
+      });
+      const jpegBlob = Array.isArray(result) ? result[0] : result;
+      if(jpegBlob && jpegBlob.size > 0) return jpegBlob;
+    }
+  }catch(e){
+    console.warn('heic2any 轉換失敗：', e);
+  }
+
+  throw new Error(
+    `HEIC 轉 JPG 失敗：${file.name}\n` +
+    `這張 HEIC 格式目前瀏覽器無法解碼，請先在 iPhone「照片」中另存／分享成 JPG 後再上傳。`
+  );
+}
+
+async function prepareUpload(item){
+  let file=item.file;
+  let type=item.kind;
+
+  const isHeic =
+    /\.(heic|heif)$/i.test(file.name || '') ||
+    /image\/hei[cf]/i.test(file.type || '');
+
+  if(type==='image' && isHeic){
+    const converted = await convertHeicToJpeg(file);
+    file = new File(
+      [converted],
+      (file.name || 'photo.heic').replace(/\.(heic|heif)$/i,'.jpg'),
+      {
+        type:'image/jpeg',
+        lastModified:Date.now()
+      }
+    );
+  }
+
+  return {file,type};
+}
+
+// Private bucket 不再使用 public URL / signed URL。
+// 直接透過 Supabase SDK download() 取得 Blob，再用瀏覽器本機 blob URL 預覽。
+// 這樣 JPG、JPEG、PNG、PDF 都不受 public/private URL 影響。
+async function getVoucherBlobUrl(storagePath){
+  if(!storagePath) return '';
+  const {data,error} = await supabaseClient
+    .storage
+    .from(STORAGE_BUCKET)
+    .download(storagePath);
+
+  if(error){
+    console.error('下載憑證預覽失敗：', storagePath, error);
+    throw error;
+  }
+
+  if(!data) throw new Error('Storage 沒有回傳檔案內容');
+
+  const url = URL.createObjectURL(data);
+  voucherObjectUrls.push(url);
+  return url;
+}
+
+window.confirmVoucherUpload=async function(){
+ if(!currentVoucherFolderId||!stagedVoucherFiles.length)return;
+ if(!confirm(`確認上傳這 ${stagedVoucherFiles.length} 個檔案到目前資料夾？`))return;
+
+ const btn=document.getElementById('voucher-confirm-upload');
+ btn.disabled=true;
+ btn.textContent='上傳中…';
+ let ok=0;
+
+ try{
+  for(const raw of stagedVoucherFiles){
+    const {file,type}=await prepareUpload(raw);
+    const safeName=(file.name||'voucher').replace(/[^a-zA-Z0-9._-]/g,'_');
+    const path=`${currentVoucherFolderId}/${Date.now()}_${Math.random().toString(36).slice(2)}_${safeName}`;
+
+    const {error}=await supabaseClient
+      .storage
+      .from(STORAGE_BUCKET)
+      .upload(path,file,{
+        upsert:false,
+        contentType:file.type||undefined,
+        cacheControl:'3600'
+      });
+
+    if(error) throw error;
+
+    db.attachments.unshift({
+      id:'att_'+Date.now()+'_'+Math.random().toString(36).slice(2),
+      folderId:currentVoucherFolderId,
+      name:file.name,
+      fileType:type,
+      mimeType:file.type||'',
+      storagePath:path,
+      data:'',
+      date:new Date().toISOString().slice(0,10),
+      createdAt:new Date().toISOString()
+    });
+
+    ok++;
+  }
+
+  await saveDataToSupabase();
+
+  stagedVoucherFiles=[];
+  document.getElementById('voucher-upload-stage')?.classList.add('hidden');
+  const imgInput=document.getElementById('voucher-image-input');
+  const pdfInput=document.getElementById('voucher-pdf-input');
+  if(imgInput) imgInput.value='';
+  if(pdfInput) pdfInput.value='';
+
+  alert(`上傳完成：${ok} 個檔案。`);
+  await renderVoucherFolderDetail();
+
+ }catch(e){
+  console.error(e);
+  alert(
+    `上傳失敗：${e.message||e}\n\n` +
+    `如果 JPG / PDF 已可上傳但 HEIC 失敗，通常是 HEIC 編碼格式相容性問題。`
+  );
+ }finally{
+  btn.disabled=false;
+  btn.textContent='✓ 確認上傳';
+  if(!stagedVoucherFiles.length) btn.classList.add('hidden');
+ }
+};
+
+window.renderVoucherFolderDetail=async function(){
+ ensureVoucherData();
+
+ const f=db.voucherFolders.find(x=>x.id===currentVoucherFolderId);
+ if(!f){renderVoucherFolders();return;}
+
+ document.getElementById('voucher-current-folder-name').textContent='📁 '+f.name;
+
+ const sort=document.getElementById('voucher-file-sort')?.value||'date-desc';
+ let list=db.attachments.filter(a=>a.folderId===currentVoucherFolderId);
+
+ list.sort((a,b)=>
+   sort==='date-asc'
+     ? String(a.date||'').localeCompare(String(b.date||''))
+     : sort==='name-asc'
+       ? String(a.name||a.fileType||'').localeCompare(String(b.name||b.fileType||''),'zh-Hant')
+       : sort==='name-desc'
+         ? String(b.name||b.fileType||'').localeCompare(String(a.name||a.fileType||''),'zh-Hant')
+         : String(b.date||'').localeCompare(String(a.date||''))
+ );
+
+ document.getElementById('voucher-current-folder-count').textContent=`${list.length} 個檔案`;
+ const grid=document.getElementById('voucher-file-grid');
+
+ if(!list.length){
+   revokeVoucherObjectUrls();
+   grid.innerHTML='<div class="sm:col-span-2 lg:col-span-3 card-box text-center py-10 text-[var(--gray)] font-bold">這個資料夾目前沒有檔案。</div>';
+   return;
+ }
+
+ revokeVoucherObjectUrls();
+ grid.innerHTML='<div class="sm:col-span-2 lg:col-span-3 card-box text-center py-6 text-[var(--gray)] font-bold">正在讀取檔案預覽…</div>';
+
+ const prepared=[];
+
+ for(const a of list){
+   let blobUrl='';
+   let loadError='';
+
+   if(a.storagePath){
+     try{
+       blobUrl=await getVoucherBlobUrl(a.storagePath);
+     }catch(e){
+       loadError=e?.message||String(e);
+     }
+   }
+
+   prepared.push({...a,_blobUrl:blobUrl,_loadError:loadError});
+ }
+
+ grid.innerHTML=prepared.map(a=>{
+   const url=a._blobUrl||'';
+   const isPdf =
+     a.fileType==='pdf' ||
+     /application\/pdf/i.test(a.mimeType||'') ||
+     /\.pdf$/i.test(a.name||'');
+
+   const isImage =
+     a.fileType==='image' ||
+     /^image\//i.test(a.mimeType||'') ||
+     /\.(jpg|jpeg|png|gif|webp)$/i.test(a.name||'');
+
+   let preview='';
+
+   if(a._loadError){
+     preview=`
+       <div class="h-40 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-center px-3 text-xs font-bold text-rose-600">
+         讀取預覽失敗<br>${safeText(a._loadError)}
+       </div>`;
+   }else if(isPdf && url){
+     preview=`
+       <div class="h-52 rounded-xl bg-gray-50 border overflow-hidden">
+         <iframe
+           src="${url}#toolbar=0&navpanes=0"
+           class="w-full h-full border-0"
+           title="${safeText(a.name||'PDF')}">
+         </iframe>
+       </div>`;
+   }else if(isImage && url){
+     preview=`
+       <div class="h-52 rounded-xl bg-gray-50 border overflow-hidden flex items-center justify-center">
+         <img
+           src="${url}"
+           class="w-full h-full object-contain"
+           alt="${safeText(a.name||'憑證圖片')}"
+           onerror="this.parentElement.innerHTML='🖼️ 圖片預覽失敗'">
+       </div>`;
+   }else{
+     preview=`
+       <div class="h-40 rounded-xl bg-gray-50 border flex items-center justify-center text-xs font-bold">
+         暫時沒有可預覽內容
+       </div>`;
+   }
+
+   const openLink=url
+     ? `<a href="${url}" target="_blank" rel="noopener" class="block text-center text-[var(--accent)] text-xs font-bold underline">開啟檔案</a>`
+     : `<div class="text-center text-xs font-bold text-rose-500">無法開啟檔案</div>`;
+
+   return `
+     <div class="card-box space-y-2">
+       <div class="flex gap-2">
+         <input type="checkbox" class="voucher-file-check mt-1" value="${a.id}">
+         <div class="min-w-0">
+           <div class="font-bold text-xs truncate">${isPdf?'📄':'🖼️'} ${safeText(a.name||'憑證')}</div>
+           <div class="text-[11px] text-[var(--medium)]">${safeText(a.date||'')}</div>
+         </div>
+       </div>
+       ${preview}
+       ${openLink}
+     </div>`;
+ }).join('');
+};
+
+window.deleteSelectedVoucherFiles=async function(){ const ids=[...document.querySelectorAll('.voucher-file-check:checked')].map(x=>x.value); if(!ids.length){alert('請先勾選要刪除的檔案或照片。');return;} if(!confirm(`確認刪除勾選的 ${ids.length} 個檔案？
+此動作無法復原。`))return; const targets=db.attachments.filter(a=>ids.includes(a.id)); for(const a of targets){if(a.storagePath){const {error}=await supabaseClient.storage.from(STORAGE_BUCKET).remove([a.storagePath]); if(error){alert('其中一個 Storage 檔案刪除失敗：'+error.message);return;}}} pushState?.(); db.attachments=db.attachments.filter(a=>!ids.includes(a.id)); await saveDataToSupabase(); renderVoucherFolderDetail(); };
+
+const oldLoad=window.loadDataFromSupabase; if(typeof oldLoad==='function'){ window.loadDataFromSupabase=async function(){ const r=await oldLoad.apply(this,arguments); ensureVoucherData(); return r; }; }
+})();
+</script>
 </body>
 </html>
