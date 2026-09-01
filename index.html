@@ -2315,7 +2315,7 @@
 
     function getMemoryTypeName(type) {
         if (type === 'sellerId') return '賣方統編';
-        if (type === 'sellerName') return '廠商名稱';
+        if (type === 'sellerName') return '賣方名稱';
         if (type === 'keyword') return '關鍵字';
         return type || '-';
     }
@@ -2422,7 +2422,7 @@
         if (mobileSelect && !mobileSelect.querySelector('option[value="memory"]')) {
             const option = document.createElement('option');
             option.value = 'memory';
-            option.textContent = '🧠 分類記憶庫';
+            option.textContent = '🔖 分類記憶庫';
             const imagesOption = mobileSelect.querySelector('option[value="images"]');
             if (imagesOption) mobileSelect.insertBefore(option, imagesOption);
             else mobileSelect.appendChild(option);
@@ -2435,7 +2435,7 @@
                 button.type = 'button';
                 button.id = MEMORY_NAV_ID;
                 button.className = 'w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition text-[var(--medium)] hover:bg-[var(--light-pink)]/50 flex items-center gap-2';
-                button.textContent = '🧠 分類記憶庫';
+                button.textContent = '🔖 分類記憶庫';
                 button.onclick = () => switchTab('memory');
                 imagesNav.parentElement.insertBefore(button, imagesNav);
             }
@@ -2453,8 +2453,8 @@
             <div class="card-box">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <h2 class="text-base font-bold">🧠 分類記憶庫</h2>
-                        <p class="text-xs text-[var(--medium)] font-bold mt-1">第一次確認或修正分類後，系統會記住。之後遇到相同賣方統編或廠商名稱，就可自動帶入相同分類。</p>
+                        <h2 class="text-base font-bold">🔖 分類記憶庫</h2>
+                        <p class="text-xs text-[var(--medium)] font-bold mt-1">第一次確認或修正分類後，系統會記住。之後遇到相同賣方統編或賣方名稱，就可自動帶入相同分類。</p>
                     </div>
                     <button type="button" onclick="resetMemoryForm()" class="px-4 py-2 rounded-xl text-white text-xs font-bold" style="background-color: var(--custom-btn);">＋ 新增規則</button>
                 </div>
@@ -2463,7 +2463,7 @@
             <div class="card-box bg-[#f7dad9]/20">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                     <div class="bg-white border border-[var(--soft-pink)] rounded-xl p-3"><div class="font-bold mb-1">① 最優先</div><div>賣方統編<br>同公司最精準</div></div>
-                    <div class="bg-white border border-[var(--soft-pink)] rounded-xl p-3"><div class="font-bold mb-1">② 第二順位</div><div>廠商名稱<br>沒有統編時使用</div></div>
+                    <div class="bg-white border border-[var(--soft-pink)] rounded-xl p-3"><div class="font-bold mb-1">② 第二順位</div><div>賣方名稱<br>沒有統編時使用</div></div>
                     <div class="bg-white border border-[var(--soft-pink)] rounded-xl p-3"><div class="font-bold mb-1">③ 通用規則</div><div>關鍵字<br>例如：停車、便當、包材</div></div>
                 </div>
             </div>
@@ -2476,7 +2476,7 @@
                         <label class="block font-bold mb-1">1. 規則類型</label>
                         <select id="memory-type" class="w-full p-2.5 border rounded-xl bg-white font-bold">
                             <option value="sellerId">賣方統編（最精準）</option>
-                            <option value="sellerName">廠商名稱</option>
+                            <option value="sellerName">賣方名稱</option>
                             <option value="keyword">關鍵字</option>
                         </select>
                     </div>
@@ -3005,6 +3005,206 @@
         initMemoryFeature();
     }
 
+})();
+</script>
+
+
+
+<!-- =========================================================
+     V2.1 修正：分類記憶庫真正連動月成本報表
+     - 新增/修改規則後立即套用到活動月成本、香氛月成本
+     - 重新整理後也會自動同步
+     - 匯入 Excel/CSV 後再次同步
+     - 記憶庫新增「立即套用到月成本」按鈕
+========================================================= -->
+<script>
+(function () {
+    'use strict';
+
+    function validMemoryCategory(category) {
+        return typeof CATEGORIES !== 'undefined' && CATEGORIES.includes(category);
+    }
+
+    async function syncMemoryToMonthlyCosts(options = {}) {
+        const { save = true, render = true, notify = false } = options;
+
+        if (typeof db === 'undefined' || !db || typeof window.findClassificationMemory !== 'function') {
+            return 0;
+        }
+
+        const groups = [
+            { key: 'actCost', label: '活動月成本' },
+            { key: 'perfCost', label: '香氛月成本' }
+        ];
+
+        let changedCount = 0;
+
+        groups.forEach(group => {
+            if (!Array.isArray(db[group.key])) return;
+
+            db[group.key].forEach(item => {
+                const rule = window.findClassificationMemory({
+                    sellerId: item.sellerId || '',
+                    sellerName: item.seller || '',
+                    text: [item.seller, item.number, item.type].filter(Boolean).join(' ')
+                });
+
+                if (!rule || !validMemoryCategory(rule.category)) return;
+
+                if (item.category !== rule.category) {
+                    item.category = rule.category;
+                    item.classificationSource = '分類記憶庫';
+                    item.classificationMatched = rule.value || '';
+                    item.classificationUpdatedAt = new Date().toISOString();
+                    changedCount++;
+                }
+            });
+        });
+
+        if (changedCount > 0 && save && typeof saveDataToSupabase === 'function') {
+            await saveDataToSupabase();
+        }
+
+        if (render) {
+            if (typeof renderAllTables === 'function') renderAllTables();
+            if (typeof renderDashboard === 'function') renderDashboard();
+            if (typeof initTimeSelectors === 'function') initTimeSelectors();
+        }
+
+        if (notify) {
+            if (changedCount > 0) {
+                alert(`🔖 已同步套用到活動＋香氛月成本，共更新 ${changedCount} 筆資料。`);
+            } else {
+                alert('✅ 已檢查完成，活動＋香氛月成本皆已檢查，目前沒有需要修改的資料。');
+            }
+        }
+
+        return changedCount;
+    }
+
+    window.syncMemoryToMonthlyCosts = syncMemoryToMonthlyCosts;
+
+    function installApplyButton() {
+        const page = document.getElementById('page-memory');
+        if (!page || document.getElementById('memory-apply-cost-btn')) return;
+
+        const firstCard = page.querySelector('.card-box');
+        if (!firstCard) return;
+
+        const buttonArea = firstCard.querySelector('.flex.flex-col.sm\\:flex-row');
+        if (!buttonArea) return;
+
+        const existingAddButton = Array.from(firstCard.querySelectorAll('button')).find(btn =>
+            (btn.textContent || '').includes('新增規則')
+        );
+
+        if (!existingAddButton || !existingAddButton.parentElement) return;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'flex flex-wrap gap-2';
+
+        const applyBtn = document.createElement('button');
+        applyBtn.id = 'memory-apply-cost-btn';
+        applyBtn.type = 'button';
+        applyBtn.className = 'px-4 py-2 rounded-xl text-white text-xs font-bold shadow-sm bg-[var(--accent)]';
+        applyBtn.textContent = '🔄 立即套用到活動＋香氛月成本';
+        applyBtn.onclick = () => window.syncMemoryToMonthlyCosts({ save: true, render: true, notify: true });
+
+        existingAddButton.parentElement.insertBefore(wrap, existingAddButton);
+        wrap.appendChild(applyBtn);
+        wrap.appendChild(existingAddButton);
+    }
+
+    function wrapSaveMemoryRule() {
+        if (typeof window.saveMemoryRule !== 'function' || window.saveMemoryRule.__monthlySyncWrapped) return;
+
+        const original = window.saveMemoryRule;
+        const wrapped = async function () {
+            await original.apply(this, arguments);
+            await syncMemoryToMonthlyCosts({ save: true, render: true, notify: false });
+            if (typeof window.renderMemoryRules === 'function') window.renderMemoryRules();
+            installApplyButton();
+        };
+
+        wrapped.__monthlySyncWrapped = true;
+        window.saveMemoryRule = wrapped;
+    }
+
+    function wrapDeleteMemoryRule() {
+        if (typeof window.deleteMemoryRule !== 'function' || window.deleteMemoryRule.__monthlySyncWrapped) return;
+
+        const original = window.deleteMemoryRule;
+        const wrapped = async function () {
+            await original.apply(this, arguments);
+            installApplyButton();
+        };
+
+        wrapped.__monthlySyncWrapped = true;
+        window.deleteMemoryRule = wrapped;
+    }
+
+    function wrapSwitchTabForSync() {
+        if (typeof window.switchTab !== 'function' || window.switchTab.__monthlySyncWrapped) return;
+
+        const original = window.switchTab;
+        const wrapped = function (tabName) {
+            const result = original.apply(this, arguments);
+
+            if (tabName === 'memory') {
+                setTimeout(installApplyButton, 50);
+            }
+
+            if (tabName === 'act-cost' || tabName === 'perf-cost') {
+                setTimeout(() => {
+                    syncMemoryToMonthlyCosts({ save: true, render: true, notify: false });
+                }, 80);
+            }
+
+            return result;
+        };
+
+        wrapped.__monthlySyncWrapped = true;
+        window.switchTab = wrapped;
+        try { switchTab = wrapped; } catch (e) {}
+    }
+
+    function wrapExcelImportForSync() {
+        if (typeof window.handleExcelImport !== 'function' || window.handleExcelImport.__monthlySyncWrapped) return;
+
+        const original = window.handleExcelImport;
+        const wrapped = function () {
+            const result = original.apply(this, arguments);
+
+            setTimeout(() => syncMemoryToMonthlyCosts({ save: true, render: true, notify: false }), 700);
+            setTimeout(() => syncMemoryToMonthlyCosts({ save: true, render: true, notify: false }), 1800);
+
+            return result;
+        };
+
+        wrapped.__monthlySyncWrapped = true;
+        window.handleExcelImport = wrapped;
+        try { handleExcelImport = wrapped; } catch (e) {}
+    }
+
+    function installMonthlyCostMemorySync() {
+        wrapSaveMemoryRule();
+        wrapDeleteMemoryRule();
+        wrapSwitchTabForSync();
+        wrapExcelImportForSync();
+        installApplyButton();
+
+        // 等原本 Supabase 資料載入完成後，自動把既有記憶規則套用一次。
+        setTimeout(() => {
+            syncMemoryToMonthlyCosts({ save: true, render: true, notify: false });
+            installApplyButton();
+        }, 1800);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', installMonthlyCostMemorySync);
+    } else {
+        installMonthlyCostMemorySync();
+    }
 })();
 </script>
 
