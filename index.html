@@ -294,6 +294,60 @@
             }
         }
 
+    
+        .dashboard-kpi-grid .kpi-clickable{cursor:pointer;transition:background-color .13s ease,border-color .13s ease,transform .13s ease}
+        .dashboard-kpi-grid .kpi-clickable:hover{border-color:#d9aaa7}
+        .dashboard-kpi-grid .kpi-clickable:active,.dashboard-kpi-grid .kpi-clickable.kpi-pressed{background:#f1d7d5!important;border-color:#d9aaa7!important;transform:scale(.985)}
+
+        .report-toolbar{display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:12px}
+        .report-first-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:1 1 auto;min-width:0}
+        .report-title-block{min-width:0;margin-right:auto}
+        .report-month-control{display:flex;align-items:center;gap:4px;background:rgba(247,218,217,.45);padding:6px 10px;border-radius:12px;border:1px solid var(--soft-pink);white-space:nowrap;flex:0 0 auto}
+        .report-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+        .report-action-btn{padding:6px 12px}
+        .mobile-month-picker-btn{display:none}
+        .report-clear-month{font-size:10px;background:#fff;padding:3px 7px;border:1px solid #ddd;border-radius:6px;font-weight:700}
+
+        @media(max-width:640px){
+            .dashboard-head-card{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:7px!important;padding:12px 11px!important;min-height:0!important}
+            .dashboard-head-title{flex:1 1 auto;min-width:0}
+            .dashboard-head-title h2{font-size:12px!important;line-height:1.25!important;white-space:nowrap}
+            .dashboard-time-wrap{flex:0 0 auto;flex-wrap:nowrap!important;gap:0!important}
+            .dashboard-filter-label{display:none!important}
+            #dash-time-selector{width:121px!important;max-width:121px!important;padding:7px!important;font-size:10px!important;border-radius:10px!important}
+
+            .report-toolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:8px!important;padding:12px 10px!important}
+            .report-first-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:6px!important;width:100%}
+            .report-title-block h2{font-size:12px!important;line-height:1.25!important;white-space:nowrap}
+            .report-title-block p{font-size:8px!important;line-height:1.15!important;white-space:nowrap;margin-top:2px}
+            .report-month-control{padding:4px 5px!important;gap:2px!important;border-radius:9px!important;max-width:170px}
+            .calendar-filter-text{display:none!important}
+            .report-calendar-icon{font-size:10px}
+            .month-native-input{display:none!important}
+            .mobile-month-picker-btn{display:inline-flex!important;align-items:center;justify-content:center;border:0;background:transparent;color:var(--dark);font-size:9.5px;font-weight:800;min-width:68px;max-width:84px;padding:2px 3px;white-space:nowrap;font-family:inherit}
+            .report-clear-month{font-size:8px!important;padding:3px 4px!important;white-space:nowrap}
+            .report-actions{width:100%;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:5px!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+            .report-actions::-webkit-scrollbar{display:none}
+            .report-action-btn{flex:0 0 auto!important;font-size:9px!important;padding:6px 7px!important;min-height:30px!important;white-space:nowrap!important;border-radius:9px!important}
+        }
+
+        .custom-month-picker.hidden{display:none!important}
+        .custom-month-picker{position:fixed;inset:0;z-index:99999;display:flex;align-items:flex-end;justify-content:center;font-family:inherit}
+        .custom-month-backdrop{position:absolute;inset:0;background:rgba(82,70,68,.30);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+        .custom-month-panel{position:relative;z-index:1;width:min(94vw,430px);background:#fffaf8;border:1px solid #e8c5c0;border-radius:28px 28px 0 0;padding:12px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -16px 40px rgba(89,68,66,.16);color:var(--dark);font-family:inherit}
+        .custom-month-handle{width:48px;height:5px;border-radius:999px;background:#d9c5c1;margin:0 auto 14px}
+        .custom-month-head{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;margin-bottom:14px}
+        .custom-month-year{text-align:center;font-size:20px;font-weight:800;letter-spacing:.03em}
+        .month-year-step{height:42px;border:1px solid #e5c3bf;border-radius:14px;background:#f7e6e3;color:#675a58;font-size:28px;line-height:1;font-family:inherit}
+        .custom-month-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+        .custom-month-cell{height:48px;border:1px solid #ead0cc;border-radius:14px;background:#fff;color:#5f5553;font-size:14px;font-weight:700;font-family:inherit}
+        .custom-month-cell.active{background:#d8b4b0;color:#fff;border-color:#d0a49f;box-shadow:0 5px 14px rgba(176,130,125,.18)}
+        .custom-month-actions{display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:8px;margin-top:16px}
+        .custom-month-actions button{height:44px;border-radius:14px;font-size:13px;font-weight:800;font-family:inherit}
+        .month-reset-btn{border:1px solid #dfc4c0;background:#fff;color:#6a5d5a}
+        .month-cancel-btn{border:1px solid #ddd1cf;background:#eee8e6;color:#625957}
+        .month-confirm-btn{border:1px solid #c99d99;background:#cda6a2;color:#fff}
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -379,13 +433,12 @@
 
             <!-- 1. 總覽儀表板 -->
             <section id="page-dashboard" class="space-y-4">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div>
+                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 dashboard-head-card">
+                    <div class="dashboard-head-title">
                         <h2 class="text-base sm:text-lg font-bold">心引力公司營運總覽儀表板</h2>
-                        
                     </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <label class="text-xs font-bold text-[var(--medium)]">篩選區間：</label>
+                    <div class="flex items-center gap-2 flex-wrap dashboard-time-wrap">
+                        <label class="text-xs font-bold text-[var(--medium)] dashboard-filter-label">篩選區間：</label>
                         <select id="dash-time-selector" onchange="renderDashboard()" class="px-3 py-2 rounded-xl border border-[var(--soft-pink)] text-xs font-bold bg-[#f7dad9]/45">
                             <option value="all">全部歷史總計</option>
                         </select>
@@ -393,20 +446,34 @@
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 dashboard-kpi-grid">
-                    <div class="card-box"><p class="text-xs font-bold text-[var(--medium)]">1. 活動進項成本</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-cost">NT$ 0</h3></div>
-                    <div class="card-box"><p class="text-xs font-bold text-[var(--medium)]">2. 香氛進項成本</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-cost">NT$ 0</h3></div>
-                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('act-rev')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('act-rev')}"><p class="text-xs font-bold text-[var(--medium)]">3. 活動營業收入總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-rev">NT$ 0</h3></div>
-                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('perf-rev')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('perf-rev')}"><p class="text-xs font-bold text-[var(--medium)]">4. 香氛營業收入總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-rev">NT$ 0</h3></div>
-                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('act-cost')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('act-cost')}"><p class="text-xs font-bold text-[var(--medium)]">5. 可折抵營業稅額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-vat">NT$ 0</h3></div>
-                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('act-adv')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('act-adv')}"><p class="text-xs font-bold text-[var(--medium)]">6. 代墊款總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-adv">NT$ 0</h3></div>
-                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('stocks')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('stocks')}"><p class="text-xs font-bold text-[var(--medium)]">7. 股票盈利總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-stock-profit">NT$ 0</h3></div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="navigateKpi('act-cost', this)">
+                        <p class="text-xs font-bold text-[var(--medium)]">1. 每月活動成本</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-cost">NT$ 0</h3>
+                    </div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="navigateKpi('perf-cost', this)">
+                        <p class="text-xs font-bold text-[var(--medium)]">2. 每月香氛成本</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-cost">NT$ 0</h3>
+                    </div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="navigateKpi('act-rev', this)">
+                        <p class="text-xs font-bold text-[var(--medium)]">3. 活動營業收入總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-rev">NT$ 0</h3>
+                    </div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="navigateKpi('perf-rev', this)">
+                        <p class="text-xs font-bold text-[var(--medium)]">4. 香氛營業收入總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-rev">NT$ 0</h3>
+                    </div>
+                    <div class="card-box">
+                        <p class="text-xs font-bold text-[var(--medium)]">5. 可折抵營業稅額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-vat">NT$ 0</h3>
+                    </div>
+                    <div class="card-box">
+                        <p class="text-xs font-bold text-[var(--medium)]">6. 代墊款總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-adv">NT$ 0</h3>
+                    </div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="navigateKpi('stocks', this)">
+                        <p class="text-xs font-bold text-[var(--medium)]">7. 股票盈利總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-stock-profit">NT$ 0</h3>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -434,19 +501,21 @@
 
             <!-- 2. 活動月成本報表 -->
             <section id="page-act-cost" class="space-y-4 hidden">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div><h2 class="text-base font-bold">活動月成本報表</h2><p class="text-xs text-[var(--medium)]">心引力有限公司統一編號：60676740</p></div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
-                            <label class="text-xs font-bold">📅 日曆篩選：</label>
-                            <input type="month" id="filter-month-act-cost" onchange="onFilterMonthChange('act-cost')" class="bg-transparent text-xs font-bold outline-none">
-                            <button onclick="clearFilter('act-cost')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
+                <div class="card-box report-toolbar">
+                    <div class="report-first-row">
+                        <div class="report-title-block">
+                            <h2 class="text-base font-bold">活動月成本報表</h2>
+                            <p class="text-xs text-[var(--medium)]">心引力有限公司統一編號：60676740</p>
                         </div>
-                        <button onclick="saveCurrentPage('act-cost')" class="px-3 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('act-cost')" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button type="button" onclick="addCustomCategory()" class="px-3 py-1.5 bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button>
-                        <button onclick="openGenericModal('act-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button>
+                        <div class="report-month-control">
+                            <span class="report-calendar-icon">📅</span>
+                            <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
+                            <input type="month" id="filter-month-act-cost" onchange="onFilterMonthChange('act-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn" onclick="openCustomMonthPicker('filter-month-act-cost')"><span id="mobile-month-label-act-cost">全部月份</span></button>
+                            <button type="button" onclick="clearFilter('act-cost')" class="report-clear-month">顯示全部</button>
+                        </div>
                     </div>
+                    <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-cost')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-cost')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="addCustomCategory()" class="report-action-btn bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button><button type="button" onclick="openGenericModal('act-cost')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button></div>
                 </div>
                 <div class="card-box overflow-x-auto p-0 w-full">
                     <table class="w-full text-left text-xs">
@@ -485,18 +554,21 @@
 
             <!-- 3. 活動營收報表 -->
             <section id="page-act-rev" class="space-y-4 hidden">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <h2 class="text-base font-bold">活動營收報表</h2>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
-                            <label class="text-xs font-bold">📅 日曆篩選：</label>
-                            <input type="month" id="filter-month-act-rev" onchange="onFilterMonthChange('act-rev')" class="bg-transparent text-xs font-bold outline-none">
-                            <button onclick="clearFilter('act-rev')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
+                <div class="card-box report-toolbar">
+                    <div class="report-first-row">
+                        <div class="report-title-block">
+                            <h2 class="text-base font-bold">活動營收報表</h2>
+                            
                         </div>
-                        <button onclick="saveCurrentPage('act-rev')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('act-rev')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openActRevModal()" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <div class="report-month-control">
+                            <span class="report-calendar-icon">📅</span>
+                            <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
+                            <input type="month" id="filter-month-act-rev" onchange="onFilterMonthChange('act-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn" onclick="openCustomMonthPicker('filter-month-act-rev')"><span id="mobile-month-label-act-rev">全部月份</span></button>
+                            <button type="button" onclick="clearFilter('act-rev')" class="report-clear-month">顯示全部</button>
+                        </div>
                     </div>
+                    <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-rev')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-rev')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openActRevModal()" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
                     <table class="w-full text-left text-xs">
@@ -533,18 +605,21 @@
 
             <!-- 4. 活動代墊款 -->
             <section id="page-act-adv" class="space-y-4 hidden">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <h2 class="text-base font-bold">活動代墊款記錄</h2>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
-                            <label class="text-xs font-bold">📅 日曆篩選：</label>
-                            <input type="month" id="filter-month-act-adv" onchange="onFilterMonthChange('act-adv')" class="bg-transparent text-xs font-bold outline-none">
-                            <button onclick="clearFilter('act-adv')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
+                <div class="card-box report-toolbar">
+                    <div class="report-first-row">
+                        <div class="report-title-block">
+                            <h2 class="text-base font-bold">活動代墊款記錄</h2>
+                            
                         </div>
-                        <button onclick="saveCurrentPage('act-adv')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('act-adv')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openAdvanceModal('act')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <div class="report-month-control">
+                            <span class="report-calendar-icon">📅</span>
+                            <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
+                            <input type="month" id="filter-month-act-adv" onchange="onFilterMonthChange('act-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn" onclick="openCustomMonthPicker('filter-month-act-adv')"><span id="mobile-month-label-act-adv">全部月份</span></button>
+                            <button type="button" onclick="clearFilter('act-adv')" class="report-clear-month">顯示全部</button>
+                        </div>
                     </div>
+                    <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-adv')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-adv')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openAdvanceModal('act')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
                     <table class="w-full text-left text-xs">
@@ -579,19 +654,21 @@
 
             <!-- 5. 香氛月成本報表 -->
             <section id="page-perf-cost" class="space-y-4 hidden">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div><h2 class="text-base font-bold">Nuitréver 香氛月成本</h2><p class="text-xs text-[var(--medium)]">心引力有限公司統一編號：60676740</p></div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
-                            <label class="text-xs font-bold">📅 日曆篩選：</label>
-                            <input type="month" id="filter-month-perf-cost" onchange="onFilterMonthChange('perf-cost')" class="bg-transparent text-xs font-bold outline-none">
-                            <button onclick="clearFilter('perf-cost')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
+                <div class="card-box report-toolbar">
+                    <div class="report-first-row">
+                        <div class="report-title-block">
+                            <h2 class="text-base font-bold">Nuitréver 香氛月成本</h2>
+                            <p class="text-xs text-[var(--medium)]">心引力有限公司統一編號：60676740</p>
                         </div>
-                        <button onclick="saveCurrentPage('perf-cost')" class="px-3 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('perf-cost')" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button type="button" onclick="addCustomCategory()" class="px-3 py-1.5 bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button>
-                        <button onclick="openGenericModal('perf-cost')" class="px-3 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button>
+                        <div class="report-month-control">
+                            <span class="report-calendar-icon">📅</span>
+                            <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
+                            <input type="month" id="filter-month-perf-cost" onchange="onFilterMonthChange('perf-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn" onclick="openCustomMonthPicker('filter-month-perf-cost')"><span id="mobile-month-label-perf-cost">全部月份</span></button>
+                            <button type="button" onclick="clearFilter('perf-cost')" class="report-clear-month">顯示全部</button>
+                        </div>
                     </div>
+                    <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-cost')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-cost')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="addCustomCategory()" class="report-action-btn bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button><button type="button" onclick="openGenericModal('perf-cost')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button></div>
                 </div>
                 <div class="card-box overflow-x-auto p-0 w-full">
                     <table class="w-full text-left text-xs">
@@ -630,18 +707,21 @@
 
             <!-- 6. 香氛營收報表 -->
             <section id="page-perf-rev" class="space-y-4 hidden">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <h2 class="text-base font-bold">Nuitréver 香氛營收</h2>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
-                            <label class="text-xs font-bold">📅 日曆篩選：</label>
-                            <input type="month" id="filter-month-perf-rev" onchange="onFilterMonthChange('perf-rev')" class="bg-transparent text-xs font-bold outline-none">
-                            <button onclick="clearFilter('perf-rev')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
+                <div class="card-box report-toolbar">
+                    <div class="report-first-row">
+                        <div class="report-title-block">
+                            <h2 class="text-base font-bold">Nuitréver 香氛營收</h2>
+                            
                         </div>
-                        <button onclick="saveCurrentPage('perf-rev')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('perf-rev')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openPerfRevModal()" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <div class="report-month-control">
+                            <span class="report-calendar-icon">📅</span>
+                            <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
+                            <input type="month" id="filter-month-perf-rev" onchange="onFilterMonthChange('perf-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn" onclick="openCustomMonthPicker('filter-month-perf-rev')"><span id="mobile-month-label-perf-rev">全部月份</span></button>
+                            <button type="button" onclick="clearFilter('perf-rev')" class="report-clear-month">顯示全部</button>
+                        </div>
                     </div>
+                    <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-rev')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-rev')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openPerfRevModal()" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
                     <table class="w-full text-left text-xs">
@@ -683,18 +763,21 @@
 
             <!-- 7. 香氛代墊款 -->
             <section id="page-perf-adv" class="space-y-4 hidden">
-                <div class="card-box flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <h2 class="text-base font-bold">Nuitréver 香氛代墊款</h2>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center gap-1 bg-[#f7dad9]/45 px-3 py-1.5 rounded-xl border border-[var(--soft-pink)]">
-                            <label class="text-xs font-bold">📅 日曆篩選：</label>
-                            <input type="month" id="filter-month-perf-adv" onchange="onFilterMonthChange('perf-adv')" class="bg-transparent text-xs font-bold outline-none">
-                            <button onclick="clearFilter('perf-adv')" class="text-[10px] bg-white px-2 py-0.5 rounded border font-bold">顯示全部</button>
+                <div class="card-box report-toolbar">
+                    <div class="report-first-row">
+                        <div class="report-title-block">
+                            <h2 class="text-base font-bold">Nuitréver 香氛代墊款</h2>
+                            
                         </div>
-                        <button onclick="saveCurrentPage('perf-adv')" class="px-3.5 py-1.5 bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button>
-                        <button onclick="deleteSelectedRows('perf-adv')" class="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button>
-                        <button onclick="openAdvanceModal('perf')" class="px-3.5 py-1.5 bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button>
+                        <div class="report-month-control">
+                            <span class="report-calendar-icon">📅</span>
+                            <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
+                            <input type="month" id="filter-month-perf-adv" onchange="onFilterMonthChange('perf-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn" onclick="openCustomMonthPicker('filter-month-perf-adv')"><span id="mobile-month-label-perf-adv">全部月份</span></button>
+                            <button type="button" onclick="clearFilter('perf-adv')" class="report-clear-month">顯示全部</button>
+                        </div>
                     </div>
+                    <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-adv')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-adv')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openAdvanceModal('perf')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
                 </div>
                 <div class="card-box overflow-x-auto p-0">
                     <table class="w-full text-left text-xs">
@@ -1409,6 +1492,14 @@
         let vatChartInst = null;
 
 
+        function navigateKpi(tabName, card) {
+            if (card) card.classList.add('kpi-pressed');
+            setTimeout(() => {
+                if (card) card.classList.remove('kpi-pressed');
+                switchTab(tabName);
+            }, 130);
+        }
+
         function updateMobileChipNav(tabName) {
             document.querySelectorAll('.mobile-chip-nav button').forEach(btn => {
                 const active = btn.dataset.tab === tabName;
@@ -1475,10 +1566,88 @@
             }
         }
 
+        let customMonthPickerInputId = '';
+        let customMonthPickerYear = new Date().getFullYear();
+        let customMonthPickerMonth = new Date().getMonth() + 1;
+
+        function formatMobileMonthLabel(value) {
+            if (!value || !/^\d{4}-\d{2}$/.test(value)) return '全部月份';
+            const [year, month] = value.split('-');
+            return `${year}年${Number(month)}月`;
+        }
+        function syncMobileMonthLabel(key) {
+            const input = document.getElementById(`filter-month-${key}`);
+            const label = document.getElementById(`mobile-month-label-${key}`);
+            if (label) label.textContent = formatMobileMonthLabel(input ? input.value : '');
+        }
+        function renderCustomMonthPicker() {
+            const y = document.getElementById('custom-month-year');
+            const g = document.getElementById('custom-month-grid');
+            if (!y || !g) return;
+            y.textContent = `${customMonthPickerYear} 年`;
+            g.innerHTML = Array.from({length:12}, (_,i) => {
+                const m = i + 1;
+                const active = m === customMonthPickerMonth ? ' active' : '';
+                return `<button type="button" class="custom-month-cell${active}" onclick="selectCustomMonth(${m})">${m}月</button>`;
+            }).join('');
+        }
+        function openCustomMonthPicker(inputId) {
+            if (window.innerWidth >= 768) {
+                const input = document.getElementById(inputId);
+                if (input && typeof input.showPicker === 'function') {
+                    try { input.showPicker(); return; } catch(e) {}
+                }
+                if (input) input.focus();
+                return;
+            }
+            customMonthPickerInputId = inputId;
+            const input = document.getElementById(inputId);
+            const value = input ? input.value : '';
+            if (/^\d{4}-\d{2}$/.test(value)) {
+                const [y,m] = value.split('-');
+                customMonthPickerYear = Number(y);
+                customMonthPickerMonth = Number(m);
+            } else {
+                const now = new Date();
+                customMonthPickerYear = now.getFullYear();
+                customMonthPickerMonth = now.getMonth()+1;
+            }
+            renderCustomMonthPicker();
+            const modal = document.getElementById('custom-month-picker');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closeCustomMonthPicker() {
+            const modal = document.getElementById('custom-month-picker');
+            if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        function stepCustomMonthYear(delta) { customMonthPickerYear += delta; renderCustomMonthPicker(); }
+        function selectCustomMonth(month) { customMonthPickerMonth = month; renderCustomMonthPicker(); }
+        function confirmCustomMonthPicker() {
+            const input = document.getElementById(customMonthPickerInputId);
+            if (input) {
+                input.value = `${customMonthPickerYear}-${String(customMonthPickerMonth).padStart(2,'0')}`;
+                input.dispatchEvent(new Event('change', {bubbles:true}));
+            }
+            closeCustomMonthPicker();
+        }
+        function resetCustomMonthPicker() {
+            const input = document.getElementById(customMonthPickerInputId);
+            if (input) {
+                input.value = '';
+                input.dispatchEvent(new Event('change', {bubbles:true}));
+            }
+            closeCustomMonthPicker();
+        }
+
         function onFilterMonthChange(key) {
             const val = document.getElementById(`filter-month-${key}`).value;
             pagination[key].filterMonth = val;
             pagination[key].page = 1;
+            syncMobileMonthLabel(key);
             renderTable(key);
         }
 
@@ -1487,6 +1656,7 @@
             if (fInput) fInput.value = '';
             pagination[key].filterMonth = '';
             pagination[key].page = 1;
+            syncMobileMonthLabel(key);
             renderTable(key);
         }
 
@@ -3714,6 +3884,25 @@ window.onload = function(){
 };
 <\/script>
 <div id="data-safety-status" style="display:none;position:fixed;right:12px;bottom:12px;z-index:9999;background:#fff8f8;border:1px solid #e7b8b2;color:#6b5555;padding:8px 10px;border-radius:10px;font-size:12px;box-shadow:0 4px 18px rgba(0,0,0,.08);"></div>
+
+    <div id="custom-month-picker" class="custom-month-picker hidden" aria-hidden="true">
+        <div class="custom-month-backdrop" onclick="closeCustomMonthPicker()"></div>
+        <div class="custom-month-panel" role="dialog" aria-modal="true" aria-label="選擇月份">
+            <div class="custom-month-handle"></div>
+            <div class="custom-month-head">
+                <button type="button" class="month-year-step" onclick="stepCustomMonthYear(-1)">‹</button>
+                <div id="custom-month-year" class="custom-month-year">2026 年</div>
+                <button type="button" class="month-year-step" onclick="stepCustomMonthYear(1)">›</button>
+            </div>
+            <div id="custom-month-grid" class="custom-month-grid"></div>
+            <div class="custom-month-actions">
+                <button type="button" class="month-reset-btn" onclick="resetCustomMonthPicker()">顯示全部</button>
+                <button type="button" class="month-cancel-btn" onclick="closeCustomMonthPicker()">取消</button>
+                <button type="button" class="month-confirm-btn" onclick="confirmCustomMonthPicker()">確認</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>`);
 
