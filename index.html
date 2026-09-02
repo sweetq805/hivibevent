@@ -216,6 +216,84 @@
             }
         }
 
+    
+        /* ===== 手機版儀表板 / 快速清單 / 頂部按鈕 ===== */
+        .kpi-clickable { cursor: pointer; }
+        .kpi-clickable:hover { transform: translateY(-1px); }
+
+        @media (max-width: 640px) {
+            .dashboard-kpi-grid .card-box {
+                padding: 13px 11px !important;
+                min-height: 106px !important;
+                border-radius: 16px !important;
+            }
+            .dashboard-kpi-grid .card-box p {
+                font-size: 11px !important;
+                line-height: 1.35 !important;
+            }
+            .dashboard-kpi-grid .card-box h3 {
+                font-size: 22px !important;
+                line-height: 1.1 !important;
+                margin-top: 8px !important;
+            }
+            .dashboard-kpi-grid .kpi-clickable:active {
+                transform: scale(.985);
+            }
+
+            /* 比上一版左右稍微加長，仍避免遮住左側公司文字 */
+            header .top-file-action {
+                width: 54px !important;
+                min-width: 54px !important;
+                height: 35px !important;
+                padding: 5px 7px !important;
+                font-size: 10px !important;
+                border-radius: 9px !important;
+                justify-content: center !important;
+            }
+            header #undo-btn {
+                width: 34px !important;
+                min-width: 34px !important;
+                height: 35px !important;
+                padding: 4px !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .mobile-chip-nav {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                gap: 9px;
+                padding: 10px 12px 11px;
+                background: var(--cream);
+                border-bottom: 1px solid var(--soft-pink);
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+                position: sticky;
+                top: 72px;
+                z-index: 35;
+            }
+            .mobile-chip-nav::-webkit-scrollbar { display: none; }
+            .mobile-chip-nav button {
+                flex: 0 0 auto;
+                white-space: nowrap;
+                padding: 9px 14px;
+                border: 1px solid var(--soft-pink);
+                border-radius: 999px;
+                background: #fff;
+                color: var(--dark);
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 1;
+            }
+            .mobile-chip-nav button.active {
+                background: #d7b7b1;
+                color: #fff;
+                border-color: #d7b7b1;
+            }
+        }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -241,12 +319,27 @@
             </div>
         </div>
     </header>
+    <!-- 手機版單行橫向滑動報表清單 -->
+    <nav class="mobile-chip-nav md:hidden" aria-label="報表快速清單">
+        <button type="button" data-tab="dashboard" onclick="switchTab('dashboard')">總覽儀表板</button>
+        <button type="button" data-tab="act-cost" onclick="switchTab('act-cost')">活動月成本</button>
+        <button type="button" data-tab="act-rev" onclick="switchTab('act-rev')">活動月營收</button>
+        <button type="button" data-tab="act-adv" onclick="switchTab('act-adv')">活動代墊</button>
+        <button type="button" data-tab="perf-cost" onclick="switchTab('perf-cost')">香氛月成本</button>
+        <button type="button" data-tab="perf-rev" onclick="switchTab('perf-rev')">香氛月營收</button>
+        <button type="button" data-tab="perf-adv" onclick="switchTab('perf-adv')">香氛代墊</button>
+        <button type="button" data-tab="proj-mat" onclick="switchTab('proj-mat')">專案物資單</button>
+        <button type="button" data-tab="stocks" onclick="switchTab('stocks')">股票投資報表</button>
+        <button type="button" data-tab="images" onclick="switchTab('images')">每月紙本憑證圖庫</button>
+        <button type="button" data-tab="rules" onclick="switchTab('rules')">國稅局法規對照</button>
+    </nav>
+
 
     <!-- 主體排版 -->
     <div class="w-full px-2 sm:px-4 py-4 flex flex-col md:flex-row gap-3 flex-1 items-start">
         
         <!-- 左側導航區 -->
-        <aside id="sidebar-nav" class="w-full md:w-64 shrink-0 space-y-3 card-box bg-white">
+        <aside id="sidebar-nav" class="hidden md:block w-full md:w-64 shrink-0 space-y-3 card-box bg-white">
             <button id="sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="收合或展開左側清單" title="收合 / 展開">≣</button>
             
             <div class="md:hidden">
@@ -299,35 +392,21 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">1. 活動進項成本</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-cost">NT$ 0</h3>
-                    </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">2. 香氛進項成本</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-cost">NT$ 0</h3>
-                    </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">3. 活動營業收入總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-rev">NT$ 0</h3>
-                    </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">4. 香氛營業收入總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-rev">NT$ 0</h3>
-                    </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">5. 可折抵營業稅額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-vat">NT$ 0</h3>
-                    </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">6. 代墊款總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-adv">NT$ 0</h3>
-                    </div>
-                    <div class="card-box">
-                        <p class="text-xs font-bold text-[var(--medium)]">7. 股票盈利總額</p>
-                        <h3 class="text-xl font-bold mt-1.5" id="kpi-stock-profit">NT$ 0</h3>
-                    </div>
+                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 dashboard-kpi-grid">
+                    <div class="card-box"><p class="text-xs font-bold text-[var(--medium)]">1. 活動進項成本</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-cost">NT$ 0</h3></div>
+                    <div class="card-box"><p class="text-xs font-bold text-[var(--medium)]">2. 香氛進項成本</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-cost">NT$ 0</h3></div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('act-rev')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('act-rev')}"><p class="text-xs font-bold text-[var(--medium)]">3. 活動營業收入總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-act-rev">NT$ 0</h3></div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('perf-rev')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('perf-rev')}"><p class="text-xs font-bold text-[var(--medium)]">4. 香氛營業收入總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-perf-rev">NT$ 0</h3></div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('act-cost')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('act-cost')}"><p class="text-xs font-bold text-[var(--medium)]">5. 可折抵營業稅額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-vat">NT$ 0</h3></div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('act-adv')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('act-adv')}"><p class="text-xs font-bold text-[var(--medium)]">6. 代墊款總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-adv">NT$ 0</h3></div>
+                    <div class="card-box kpi-clickable" role="button" tabindex="0" onclick="switchTab('stocks')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('stocks')}"><p class="text-xs font-bold text-[var(--medium)]">7. 股票盈利總額</p>
+                        <h3 class="text-xl font-bold mt-1.5" id="kpi-stock-profit">NT$ 0</h3></div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1119,50 +1198,165 @@
             }
         });
 
+
+        // ===== 資料安全保護層 =====
+        const ACCOUNTING_LOCAL_KEY = 'heart_gravity_unified_v47';
+        const ACCOUNTING_BACKUP_KEY = 'heart_gravity_unified_v47_backup';
+        const ACCOUNTING_BACKUP_META_KEY = 'heart_gravity_unified_v47_backup_meta';
+
+        function countAccountingRecords(data) {
+            if (!data || typeof data !== 'object') return 0;
+            const keys = ['actCost','actRev','actAdv','perfCost','perfRev','perfAdv','projMat'];
+            return keys.reduce((sum, key) => sum + (Array.isArray(data[key]) ? data[key].length : 0), 0);
+        }
+
+        function isMeaningfulAccountingData(data) {
+            if (!data || typeof data !== 'object') return false;
+            return countAccountingRecords(data) > 0 ||
+                (Array.isArray(data.attachments) && data.attachments.length > 0) ||
+                (Array.isArray(data.voucherFolders) && data.voucherFolders.length > 0) ||
+                (data.projMeta && Object.keys(data.projMeta).length > 0) ||
+                (Array.isArray(data.classificationRules) && data.classificationRules.length > 0) ||
+                (Array.isArray(data.customCategories) && data.customCategories.length > 0);
+        }
+
+        function cloneAccountingData(data) {
+            return JSON.parse(JSON.stringify(data));
+        }
+
+        function saveSafetyBackup(data, source = 'unknown') {
+            try {
+                if (!isMeaningfulAccountingData(data)) return;
+                localStorage.setItem(ACCOUNTING_BACKUP_KEY, JSON.stringify(data));
+                localStorage.setItem(ACCOUNTING_BACKUP_META_KEY, JSON.stringify({
+                    savedAt: new Date().toISOString(),
+                    source,
+                    recordCount: countAccountingRecords(data)
+                }));
+            } catch (e) {
+                console.warn('建立本機安全備份失敗：', e);
+            }
+        }
+
+        function readLocalAccountingData() {
+            try {
+                const raw = localStorage.getItem(ACCOUNTING_LOCAL_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function readSafetyBackup() {
+            try {
+                const raw = localStorage.getItem(ACCOUNTING_BACKUP_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function showDataSafetyMessage(message) {
+            const box = document.getElementById('data-safety-status');
+            if (!box) return;
+            box.textContent = message;
+            box.style.display = 'block';
+            setTimeout(() => { box.style.display = 'none'; }, 7000);
+        }
+
+        async function fetchCloudAccountingRow() {
+            const { data, error } = await supabaseClient
+                .from('accounting_data')
+                .select('data_content')
+                .eq('id', 1)
+                .maybeSingle();
+            if (error) throw error;
+            if (!data || !data.data_content) return null;
+            return typeof data.data_content === 'string'
+                ? JSON.parse(data.data_content)
+                : data.data_content;
+        }
+
         async function loadDataFromSupabase() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('accounting_data')
-                    .select('data_content')
-                    .eq('id', 1)
-                    .maybeSingle();
+                const cloudDb = await fetchCloudAccountingRow();
+                const localDb = readLocalAccountingData();
+                const backupDb = readSafetyBackup();
 
-                if (error) throw error;
-
-                if (data && data.data_content) {
-                    const cloudDb = typeof data.data_content === 'string'
-                        ? JSON.parse(data.data_content)
-                        : data.data_content;
-
-                    if (cloudDb && typeof cloudDb === 'object') {
-                        db = cloudDb;
-                        // 雲端資料抓成功後，同步更新本機快取，確保手機畫面與電腦一致。
-                        localStorage.setItem('heart_gravity_unified_v47', JSON.stringify(db));
-                        return true;
-                    }
+                if (isMeaningfulAccountingData(cloudDb)) {
+                    saveSafetyBackup(cloudDb, 'cloud-load');
+                    db = cloneAccountingData(cloudDb);
+                    localStorage.setItem(ACCOUNTING_LOCAL_KEY, JSON.stringify(db));
+                    return true;
                 }
 
-                // 雲端完全沒有資料時，才允許本機既有資料作為第一次初始化來源。
-                const localData = localStorage.getItem('heart_gravity_unified_v47');
-                if (localData) {
-                    db = JSON.parse(localData);
-                    const ok = await saveDataToSupabase(true);
-                    return !!ok;
+                if (isMeaningfulAccountingData(localDb)) {
+                    saveSafetyBackup(localDb, 'local-protect-cloud-empty');
+                    db = cloneAccountingData(localDb);
+                    showDataSafetyMessage('⚠️ 雲端目前沒有有效資料，已保護並保留這台裝置的原始報表。');
+                    return true;
                 }
+
+                if (isMeaningfulAccountingData(backupDb)) {
+                    db = cloneAccountingData(backupDb);
+                    localStorage.setItem(ACCOUNTING_LOCAL_KEY, JSON.stringify(db));
+                    showDataSafetyMessage('✅ 已從安全備份恢復原始報表資料。');
+                    return true;
+                }
+
                 return true;
             } catch (err) {
                 console.error("載入 Supabase 最新資料失敗：", err);
-                // 讀取失敗時只顯示本機快取，不再把空資料誤寫回雲端。
-                const localData = localStorage.getItem('heart_gravity_unified_v47');
-                if (localData) db = JSON.parse(localData);
+                const localDb = readLocalAccountingData();
+                const backupDb = readSafetyBackup();
+
+                if (isMeaningfulAccountingData(localDb)) {
+                    saveSafetyBackup(localDb, 'cloud-load-failed');
+                    db = cloneAccountingData(localDb);
+                } else if (isMeaningfulAccountingData(backupDb)) {
+                    db = cloneAccountingData(backupDb);
+                    localStorage.setItem(ACCOUNTING_LOCAL_KEY, JSON.stringify(db));
+                }
+
+                showDataSafetyMessage('⚠️ 雲端讀取失敗，目前已保留這台裝置的安全資料。');
                 return false;
             }
         }
 
         async function saveDataToSupabase(silent = false) {
             try {
-                localStorage.setItem('heart_gravity_unified_v47', JSON.stringify(db));
-                const payload = { id: 1, data_content: JSON.stringify(db) };
+                const currentDb = cloneAccountingData(db);
+                const currentCount = countAccountingRecords(currentDb);
+
+                let cloudDb = null;
+                try {
+                    cloudDb = await fetchCloudAccountingRow();
+                } catch (fetchErr) {
+                    console.warn('儲存前讀取雲端資料失敗：', fetchErr);
+                }
+
+                const cloudCount = countAccountingRecords(cloudDb);
+
+                if (cloudCount > 0 && currentCount === 0) {
+                    showDataSafetyMessage('🛡️ 已阻止空白資料覆蓋雲端報表。');
+                    if (!silent) {
+                        alert('🛡️ 安全保護已啟動：目前這台裝置沒有報表資料，但雲端已有資料，因此系統已阻止空白資料覆蓋雲端。');
+                    }
+                    return false;
+                }
+
+                if (cloudCount >= 10 && currentCount < Math.ceil(cloudCount * 0.2)) {
+                    showDataSafetyMessage('🛡️ 偵測到資料筆數異常大幅減少，已阻止覆蓋。');
+                    if (!silent) {
+                        alert(`🛡️ 安全保護已啟動：雲端目前約有 ${cloudCount} 筆報表，但這台裝置只剩 ${currentCount} 筆。為避免誤清空，這次沒有覆蓋雲端資料。`);
+                    }
+                    return false;
+                }
+
+                saveSafetyBackup(currentDb, 'before-cloud-save');
+                localStorage.setItem(ACCOUNTING_LOCAL_KEY, JSON.stringify(currentDb));
+
+                const payload = { id: 1, data_content: JSON.stringify(currentDb) };
                 const { error } = await supabaseClient
                     .from('accounting_data')
                     .upsert(payload);
@@ -1170,15 +1364,20 @@
                 if (error) {
                     console.error("同步至 Supabase 發生錯誤：", error.message);
                     if (!silent) {
-                        alert("⚠️ 雲端同步失敗：資料目前只存在這台裝置。\n\n" + error.message);
+                        alert("⚠️ 雲端同步失敗：資料目前仍安全保存在這台裝置與安全備份中。\n\n" + error.message);
                     }
                     return false;
                 }
+
+                saveSafetyBackup(currentDb, 'after-cloud-save');
                 return true;
+
             } catch (err) {
                 console.error("雲端同步異常：", err);
+                saveSafetyBackup(db, 'save-exception');
+
                 if (!silent) {
-                    alert("⚠️ 雲端同步失敗：資料目前只存在這台裝置。");
+                    alert("⚠️ 雲端同步失敗：資料目前仍安全保存在這台裝置與安全備份中。");
                 }
                 return false;
             }
@@ -1209,7 +1408,21 @@
         let revShareChartInst = null;
         let vatChartInst = null;
 
+
+        function updateMobileChipNav(tabName) {
+            document.querySelectorAll('.mobile-chip-nav button').forEach(btn => {
+                const active = btn.dataset.tab === tabName;
+                btn.classList.toggle('active', active);
+                if (active) {
+                    try {
+                        btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    } catch (e) {}
+                }
+            });
+        }
+
         function switchTab(tabName) {
+            updateMobileChipNav(tabName);
             const tabs = ['dashboard', 'act-cost', 'act-rev', 'act-adv', 'perf-cost', 'perf-rev', 'perf-adv', 'proj-mat', 'stocks', 'images', 'rules'];
             tabs.forEach(t => {
                 const page = document.getElementById(`page-${t}`);
@@ -3500,6 +3713,7 @@ window.onload = function(){
     }, 300);
 };
 <\/script>
+<div id="data-safety-status" style="display:none;position:fixed;right:12px;bottom:12px;z-index:9999;background:#fff8f8;border:1px solid #e7b8b2;color:#6b5555;padding:8px 10px;border-radius:10px;font-size:12px;box-shadow:0 4px 18px rgba(0,0,0,.08);"></div>
 </body>
 </html>`);
 
