@@ -1017,64 +1017,156 @@
         }
 
 
-/* ===== 手機版最後微調：只改清單標頭的日期/操作按鈕 ===== */
+/* ===== 手機版真正修正：第一排標題、第二排操作列 ===== */
 @media (max-width: 640px) {
-  /* 報表標頭：第一排只留標題，操作列固定第二排靠左 */
-  #act-cost > .card:first-child,
-  #act-rev > .card:first-child,
-  #act-adv > .card:first-child,
-  #perf-cost > .card:first-child,
-  #perf-rev > .card:first-child,
-  #perf-adv > .card:first-child,
-  #proj-mat > .card:first-child {
-    flex-wrap: wrap !important;
-  }
+    #page-act-cost .report-toolbar,
+    #page-act-rev .report-toolbar,
+    #page-act-adv .report-toolbar,
+    #page-perf-cost .report-toolbar,
+    #page-perf-rev .report-toolbar,
+    #page-perf-adv .report-toolbar {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        overflow: visible !important;
+    }
 
-  .mobile-final-actions-row {
-    display: flex !important;
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 8px !important;
-    margin: 8px 0 0 0 !important;
-    padding: 0 !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    white-space: nowrap !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
+    #page-act-cost .report-first-row,
+    #page-act-rev .report-first-row,
+    #page-act-adv .report-first-row,
+    #page-perf-cost .report-first-row,
+    #page-perf-rev .report-first-row,
+    #page-perf-adv .report-first-row {
+        display: flex !important;
+        width: 100% !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
 
-  /* 選取日期：取消原本長條寬度，尺寸與後方操作按鈕一致 */
-  .mobile-final-actions-row .report-month-control.unified-date-range-control {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    flex: 0 0 auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: 0 !important;
-    background: transparent !important;
-  }
+    #page-act-cost .report-title-block,
+    #page-act-rev .report-title-block,
+    #page-act-adv .report-title-block,
+    #page-perf-cost .report-title-block,
+    #page-perf-rev .report-title-block,
+    #page-perf-adv .report-title-block {
+        margin: 0 !important;
+        flex: 0 0 auto !important;
+    }
 
-  .mobile-final-actions-row .report-month-control.unified-date-range-control .mobile-month-picker-btn {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    height: 34px !important;
-    min-height: 34px !important;
-    padding: 0 12px !important;
-    margin: 0 !important;
-    border-radius: 10px !important;
-    font-size: 12px !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-    flex: 0 0 auto !important;
-  }
+    #page-act-cost .report-actions,
+    #page-act-rev .report-actions,
+    #page-act-adv .report-actions,
+    #page-perf-cost .report-actions,
+    #page-perf-rev .report-actions,
+    #page-perf-adv .report-actions {
+        display: flex !important;
+        width: 100% !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        white-space: nowrap !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
 
-  .mobile-final-actions-row > button {
-    flex: 0 0 auto !important;
-  }
+    #page-act-cost .report-actions::-webkit-scrollbar,
+    #page-act-rev .report-actions::-webkit-scrollbar,
+    #page-act-adv .report-actions::-webkit-scrollbar,
+    #page-perf-cost .report-actions::-webkit-scrollbar,
+    #page-perf-rev .report-actions::-webkit-scrollbar,
+    #page-perf-adv .report-actions::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    #page-act-cost .report-actions .report-month-control,
+    #page-act-rev .report-actions .report-month-control,
+    #page-act-adv .report-actions .report-month-control,
+    #page-perf-cost .report-actions .report-month-control,
+    #page-perf-rev .report-actions .report-month-control,
+    #page-perf-adv .report-actions .report-month-control {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        flex: 0 0 auto !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+        padding: 0 7px !important;
+        margin: 0 !important;
+        border-radius: 9px !important;
+    }
+
+    #page-act-cost .report-actions .calendar-filter-text,
+    #page-act-rev .report-actions .calendar-filter-text,
+    #page-act-adv .report-actions .calendar-filter-text,
+    #page-perf-cost .report-actions .calendar-filter-text,
+    #page-perf-rev .report-actions .calendar-filter-text,
+    #page-perf-adv .report-actions .calendar-filter-text,
+    #page-act-cost .report-actions .month-native-input,
+    #page-act-rev .report-actions .month-native-input,
+    #page-act-adv .report-actions .month-native-input,
+    #page-perf-cost .report-actions .month-native-input,
+    #page-perf-rev .report-actions .month-native-input,
+    #page-perf-adv .report-actions .month-native-input {
+        display: none !important;
+    }
+
+    #page-act-cost .report-actions .report-calendar-icon,
+    #page-act-rev .report-actions .report-calendar-icon,
+    #page-act-adv .report-actions .report-calendar-icon,
+    #page-perf-cost .report-actions .report-calendar-icon,
+    #page-perf-rev .report-actions .report-calendar-icon,
+    #page-perf-adv .report-actions .report-calendar-icon {
+        font-size: 10px !important;
+        line-height: 1 !important;
+    }
+
+    #page-act-cost .report-actions .mobile-month-picker-btn,
+    #page-act-rev .report-actions .mobile-month-picker-btn,
+    #page-act-adv .report-actions .mobile-month-picker-btn,
+    #page-perf-cost .report-actions .mobile-month-picker-btn,
+    #page-perf-rev .report-actions .mobile-month-picker-btn,
+    #page-perf-adv .report-actions .mobile-month-picker-btn {
+        display: inline-flex !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        font-size: 9px !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        flex: 0 0 auto !important;
+    }
+
+    #page-act-cost .report-actions .report-action-btn,
+    #page-act-rev .report-actions .report-action-btn,
+    #page-act-adv .report-actions .report-action-btn,
+    #page-perf-cost .report-actions .report-action-btn,
+    #page-perf-rev .report-actions .report-action-btn,
+    #page-perf-adv .report-actions .report-action-btn {
+        flex: 0 0 auto !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        padding: 6px 7px !important;
+        font-size: 9px !important;
+        line-height: 1 !important;
+        border-radius: 9px !important;
+        white-space: nowrap !important;
+    }
 }
 
 </style>
@@ -6993,54 +7085,54 @@ const oldLoad=window.loadDataFromSupabase; if(typeof oldLoad==='function'){ wind
 
 <script>
 (function () {
-  function isTargetButton(btn) {
-    var t = (btn.textContent || '').replace(/\s+/g, '');
-    return t.indexOf('儲存') !== -1 ||
-           t.indexOf('刪除勾選') !== -1 ||
-           t.indexOf('新增') !== -1;
-  }
+    const reportKeys = ['act-cost','act-rev','act-adv','perf-cost','perf-rev','perf-adv'];
 
-  function arrangeFinalMobileRows() {
-    if (!window.matchMedia('(max-width: 640px)').matches) return;
+    function arrangeReportToolbarForViewport() {
+        const isMobile = window.matchMedia('(max-width: 640px)').matches;
 
-    ['act-cost','act-rev','act-adv','perf-cost','perf-rev','perf-adv','proj-mat'].forEach(function(id) {
-      var page = document.getElementById(id);
-      if (!page) return;
-      var header = page.querySelector('.card');
-      if (!header) return;
+        reportKeys.forEach(function (key) {
+            const page = document.getElementById('page-' + key);
+            if (!page) return;
 
-      var dateControl = header.querySelector('.report-month-control.unified-date-range-control');
-      if (!dateControl) return;
+            const toolbar = page.querySelector('.report-toolbar');
+            const firstRow = toolbar ? toolbar.querySelector('.report-first-row') : null;
+            const titleBlock = toolbar ? toolbar.querySelector('.report-title-block') : null;
+            const dateControl = toolbar ? toolbar.querySelector('.report-month-control.unified-date-range-control') : null;
+            const actions = toolbar ? toolbar.querySelector('.report-actions') : null;
 
-      var row = header.querySelector('.mobile-final-actions-row');
-      if (!row) {
-        row = document.createElement('div');
-        row.className = 'mobile-final-actions-row';
-        header.appendChild(row);
-      }
+            if (!toolbar || !firstRow || !dateControl || !actions) return;
 
-      var buttons = Array.from(header.querySelectorAll('button')).filter(isTargetButton);
+            if (isMobile) {
+                if (dateControl.parentElement !== actions || actions.firstElementChild !== dateControl) {
+                    actions.insertBefore(dateControl, actions.firstElementChild);
+                }
+            } else {
+                if (dateControl.parentElement !== firstRow) {
+                    firstRow.appendChild(dateControl);
+                }
+                if (titleBlock && titleBlock.nextElementSibling !== dateControl) {
+                    titleBlock.insertAdjacentElement('afterend', dateControl);
+                }
+            }
+        });
+    }
 
-      /* 第二排順序：選取日期 → 儲存 → 刪除勾選 → 新增... */
-      row.appendChild(dateControl);
-      buttons.forEach(function(btn) {
-        if (!row.contains(btn)) row.appendChild(btn);
-      });
+    function initMobileToolbarFix() {
+        arrangeReportToolbarForViewport();
+        setTimeout(arrangeReportToolbarForViewport, 100);
+        setTimeout(arrangeReportToolbarForViewport, 500);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileToolbarFix);
+    } else {
+        initMobileToolbarFix();
+    }
+
+    window.addEventListener('resize', arrangeReportToolbarForViewport);
+    window.addEventListener('orientationchange', function () {
+        setTimeout(arrangeReportToolbarForViewport, 100);
     });
-  }
-
-  function start() {
-    arrangeFinalMobileRows();
-    setTimeout(arrangeFinalMobileRows, 100);
-    setTimeout(arrangeFinalMobileRows, 500);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
-  }
-  window.addEventListener('resize', arrangeFinalMobileRows);
 })();
 </script>
 
