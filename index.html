@@ -1016,6 +1016,67 @@
             }
         }
 
+
+/* ===== 手機版最後微調：只改清單標頭的日期/操作按鈕 ===== */
+@media (max-width: 640px) {
+  /* 報表標頭：第一排只留標題，操作列固定第二排靠左 */
+  #act-cost > .card:first-child,
+  #act-rev > .card:first-child,
+  #act-adv > .card:first-child,
+  #perf-cost > .card:first-child,
+  #perf-rev > .card:first-child,
+  #perf-adv > .card:first-child,
+  #proj-mat > .card:first-child {
+    flex-wrap: wrap !important;
+  }
+
+  .mobile-final-actions-row {
+    display: flex !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    margin: 8px 0 0 0 !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* 選取日期：取消原本長條寬度，尺寸與後方操作按鈕一致 */
+  .mobile-final-actions-row .report-month-control.unified-date-range-control {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: 0 0 auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .mobile-final-actions-row .report-month-control.unified-date-range-control .mobile-month-picker-btn {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 12px !important;
+    margin: 0 !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+
+  .mobile-final-actions-row > button {
+    flex: 0 0 auto !important;
+  }
+}
+
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -6929,5 +6990,59 @@ const oldLoad=window.loadDataFromSupabase; if(typeof oldLoad==='function'){ wind
             </div>
         </div>
     </div>
+
+<script>
+(function () {
+  function isTargetButton(btn) {
+    var t = (btn.textContent || '').replace(/\s+/g, '');
+    return t.indexOf('儲存') !== -1 ||
+           t.indexOf('刪除勾選') !== -1 ||
+           t.indexOf('新增') !== -1;
+  }
+
+  function arrangeFinalMobileRows() {
+    if (!window.matchMedia('(max-width: 640px)').matches) return;
+
+    ['act-cost','act-rev','act-adv','perf-cost','perf-rev','perf-adv','proj-mat'].forEach(function(id) {
+      var page = document.getElementById(id);
+      if (!page) return;
+      var header = page.querySelector('.card');
+      if (!header) return;
+
+      var dateControl = header.querySelector('.report-month-control.unified-date-range-control');
+      if (!dateControl) return;
+
+      var row = header.querySelector('.mobile-final-actions-row');
+      if (!row) {
+        row = document.createElement('div');
+        row.className = 'mobile-final-actions-row';
+        header.appendChild(row);
+      }
+
+      var buttons = Array.from(header.querySelectorAll('button')).filter(isTargetButton);
+
+      /* 第二排順序：選取日期 → 儲存 → 刪除勾選 → 新增... */
+      row.appendChild(dateControl);
+      buttons.forEach(function(btn) {
+        if (!row.contains(btn)) row.appendChild(btn);
+      });
+    });
+  }
+
+  function start() {
+    arrangeFinalMobileRows();
+    setTimeout(arrangeFinalMobileRows, 100);
+    setTimeout(arrangeFinalMobileRows, 500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+  window.addEventListener('resize', arrangeFinalMobileRows);
+})();
+</script>
+
 </body>
 </html>
