@@ -2202,6 +2202,17 @@
             closeDateRangeFilter();
         }
 
+        document.addEventListener('DOMContentLoaded', function () {
+            const rangeModal = document.getElementById('date-range-filter-modal');
+            if (rangeModal && rangeModal.parentElement !== document.body) {
+                document.body.appendChild(rangeModal);
+            }
+            const oldMonthModal = document.getElementById('custom-month-picker');
+            if (oldMonthModal && oldMonthModal.parentElement !== document.body) {
+                document.body.appendChild(oldMonthModal);
+            }
+        });
+
         window.openDateRangeFilter = openDateRangeFilter;
         window.closeDateRangeFilter = closeDateRangeFilter;
         window.applyDateRangeFilter = applyDateRangeFilter;
@@ -4494,50 +4505,7 @@ window.onload = function(){
     }, 300);
 };
 <\/script>
-<div id="data-safety-status" style="display:none;position:fixed;right:12px;bottom:12px;z-index:9999;background:#fff8f8;border:1px solid #e7b8b2;color:#6b5555;padding:8px 10px;border-radius:10px;font-size:12px;box-shadow:0 4px 18px rgba(0,0,0,.08);"></div>
-
-    <div id="custom-month-picker" class="custom-month-picker hidden" aria-hidden="true">
-        <div class="custom-month-backdrop" onclick="closeCustomMonthPicker()"></div>
-        <div class="custom-month-panel" role="dialog" aria-modal="true" aria-label="選擇月份">
-            <div class="custom-month-handle"></div>
-            <div class="custom-month-head">
-                <button type="button" class="month-year-step" onclick="stepCustomMonthYear(-1)">‹</button>
-                <div id="custom-month-year" class="custom-month-year">2026 年</div>
-                <button type="button" class="month-year-step" onclick="stepCustomMonthYear(1)">›</button>
-            </div>
-            <div id="custom-month-grid" class="custom-month-grid"></div>
-            <div class="custom-month-actions">
-                <button type="button" class="month-reset-btn" onclick="resetCustomMonthPicker()">顯示全部</button>
-                <button type="button" class="month-cancel-btn" onclick="closeCustomMonthPicker()">取消</button>
-                <button type="button" class="month-confirm-btn" onclick="confirmCustomMonthPicker()">確認</button>
-            </div>
-        </div>
-    </div>
-
-
-    <div id="date-range-filter-modal" class="date-range-filter-modal hidden" aria-hidden="true">
-        <div class="date-range-backdrop" onclick="window.closeDateRangeFilter()"></div>
-        <div class="date-range-panel" role="dialog" aria-modal="true" aria-label="日曆篩選期間">
-            <div class="date-range-handle"></div>
-            <h3>日曆篩選期間</h3>
-            <div class="date-range-field">
-                <label for="range-filter-start">開始日期</label>
-                <input id="range-filter-start" type="date">
-            </div>
-            <div class="date-range-arrow">↓</div>
-            <div class="date-range-field">
-                <label for="range-filter-end">結束日期</label>
-                <input id="range-filter-end" type="date">
-            </div>
-            <div class="date-range-actions">
-                <button type="button" class="date-range-clear" onclick="window.clearDateRangeFromModal()">顯示全部</button>
-                <button type="button" class="date-range-cancel" onclick="window.closeDateRangeFilter()">取消</button>
-                <button type="button" class="date-range-confirm" onclick="window.applyDateRangeFilter()">確認篩選</button>
-            </div>
-        </div>
-    </div>
-
-</body>
+<div id="data-safety-status" style="display:none;position:fixed;right:12px;bottom:12px;z-index:9999;background:#fff8f8;border:1px solid #e7b8b2;color:#6b5555;padding:8px 10px;border-radius:10px;font-size:12px;box-shadow:0 4px 18px rgba(0,0,0,.08);"></div></body>
 </html>`);
 
         printWindow.document.close();
@@ -6514,5 +6482,46 @@ window.deleteSelectedVoucherFiles=async function(){ const ids=[...document.query
 const oldLoad=window.loadDataFromSupabase; if(typeof oldLoad==='function'){ window.loadDataFromSupabase=async function(){ const r=await oldLoad.apply(this,arguments); ensureVoucherData(); return r; }; }
 })();
 </script>
+
+
+<div id="custom-month-picker" class="custom-month-picker hidden" aria-hidden="true">
+        <div class="custom-month-backdrop" onclick="closeCustomMonthPicker()"></div>
+        <div class="custom-month-panel" role="dialog" aria-modal="true" aria-label="選擇月份">
+            <div class="custom-month-handle"></div>
+            <div class="custom-month-head">
+                <button type="button" class="month-year-step" onclick="stepCustomMonthYear(-1)">‹</button>
+                <div id="custom-month-year" class="custom-month-year">2026 年</div>
+                <button type="button" class="month-year-step" onclick="stepCustomMonthYear(1)">›</button>
+            </div>
+            <div id="custom-month-grid" class="custom-month-grid"></div>
+            <div class="custom-month-actions">
+                <button type="button" class="month-reset-btn" onclick="resetCustomMonthPicker()">顯示全部</button>
+                <button type="button" class="month-cancel-btn" onclick="closeCustomMonthPicker()">取消</button>
+                <button type="button" class="month-confirm-btn" onclick="confirmCustomMonthPicker()">確認</button>
+            </div>
+        </div>
+    </div>
+
+<div id="date-range-filter-modal" class="date-range-filter-modal hidden" aria-hidden="true">
+        <div class="date-range-backdrop" onclick="window.closeDateRangeFilter()"></div>
+        <div class="date-range-panel" role="dialog" aria-modal="true" aria-label="日曆篩選期間">
+            <div class="date-range-handle"></div>
+            <h3>日曆篩選期間</h3>
+            <div class="date-range-field">
+                <label for="range-filter-start">開始日期</label>
+                <input id="range-filter-start" type="date">
+            </div>
+            <div class="date-range-arrow">↓</div>
+            <div class="date-range-field">
+                <label for="range-filter-end">結束日期</label>
+                <input id="range-filter-end" type="date">
+            </div>
+            <div class="date-range-actions">
+                <button type="button" class="date-range-clear" onclick="window.clearDateRangeFromModal()">顯示全部</button>
+                <button type="button" class="date-range-cancel" onclick="window.closeDateRangeFilter()">取消</button>
+                <button type="button" class="date-range-confirm" onclick="window.applyDateRangeFilter()">確認篩選</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
