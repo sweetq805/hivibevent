@@ -723,7 +723,57 @@
             pointer-events: auto !important;
         }
 
-    </style>
+    
+        .date-range-filter-modal.hidden{display:none!important}
+        .date-range-filter-modal{position:fixed!important;inset:0!important;z-index:2147483647!important;display:flex;align-items:flex-end;justify-content:center;font-family:inherit}
+        .date-range-backdrop{position:absolute;inset:0;background:rgba(83,72,70,.30);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+        .date-range-panel{position:relative;z-index:2;width:min(94vw,430px);background:#fffaf8;border:1px solid #e8c5c0;border-radius:28px 28px 0 0;padding:12px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -16px 42px rgba(89,68,66,.18);color:var(--dark)}
+        .date-range-handle{width:48px;height:5px;border-radius:999px;background:#d9c5c1;margin:0 auto 14px}
+        .date-range-panel h3{text-align:center;font-size:18px;font-weight:800;margin-bottom:16px}
+        .date-range-field{background:#f8e9e6;border:1px solid #e6c5c0;border-radius:16px;padding:10px 12px}
+        .date-range-field label{display:block;font-size:11px;font-weight:800;color:#786966;margin-bottom:5px}
+        .date-range-field input[type="date"]{width:100%;min-height:46px;border:0;border-radius:12px;background:#fff;padding:8px 10px;color:var(--dark);font-size:16px;font-weight:800;font-family:inherit}
+        .date-range-arrow{text-align:center;font-size:20px;color:#b38d88;padding:5px 0}
+        .date-range-actions{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:8px;margin-top:16px}
+        .date-range-actions button{min-height:44px;border-radius:14px;font-size:12px;font-weight:800;font-family:inherit}
+        .date-range-clear{background:#fff;border:1px solid #dfc4c0;color:#6a5d5a}
+        .date-range-cancel{background:#eee8e6;border:1px solid #ddd1cf;color:#625957}
+        .date-range-confirm{background:#cda6a2;border:1px solid #c99d99;color:#fff}
+
+        @media(max-width:640px){
+            .mobile-date-range-btn,.report-clear-month{pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;position:relative!important;z-index:8!important}
+
+            #page-act-cost table,#page-perf-cost table{min-width:1120px!important;width:1120px!important}
+            #page-act-cost th:nth-child(3),#page-perf-cost th:nth-child(3),
+            #page-act-cost td:nth-child(3),#page-perf-cost td:nth-child(3){width:112px!important;min-width:112px!important}
+            #page-act-cost td:nth-child(3) input,#page-perf-cost td:nth-child(3) input{width:104px!important;min-width:104px!important;max-width:104px!important}
+
+            #page-act-cost th:nth-child(5),#page-perf-cost th:nth-child(5),
+            #page-act-cost td:nth-child(5),#page-perf-cost td:nth-child(5),
+            #page-act-cost th:nth-child(6),#page-perf-cost th:nth-child(6),
+            #page-act-cost td:nth-child(6),#page-perf-cost td:nth-child(6){width:96px!important;min-width:96px!important}
+            #page-act-cost td:nth-child(5) input,#page-perf-cost td:nth-child(5) input,
+            #page-act-cost td:nth-child(6) input,#page-perf-cost td:nth-child(6) input{width:90px!important;min-width:90px!important;max-width:90px!important}
+
+            #page-act-cost th:nth-child(9),#page-perf-cost th:nth-child(9),
+            #page-act-cost td:nth-child(9),#page-perf-cost td:nth-child(9){width:92px!important;min-width:92px!important}
+            #page-act-cost td:nth-child(9) input,#page-perf-cost td:nth-child(9) input{width:86px!important;min-width:86px!important;max-width:86px!important}
+
+            #page-act-rev table{min-width:820px!important;width:820px!important}
+            #page-act-rev th:nth-child(3),#page-act-rev td:nth-child(3){width:116px!important;min-width:116px!important}
+            #page-act-rev td:nth-child(3) input,#page-act-rev td:nth-child(3) textarea{width:108px!important;min-width:108px!important;max-width:108px!important}
+            #page-act-rev th:nth-child(6),#page-act-rev td:nth-child(6){width:94px!important;min-width:94px!important}
+            #page-act-rev td:nth-child(6) input{width:88px!important;min-width:88px!important;max-width:88px!important}
+
+            #page-perf-rev table{min-width:1040px!important;width:1040px!important}
+            #page-perf-rev th:nth-child(3),#page-perf-rev td:nth-child(3){width:116px!important;min-width:116px!important}
+            #page-perf-rev td:nth-child(3) input,#page-perf-rev td:nth-child(3) textarea{width:108px!important;min-width:108px!important;max-width:108px!important}
+            #page-perf-rev th:nth-child(6),#page-perf-rev td:nth-child(6),
+            #page-perf-rev th:nth-child(8),#page-perf-rev td:nth-child(8),
+            #page-perf-rev th:nth-child(9),#page-perf-rev td:nth-child(9){width:92px!important;min-width:92px!important}
+        }
+
+</style>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -886,8 +936,8 @@
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
                             <input type="month" id="filter-month-act-cost" onchange="onFilterMonthChange('act-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn" data-month-input="filter-month-act-cost" onclick="openCustomMonthPicker('filter-month-act-cost'); return false;"><span id="mobile-month-label-act-cost">全部月份</span></button>
-                            <button type="button" class="report-clear-month" data-clear-month="act-cost" onclick="clearFilter('act-cost'); return false;">顯示全部</button>
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('act-cost'); return false;"><span id="mobile-month-label-act-cost">全部日期</span></button>
+                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('act-cost'); return false;">顯示全部</button>
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-cost')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-cost')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="addCustomCategory()" class="report-action-btn bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button><button type="button" onclick="openGenericModal('act-cost')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button></div>
@@ -896,7 +946,7 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-act-cost" onclick="toggleSelectAll('act-cost', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-act-cost" onclick="toggleSelectAll('act-cost', this)" title="單頁全部：勾選目前頁與之前頁面" aria-label="單頁全部" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold col-type">發票種類 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-cost', 'type')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold col-number">發票號碼</th>
                                 <th class="p-3 font-bold col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-cost', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
@@ -939,8 +989,8 @@
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
                             <input type="month" id="filter-month-act-rev" onchange="onFilterMonthChange('act-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn" data-month-input="filter-month-act-rev" onclick="openCustomMonthPicker('filter-month-act-rev'); return false;"><span id="mobile-month-label-act-rev">全部月份</span></button>
-                            <button type="button" class="report-clear-month" data-clear-month="act-rev" onclick="clearFilter('act-rev'); return false;">顯示全部</button>
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('act-rev'); return false;"><span id="mobile-month-label-act-rev">全部日期</span></button>
+                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('act-rev'); return false;">顯示全部</button>
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-rev')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-rev')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openActRevModal()" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -949,7 +999,7 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-rev" onclick="toggleSelectAll('act-rev', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-rev" onclick="toggleSelectAll('act-rev', this)" title="單頁全部：勾選目前頁與之前頁面" aria-label="單頁全部" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold text-center col-date">活動日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-rev', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 110px;">客戶名稱 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-rev', 'client')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 150px;">品項明細</th>
@@ -990,8 +1040,8 @@
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
                             <input type="month" id="filter-month-act-adv" onchange="onFilterMonthChange('act-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn" data-month-input="filter-month-act-adv" onclick="openCustomMonthPicker('filter-month-act-adv'); return false;"><span id="mobile-month-label-act-adv">全部月份</span></button>
-                            <button type="button" class="report-clear-month" data-clear-month="act-adv" onclick="clearFilter('act-adv'); return false;">顯示全部</button>
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('act-adv'); return false;"><span id="mobile-month-label-act-adv">全部日期</span></button>
+                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('act-adv'); return false;">顯示全部</button>
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-adv')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-adv')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openAdvanceModal('act')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -1000,7 +1050,7 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-adv" onclick="toggleSelectAll('act-adv', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-act-adv" onclick="toggleSelectAll('act-adv', this)" title="單頁全部：勾選目前頁與之前頁面" aria-label="單頁全部" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold text-center col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-adv', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 100px;">代墊人 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('act-adv', 'person')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center">代墊明細</th>
@@ -1039,8 +1089,8 @@
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
                             <input type="month" id="filter-month-perf-cost" onchange="onFilterMonthChange('perf-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn" data-month-input="filter-month-perf-cost" onclick="openCustomMonthPicker('filter-month-perf-cost'); return false;"><span id="mobile-month-label-perf-cost">全部月份</span></button>
-                            <button type="button" class="report-clear-month" data-clear-month="perf-cost" onclick="clearFilter('perf-cost'); return false;">顯示全部</button>
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('perf-cost'); return false;"><span id="mobile-month-label-perf-cost">全部日期</span></button>
+                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('perf-cost'); return false;">顯示全部</button>
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-cost')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-cost')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="addCustomCategory()" class="report-action-btn bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button><button type="button" onclick="openGenericModal('perf-cost')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button></div>
@@ -1049,7 +1099,7 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-perf-cost" onclick="toggleSelectAll('perf-cost', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                <th class="p-3 font-bold col-checkbox"><input type="checkbox" id="selectAll-perf-cost" onclick="toggleSelectAll('perf-cost', this)" title="單頁全部：勾選目前頁與之前頁面" aria-label="單頁全部" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold col-type">發票種類 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-cost', 'type')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold col-number">發票號碼</th>
                                 <th class="p-3 font-bold col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-cost', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
@@ -1092,8 +1142,8 @@
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
                             <input type="month" id="filter-month-perf-rev" onchange="onFilterMonthChange('perf-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn" data-month-input="filter-month-perf-rev" onclick="openCustomMonthPicker('filter-month-perf-rev'); return false;"><span id="mobile-month-label-perf-rev">全部月份</span></button>
-                            <button type="button" class="report-clear-month" data-clear-month="perf-rev" onclick="clearFilter('perf-rev'); return false;">顯示全部</button>
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('perf-rev'); return false;"><span id="mobile-month-label-perf-rev">全部日期</span></button>
+                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('perf-rev'); return false;">顯示全部</button>
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-rev')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-rev')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openPerfRevModal()" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -1102,7 +1152,7 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-rev" onclick="toggleSelectAll('perf-rev', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-rev" onclick="toggleSelectAll('perf-rev', this)" title="單頁全部：勾選目前頁與之前頁面" aria-label="單頁全部" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold text-center col-date">訂購日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-rev', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 100px;">客戶名稱 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-rev', 'client')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 130px;">品項明細</th>
@@ -1148,8 +1198,8 @@
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
                             <input type="month" id="filter-month-perf-adv" onchange="onFilterMonthChange('perf-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn" data-month-input="filter-month-perf-adv" onclick="openCustomMonthPicker('filter-month-perf-adv'); return false;"><span id="mobile-month-label-perf-adv">全部月份</span></button>
-                            <button type="button" class="report-clear-month" data-clear-month="perf-adv" onclick="clearFilter('perf-adv'); return false;">顯示全部</button>
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('perf-adv'); return false;"><span id="mobile-month-label-perf-adv">全部日期</span></button>
+                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('perf-adv'); return false;">顯示全部</button>
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-adv')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-adv')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openAdvanceModal('perf')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -1158,7 +1208,7 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-adv" onclick="toggleSelectAll('perf-adv', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-perf-adv" onclick="toggleSelectAll('perf-adv', this)" title="單頁全部：勾選目前頁與之前頁面" aria-label="單頁全部" class="w-4 h-4 accent-[var(--accent)]"></th>
                                 <th class="p-3 font-bold text-center col-date">日期 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-adv', 'date')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center" style="width: 100px;">代墊人 <button type="button" class="sort-btn no-print" onclick="toggleReportSort('perf-adv', 'person')" title="排序 A-Z / 排序 Z-A">▲</button></th>
                                 <th class="p-3 font-bold text-center">代墊明細</th>
@@ -1240,7 +1290,7 @@
                         <table class="w-full text-left text-xs">
                             <thead>
                                 <tr class="bg-[var(--light-pink)] border-b border-[var(--soft-pink)]">
-                                    <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-proj-mat" onclick="toggleSelectAll('proj-mat', this)" class="w-4 h-4 accent-[var(--accent)]"></th>
+                                    <th class="p-3 font-bold text-center col-checkbox"><input type="checkbox" id="selectAll-proj-mat" onclick="toggleSelectAll('proj-mat', this)" title="單頁全部：勾選目前頁與之前頁面" aria-label="單頁全部" class="w-4 h-4 accent-[var(--accent)]"></th>
                                     <th class="p-3 font-bold text-center" style="width: 100px;">品項</th>
                                     <th class="p-3 font-bold text-center" style="width: 120px;">物資名稱</th>
                                     <th class="p-3 font-bold text-center" style="width: 50px;">數量</th>
@@ -1595,13 +1645,13 @@
         let selectedProjects = new Set();
         
         let pagination = {
-            'act-cost': { page: 1, size: 20, filterMonth: '' },
-            'act-rev': { page: 1, size: 20, filterMonth: '' },
-            'act-adv': { page: 1, size: 20, filterMonth: '' },
-            'perf-cost': { page: 1, size: 20, filterMonth: '' },
-            'perf-rev': { page: 1, size: 20, filterMonth: '' },
-            'perf-adv': { page: 1, size: 20, filterMonth: '' },
-            'proj-mat': { page: 1, size: 20, filterMonth: '' }
+            'act-cost': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
+            'act-rev': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
+            'act-adv': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
+            'perf-cost': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
+            'perf-rev': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
+            'perf-adv': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
+            'proj-mat': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' }
         };
 
         let selectedIds = {
@@ -2053,11 +2103,117 @@
         window.clearFilter = clearFilter;
 
 
+        let activeDateRangeKey = '';
+
+        function formatDateRangeLabel(start, end) {
+            if (!start && !end) return '全部日期';
+            const short = (v) => {
+                if (!v) return '';
+                const p = v.split('-');
+                return `${Number(p[1])}/${Number(p[2])}`;
+            };
+            if (start && end) return `${short(start)}–${short(end)}`;
+            if (start) return `${short(start)}起`;
+            return `至${short(end)}`;
+        }
+
+        function syncDateRangeLabel(key) {
+            const p = pagination[key] || {};
+            const el = document.getElementById(`mobile-month-label-${key}`);
+            if (el) el.textContent = formatDateRangeLabel(p.filterStart || '', p.filterEnd || '');
+        }
+
+        function openDateRangeFilter(key) {
+            activeDateRangeKey = key;
+            const p = pagination[key] || {};
+            const startInput = document.getElementById('range-filter-start');
+            const endInput = document.getElementById('range-filter-end');
+            if (startInput) startInput.value = p.filterStart || '';
+            if (endInput) endInput.value = p.filterEnd || '';
+
+            const modal = document.getElementById('date-range-filter-modal');
+            if (!modal) return alert('日期篩選器載入失敗，請重新整理後再試。');
+
+            if (modal.parentElement !== document.body) document.body.appendChild(modal);
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modal.style.visibility = 'visible';
+            modal.style.opacity = '1';
+            modal.setAttribute('aria-hidden', 'false');
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDateRangeFilter() {
+            const modal = document.getElementById('date-range-filter-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+            }
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+        }
+
+        function applyDateRangeFilter() {
+            if (!activeDateRangeKey || !pagination[activeDateRangeKey]) return closeDateRangeFilter();
+            const startInput = document.getElementById('range-filter-start');
+            const endInput = document.getElementById('range-filter-end');
+            let start = startInput ? startInput.value : '';
+            let end = endInput ? endInput.value : '';
+            if (start && end && start > end) [start, end] = [end, start];
+
+            const p = pagination[activeDateRangeKey];
+            p.filterStart = start;
+            p.filterEnd = end;
+            p.filterMonth = '';
+            p.page = 1;
+
+            const monthInput = document.getElementById(`filter-month-${activeDateRangeKey}`);
+            if (monthInput) monthInput.value = '';
+
+            syncDateRangeLabel(activeDateRangeKey);
+            renderTable(activeDateRangeKey);
+            closeDateRangeFilter();
+        }
+
+        function clearDateRangeFilter(key) {
+            if (!pagination[key]) return;
+            pagination[key].filterStart = '';
+            pagination[key].filterEnd = '';
+            pagination[key].filterMonth = '';
+            pagination[key].page = 1;
+
+            const monthInput = document.getElementById(`filter-month-${key}`);
+            if (monthInput) monthInput.value = '';
+            const label = document.getElementById(`mobile-month-label-${key}`);
+            if (label) label.textContent = '全部日期';
+
+            renderTable(key);
+            updateSelectedCounter(key);
+        }
+
+        function clearDateRangeFromModal() {
+            const s = document.getElementById('range-filter-start');
+            const e = document.getElementById('range-filter-end');
+            if (s) s.value = '';
+            if (e) e.value = '';
+            if (activeDateRangeKey) clearDateRangeFilter(activeDateRangeKey);
+            closeDateRangeFilter();
+        }
+
+        window.openDateRangeFilter = openDateRangeFilter;
+        window.closeDateRangeFilter = closeDateRangeFilter;
+        window.applyDateRangeFilter = applyDateRangeFilter;
+        window.clearDateRangeFilter = clearDateRangeFilter;
+        window.clearDateRangeFromModal = clearDateRangeFromModal;
+
         function onFilterMonthChange(key) {
             const val = document.getElementById(`filter-month-${key}`).value;
             pagination[key].filterMonth = val;
+            pagination[key].filterStart = '';
+            pagination[key].filterEnd = '';
             pagination[key].page = 1;
-            syncMobileMonthLabel(key);
             renderTable(key);
         }
 
@@ -2121,12 +2277,26 @@
 
         function getFilteredData(key) {
             const list = [...getListData(key)];
-            const fMonth = pagination[key].filterMonth;
-            let result = fMonth ? list.filter(i => i.date && i.date.startsWith(fMonth)) : list;
-            const sort = reportSortState[key];
-            if (sort) {
-                result = [...result].sort((a, b) => compareSortValues(a, b, sort.field, sort.dir));
+            const p = pagination[key] || {};
+            const fMonth = p.filterMonth || '';
+            const fStart = p.filterStart || '';
+            const fEnd = p.filterEnd || '';
+
+            let result = list;
+            if (fStart || fEnd) {
+                result = result.filter(i => {
+                    const d = String(i.date || '').slice(0, 10);
+                    if (!d) return false;
+                    if (fStart && d < fStart) return false;
+                    if (fEnd && d > fEnd) return false;
+                    return true;
+                });
+            } else if (fMonth) {
+                result = result.filter(i => i.date && i.date.startsWith(fMonth));
             }
+
+            const sort = reportSortState[key];
+            if (sort) result = [...result].sort((a, b) => compareSortValues(a, b, sort.field, sort.dir));
             return result;
         }
 
@@ -2885,13 +3055,16 @@
 
         function toggleSelectAll(key, masterCheckbox) {
             const filtered = getFilteredData(key);
+            const pInfo = pagination[key];
             const selSet = selectedIds[key];
-            if (masterCheckbox.checked) {
-                filtered.forEach(i => selSet.add(i.id));
-            } else {
-                filtered.forEach(i => selSet.delete(i.id));
-            }
+            const endIndex = Math.min(filtered.length, pInfo.page * pInfo.size);
+            const cumulativeData = filtered.slice(0, endIndex);
+
+            if (masterCheckbox.checked) cumulativeData.forEach(i => selSet.add(i.id));
+            else cumulativeData.forEach(i => selSet.delete(i.id));
+
             renderTable(key);
+            updateSelectedCounter(key);
         }
 
         function toggleRowSelection(key, id, checkbox) {
@@ -2941,7 +3114,8 @@
 
             const masterCb = document.getElementById(`selectAll-${key}`);
             if (masterCb) {
-                masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds[key].has(i.id));
+                const cumulativeData = filtered.slice(0, Math.min(filtered.length, pInfo.page * pInfo.size));
+                masterCb.checked = cumulativeData.length > 0 && cumulativeData.every(i => selectedIds[key].has(i.id));
             }
 
             if (pageData.length === 0) {
@@ -2997,7 +3171,10 @@
             document.getElementById('total-count-act-rev').innerText = `符合條件總筆數: ${filtered.length} 筆`;
 
             const masterCb = document.getElementById('selectAll-act-rev');
-            if (masterCb) masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds['act-rev'].has(i.id));
+            if (masterCb) {
+                const cumulativeData = filtered.slice(0, Math.min(filtered.length, pInfo.page * pInfo.size));
+                masterCb.checked = cumulativeData.length > 0 && cumulativeData.every(i => selectedIds['act-rev'].has(i.id));
+            }
 
             if (pageData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-[var(--gray)] font-bold">尚無活動營收資料</td></tr>`;
@@ -3045,7 +3222,10 @@
             document.getElementById('total-count-perf-rev').innerText = `符合條件總筆數: ${filtered.length} 筆`;
 
             const masterCb = document.getElementById('selectAll-perf-rev');
-            if (masterCb) masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds['perf-rev'].has(i.id));
+            if (masterCb) {
+                const cumulativeData = filtered.slice(0, Math.min(filtered.length, pInfo.page * pInfo.size));
+                masterCb.checked = cumulativeData.length > 0 && cumulativeData.every(i => selectedIds['perf-rev'].has(i.id));
+            }
 
             if (pageData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="13" class="text-center py-6 text-[var(--gray)] font-bold">尚無香氛營收資料</td></tr>`;
@@ -3099,7 +3279,10 @@
             document.getElementById(`total-count-${key}`).innerText = `符合條件總筆數: ${filtered.length} 筆`;
 
             const masterCb = document.getElementById(`selectAll-${key}`);
-            if (masterCb) masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds[key].has(i.id));
+            if (masterCb) {
+                const cumulativeData = filtered.slice(0, Math.min(filtered.length, pInfo.page * pInfo.size));
+                masterCb.checked = cumulativeData.length > 0 && cumulativeData.every(i => selectedIds[key].has(i.id));
+            }
 
             if (pageData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-[var(--gray)] font-bold">尚無資料</td></tr>`;
@@ -3355,7 +3538,10 @@
             document.getElementById('total-count-proj-mat').innerText = `符合條件總筆數: ${filtered.length} 筆`;
 
             const masterCb = document.getElementById('selectAll-proj-mat');
-            if (masterCb) masterCb.checked = pageData.length > 0 && pageData.every(i => selectedIds['proj-mat'].has(i.id));
+            if (masterCb) {
+                const cumulativeData = filtered.slice(0, Math.min(filtered.length, pInfo.page * pInfo.size));
+                masterCb.checked = cumulativeData.length > 0 && cumulativeData.every(i => selectedIds['proj-mat'].has(i.id));
+            }
 
             if (pageData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 text-[var(--gray)] font-bold">此專案尚無物資</td></tr>`;
@@ -4324,6 +4510,29 @@ window.onload = function(){
                 <button type="button" class="month-reset-btn" onclick="resetCustomMonthPicker()">顯示全部</button>
                 <button type="button" class="month-cancel-btn" onclick="closeCustomMonthPicker()">取消</button>
                 <button type="button" class="month-confirm-btn" onclick="confirmCustomMonthPicker()">確認</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="date-range-filter-modal" class="date-range-filter-modal hidden" aria-hidden="true">
+        <div class="date-range-backdrop" onclick="window.closeDateRangeFilter()"></div>
+        <div class="date-range-panel" role="dialog" aria-modal="true" aria-label="日曆篩選期間">
+            <div class="date-range-handle"></div>
+            <h3>日曆篩選期間</h3>
+            <div class="date-range-field">
+                <label for="range-filter-start">開始日期</label>
+                <input id="range-filter-start" type="date">
+            </div>
+            <div class="date-range-arrow">↓</div>
+            <div class="date-range-field">
+                <label for="range-filter-end">結束日期</label>
+                <input id="range-filter-end" type="date">
+            </div>
+            <div class="date-range-actions">
+                <button type="button" class="date-range-clear" onclick="window.clearDateRangeFromModal()">顯示全部</button>
+                <button type="button" class="date-range-cancel" onclick="window.closeDateRangeFilter()">取消</button>
+                <button type="button" class="date-range-confirm" onclick="window.applyDateRangeFilter()">確認篩選</button>
             </div>
         </div>
     </div>
