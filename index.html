@@ -773,6 +773,249 @@
             #page-perf-rev th:nth-child(9),#page-perf-rev td:nth-child(9){width:92px!important;min-width:92px!important}
         }
 
+
+        @media (max-width: 640px) {
+            .mobile-one-row-toolbar .report-clear-month,
+            .cost-report-toolbar .report-clear-month {
+                display: none !important;
+            }
+
+            .mobile-one-row-toolbar .report-month-control,
+            .cost-report-toolbar .report-month-control {
+                width: 128px !important;
+                min-width: 128px !important;
+                max-width: 128px !important;
+                padding: 4px 6px !important;
+                justify-content: flex-start !important;
+                overflow: hidden !important;
+            }
+
+            .mobile-one-row-toolbar .mobile-date-range-btn,
+            .cost-report-toolbar .mobile-date-range-btn {
+                width: 82px !important;
+                min-width: 82px !important;
+                max-width: 82px !important;
+                padding: 2px 3px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+            }
+        }
+
+        .date-range-field {
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        .date-range-field input[type="date"] {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+
+        /* 3) 日期篩選視窗可拖移 */
+        .date-range-panel {
+            will-change: transform !important;
+        }
+        .date-range-handle {
+            cursor: grab !important;
+            touch-action: none !important;
+        }
+        .date-range-handle:active {
+            cursor: grabbing !important;
+        }
+
+
+        /* ===== 全裝置日期篩選控制 ===== */
+        .unified-date-range-control {
+            cursor: pointer !important;
+            width: 154px !important;
+            min-width: 154px !important;
+            max-width: 154px !important;
+            overflow: hidden !important;
+            justify-content: flex-start !important;
+        }
+
+        .unified-date-range-control .month-native-input {
+            display: none !important;
+        }
+
+        .unified-date-range-control .mobile-month-picker-btn {
+            display: inline-flex !important;
+            width: 102px !important;
+            min-width: 102px !important;
+            max-width: 102px !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            justify-content: center !important;
+            align-items: center !important;
+            border: 0 !important;
+            background: transparent !important;
+            font-family: inherit !important;
+            font-weight: 800 !important;
+        }
+
+        .date-range-field {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            overflow: hidden !important;
+        }
+
+        .date-range-field input[type="date"] {
+            display: block !important;
+            width: calc(100% - 2px) !important;
+            max-width: calc(100% - 2px) !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+
+        /* 3) 日期篩選視窗可拖移，手機/桌機都支援 */
+        .date-range-panel {
+            will-change: transform !important;
+        }
+        .date-range-handle {
+            cursor: grab !important;
+            touch-action: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+        }
+        .date-range-handle:active {
+            cursor: grabbing !important;
+        }
+
+        @media (max-width: 640px) {
+            .unified-date-range-control {
+                width: 126px !important;
+                min-width: 126px !important;
+                max-width: 126px !important;
+                padding: 4px 6px !important;
+            }
+
+            .unified-date-range-control .mobile-month-picker-btn {
+                width: 82px !important;
+                min-width: 82px !important;
+                max-width: 82px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        @media (min-width: 641px) {
+            .date-range-filter-modal {
+                align-items: center !important;
+            }
+            .date-range-panel {
+                border-radius: 24px !important;
+                width: min(520px, 92vw) !important;
+                padding: 18px 22px 22px !important;
+            }
+        }
+
+
+        /* ===== 本次指定：電腦版日期篩選只顯示「選取日期」 ===== */
+        @media (min-width: 641px) {
+            .report-month-control.unified-date-range-control {
+                width: 118px !important;
+                min-width: 118px !important;
+                max-width: 118px !important;
+                height: 38px !important;
+                padding: 0 !important;
+                gap: 0 !important;
+                justify-content: center !important;
+                align-items: center !important;
+                overflow: hidden !important;
+                cursor: pointer !important;
+            }
+
+            /* 電腦版把日曆圖示、日曆篩選文字、舊月份 input 等全部拿掉 */
+            .report-month-control.unified-date-range-control .report-calendar-icon,
+            .report-month-control.unified-date-range-control .calendar-filter-text,
+            .report-month-control.unified-date-range-control .month-native-input,
+            .report-month-control.unified-date-range-control .report-clear-month {
+                display: none !important;
+            }
+
+            .report-month-control.unified-date-range-control .mobile-month-picker-btn {
+                display: inline-flex !important;
+                width: 118px !important;
+                min-width: 118px !important;
+                max-width: 118px !important;
+                height: 38px !important;
+                padding: 0 10px !important;
+                margin: 0 !important;
+                align-items: center !important;
+                justify-content: center !important;
+                border: 0 !important;
+                background: transparent !important;
+                color: var(--dark) !important;
+                font-size: 12px !important;
+                font-weight: 800 !important;
+                line-height: 1 !important;
+                font-family: inherit !important;
+                white-space: nowrap !important;
+                cursor: pointer !important;
+            }
+
+            .report-month-control.unified-date-range-control .mobile-month-picker-btn span {
+                font-size: inherit !important;
+                font-weight: inherit !important;
+                line-height: inherit !important;
+            }
+        }
+
+        /* ===== 電腦版莫蘭迪日期篩選視窗可左右上下拖動 ===== */
+        @media (min-width: 641px) {
+            #date-range-filter-modal .date-range-panel {
+                position: relative !important;
+                will-change: transform !important;
+            }
+
+            #date-range-filter-modal .date-range-handle {
+                cursor: grab !important;
+                touch-action: none !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+            }
+
+            #date-range-filter-modal .date-range-handle:active {
+                cursor: grabbing !important;
+            }
+        }
+
+
+        /* ===== 本次微調：電腦版「選取日期」按鈕與操作按鈕同尺寸 ===== */
+        @media (min-width: 641px) {
+            .report-month-control.unified-date-range-control {
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                height: 34px !important;
+                padding: 0 !important;
+                border-radius: 10px !important;
+                flex: 0 0 auto !important;
+            }
+
+            .report-month-control.unified-date-range-control .mobile-month-picker-btn {
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                height: 34px !important;
+                min-height: 34px !important;
+                padding: 0 12px !important;
+                border-radius: 10px !important;
+                font-size: 12px !important;
+                font-weight: 800 !important;
+                line-height: 1 !important;
+                white-space: nowrap !important;
+            }
+        }
+
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -932,12 +1175,12 @@
                             <h2 class="text-base font-bold">活動月成本報表</h2>
                             <p class="text-xs text-[var(--medium)] cost-company-id">心引力有限公司統一編號：60676740</p>
                         </div>
-                        <div class="report-month-control">
+                        <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('act-cost')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
-                            <input type="month" id="filter-month-act-cost" onchange="onFilterMonthChange('act-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('act-cost'); return false;"><span id="mobile-month-label-act-cost">全部日期</span></button>
-                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('act-cost'); return false;">顯示全部</button>
+                            <input type="month" id="filter-month-act-cost" aria-hidden="true" tabindex="-1" onchange="onFilterMonthChange('act-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="event.stopPropagation(); window.openDateRangeFilter('act-cost'); return false;"><span id="mobile-month-label-act-cost">選取日期</span></button>
+                            
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-cost')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-cost')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="addCustomCategory()" class="report-action-btn bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button><button type="button" onclick="openGenericModal('act-cost')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button></div>
@@ -985,12 +1228,12 @@
                             <h2 class="text-base font-bold">活動營收報表</h2>
                             
                         </div>
-                        <div class="report-month-control">
+                        <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('act-rev')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
-                            <input type="month" id="filter-month-act-rev" onchange="onFilterMonthChange('act-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('act-rev'); return false;"><span id="mobile-month-label-act-rev">全部日期</span></button>
-                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('act-rev'); return false;">顯示全部</button>
+                            <input type="month" id="filter-month-act-rev" aria-hidden="true" tabindex="-1" onchange="onFilterMonthChange('act-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="event.stopPropagation(); window.openDateRangeFilter('act-rev'); return false;"><span id="mobile-month-label-act-rev">選取日期</span></button>
+                            
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-rev')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-rev')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openActRevModal()" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -1036,12 +1279,12 @@
                             <h2 class="text-base font-bold">活動代墊款記錄</h2>
                             
                         </div>
-                        <div class="report-month-control">
+                        <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('act-adv')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
-                            <input type="month" id="filter-month-act-adv" onchange="onFilterMonthChange('act-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('act-adv'); return false;"><span id="mobile-month-label-act-adv">全部日期</span></button>
-                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('act-adv'); return false;">顯示全部</button>
+                            <input type="month" id="filter-month-act-adv" aria-hidden="true" tabindex="-1" onchange="onFilterMonthChange('act-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="event.stopPropagation(); window.openDateRangeFilter('act-adv'); return false;"><span id="mobile-month-label-act-adv">選取日期</span></button>
+                            
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('act-adv')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('act-adv')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openAdvanceModal('act')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -1085,12 +1328,12 @@
                             <h2 class="text-base font-bold">Nuitréver 香氛月成本</h2>
                             <p class="text-xs text-[var(--medium)] cost-company-id">心引力有限公司統一編號：60676740</p>
                         </div>
-                        <div class="report-month-control">
+                        <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('perf-cost')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
-                            <input type="month" id="filter-month-perf-cost" onchange="onFilterMonthChange('perf-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('perf-cost'); return false;"><span id="mobile-month-label-perf-cost">全部日期</span></button>
-                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('perf-cost'); return false;">顯示全部</button>
+                            <input type="month" id="filter-month-perf-cost" aria-hidden="true" tabindex="-1" onchange="onFilterMonthChange('perf-cost')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="event.stopPropagation(); window.openDateRangeFilter('perf-cost'); return false;"><span id="mobile-month-label-perf-cost">選取日期</span></button>
+                            
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-cost')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-cost')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="addCustomCategory()" class="report-action-btn bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增品項</button><button type="button" onclick="openGenericModal('perf-cost')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增發票</button></div>
@@ -1138,12 +1381,12 @@
                             <h2 class="text-base font-bold">Nuitréver 香氛營收</h2>
                             
                         </div>
-                        <div class="report-month-control">
+                        <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('perf-rev')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
-                            <input type="month" id="filter-month-perf-rev" onchange="onFilterMonthChange('perf-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('perf-rev'); return false;"><span id="mobile-month-label-perf-rev">全部日期</span></button>
-                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('perf-rev'); return false;">顯示全部</button>
+                            <input type="month" id="filter-month-perf-rev" aria-hidden="true" tabindex="-1" onchange="onFilterMonthChange('perf-rev')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="event.stopPropagation(); window.openDateRangeFilter('perf-rev'); return false;"><span id="mobile-month-label-perf-rev">選取日期</span></button>
+                            
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-rev')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-rev')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openPerfRevModal()" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -1194,12 +1437,12 @@
                             <h2 class="text-base font-bold">Nuitréver 香氛代墊款</h2>
                             
                         </div>
-                        <div class="report-month-control">
+                        <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('perf-adv')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
-                            <input type="month" id="filter-month-perf-adv" onchange="onFilterMonthChange('perf-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
-                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="window.openDateRangeFilter('perf-adv'); return false;"><span id="mobile-month-label-perf-adv">全部日期</span></button>
-                            <button type="button" class="report-clear-month" onclick="window.clearDateRangeFilter('perf-adv'); return false;">顯示全部</button>
+                            <input type="month" id="filter-month-perf-adv" aria-hidden="true" tabindex="-1" onchange="onFilterMonthChange('perf-adv')" class="month-native-input bg-transparent text-xs font-bold outline-none">
+                            <button type="button" class="mobile-month-picker-btn mobile-date-range-btn" onclick="event.stopPropagation(); window.openDateRangeFilter('perf-adv'); return false;"><span id="mobile-month-label-perf-adv">選取日期</span></button>
+                            
                         </div>
                     </div>
                     <div class="report-actions"><button type="button" onclick="saveCurrentPage('perf-adv')" class="report-action-btn bg-[var(--accent)] text-white rounded-xl text-xs font-bold">💾 儲存</button><button type="button" onclick="deleteSelectedRows('perf-adv')" class="report-action-btn bg-rose-600 text-white rounded-xl text-xs font-bold">🗑️ 刪除勾選</button><button type="button" onclick="openAdvanceModal('perf')" class="report-action-btn bg-[#f7dad9] border border-[var(--soft-pink)] rounded-xl text-xs font-bold">＋ 新增</button></div>
@@ -2106,7 +2349,7 @@
         let activeDateRangeKey = '';
 
         function formatDateRangeLabel(start, end) {
-            if (!start && !end) return '全部日期';
+            if (!start && !end) return '選取日期';
             const short = (v) => {
                 if (!v) return '';
                 const p = v.split('-');
@@ -2140,6 +2383,11 @@
             modal.style.visibility = 'visible';
             modal.style.opacity = '1';
             modal.setAttribute('aria-hidden', 'false');
+            bindDesktopDateRangeMouseDragV2();
+            resetDateRangePanelPosition();
+            bindDateRangeDrag();
+            resetDateRangePanelPosition();
+            bindDateRangeDrag();
             document.documentElement.style.overflow = 'hidden';
             document.body.style.overflow = 'hidden';
         }
@@ -2187,7 +2435,7 @@
             const monthInput = document.getElementById(`filter-month-${key}`);
             if (monthInput) monthInput.value = '';
             const label = document.getElementById(`mobile-month-label-${key}`);
-            if (label) label.textContent = '全部日期';
+            if (label) label.textContent = '選取日期';
 
             renderTable(key);
             updateSelectedCounter(key);
@@ -2212,6 +2460,164 @@
                 document.body.appendChild(oldMonthModal);
             }
         });
+
+
+        let dateRangeDragState = {
+            active: false,
+            startX: 0,
+            startY: 0,
+            offsetX: 0,
+            offsetY: 0
+        };
+
+        function resetDateRangePanelPosition() {
+            const panel = document.querySelector('#date-range-filter-modal .date-range-panel');
+            if (!panel) return;
+            dateRangeDragState.offsetX = 0;
+            dateRangeDragState.offsetY = 0;
+            panel.style.transform = 'translate3d(0px, 0px, 0px)';
+        }
+
+        function bindDateRangeDrag() {
+            const panel = document.querySelector('#date-range-filter-modal .date-range-panel');
+            const handle = document.querySelector('#date-range-filter-modal .date-range-handle');
+            if (!panel || !handle || handle.dataset.dragBound === '1') return;
+
+            handle.dataset.dragBound = '1';
+
+            const startDrag = (x, y) => {
+                dateRangeDragState.active = true;
+                dateRangeDragState.startX = x - dateRangeDragState.offsetX;
+                dateRangeDragState.startY = y - dateRangeDragState.offsetY;
+            };
+
+            const moveDrag = (x, y) => {
+                if (!dateRangeDragState.active) return;
+
+                let nextX = x - dateRangeDragState.startX;
+                let nextY = y - dateRangeDragState.startY;
+
+                const rect = panel.getBoundingClientRect();
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+
+                const keepVisible = 48;
+                const maxX = Math.max(0, vw - keepVisible);
+                const maxY = Math.max(0, vh - keepVisible);
+
+                nextX = Math.max(-maxX, Math.min(maxX, nextX));
+                nextY = Math.max(-maxY, Math.min(maxY, nextY));
+
+                dateRangeDragState.offsetX = nextX;
+                dateRangeDragState.offsetY = nextY;
+                panel.style.transform = `translate3d(${nextX}px, ${nextY}px, 0)`;
+            };
+
+            const stopDrag = () => {
+                dateRangeDragState.active = false;
+            };
+
+            handle.addEventListener('pointerdown', (e) => {
+                try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+                startDrag(e.clientX, e.clientY);
+                e.preventDefault();
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                moveDrag(e.clientX, e.clientY);
+                if (dateRangeDragState.active) e.preventDefault();
+            });
+
+            handle.addEventListener('pointerup', stopDrag);
+            handle.addEventListener('pointercancel', stopDrag);
+
+            handle.addEventListener('touchstart', (e) => {
+                if (!e.touches || !e.touches[0]) return;
+                startDrag(e.touches[0].clientX, e.touches[0].clientY);
+                e.preventDefault();
+            }, { passive: false });
+
+            handle.addEventListener('touchmove', (e) => {
+                if (!e.touches || !e.touches[0]) return;
+                moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+                if (dateRangeDragState.active) e.preventDefault();
+            }, { passive: false });
+
+            handle.addEventListener('touchend', stopDrag, { passive: true });
+            handle.addEventListener('touchcancel', stopDrag, { passive: true });
+        }
+
+
+        function bindDesktopDateRangeMouseDragV2() {
+            const modal = document.getElementById('date-range-filter-modal');
+            if (!modal) return;
+
+            const panel = modal.querySelector('.date-range-panel');
+            const handle = modal.querySelector('.date-range-handle');
+            if (!panel || !handle || handle.dataset.desktopDragV2 === '1') return;
+
+            handle.dataset.desktopDragV2 = '1';
+
+            let dragging = false;
+            let startX = 0;
+            let startY = 0;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            const applyTransform = () => {
+                panel.style.transform = `translate3d(${offsetX}px, ${offsetY}px, 0)`;
+            };
+
+            handle.addEventListener('mousedown', function(e) {
+                if (window.innerWidth < 641) return;
+                dragging = true;
+                startX = e.clientX - offsetX;
+                startY = e.clientY - offsetY;
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!dragging) return;
+
+                let nextX = e.clientX - startX;
+                let nextY = e.clientY - startY;
+
+                const keepVisible = 70;
+
+                // 先測試新位置
+                panel.style.transform = `translate3d(${nextX}px, ${nextY}px, 0)`;
+                const rect = panel.getBoundingClientRect();
+
+                // 防止整個視窗被拖出畫面
+                if (rect.right < keepVisible || rect.left > window.innerWidth - keepVisible) {
+                    nextX = offsetX;
+                }
+                if (rect.bottom < keepVisible || rect.top > window.innerHeight - keepVisible) {
+                    nextY = offsetY;
+                }
+
+                offsetX = nextX;
+                offsetY = nextY;
+                applyTransform();
+                e.preventDefault();
+            });
+
+            document.addEventListener('mouseup', function() {
+                dragging = false;
+            });
+
+            // 每次視窗重新打開時位置歸零
+            modal.addEventListener('transitionend', function() {
+                if (modal.classList.contains('hidden')) {
+                    offsetX = 0;
+                    offsetY = 0;
+                    applyTransform();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', bindDesktopDateRangeMouseDragV2);
+        setTimeout(bindDesktopDateRangeMouseDragV2, 0);
 
         window.openDateRangeFilter = openDateRangeFilter;
         window.closeDateRangeFilter = closeDateRangeFilter;
