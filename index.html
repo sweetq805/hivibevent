@@ -7179,6 +7179,90 @@ ${styles}
     }
 }
 
+
+
+/* =========================================================
+   手機最終微調：只改活動月成本／香氛月成本
+   1) 快速查詢縮短
+   2) 六個控制維持同一行
+   3) 內容超過時只在白色工具列內滑動，不再跑出圓角邊界
+   ========================================================= */
+@media (max-width: 640px) {
+    #page-act-cost .cost-report-toolbar,
+    #page-perf-cost .cost-report-toolbar {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-actions,
+    #page-perf-cost .cost-report-toolbar .report-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+
+        gap: 5px !important;
+        margin: 0 !important;
+        padding: 0 4px 3px 0 !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x !important;
+        overscroll-behavior-x: contain !important;
+        scrollbar-width: none !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-actions::-webkit-scrollbar,
+    #page-perf-cost .cost-report-toolbar .report-actions::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-actions > *,
+    #page-perf-cost .cost-report-toolbar .report-actions > * {
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    /* 這次真正縮短手機版快速查詢寬度 */
+    #page-act-cost .cost-report-toolbar .quick-search-inline,
+    #page-perf-cost .cost-report-toolbar .quick-search-inline,
+    #page-act-cost .cost-report-toolbar input.quick-search-inline,
+    #page-perf-cost .cost-report-toolbar input.quick-search-inline {
+        width: 92px !important;
+        min-width: 92px !important;
+        max-width: 92px !important;
+        height: 30px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        font-size: 9px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 若快速查詢其實是 wrapper，裡面的 input 也一起縮短 */
+    #page-act-cost .cost-report-toolbar .quick-search-inline input,
+    #page-perf-cost .cost-report-toolbar .quick-search-inline input {
+        width: 92px !important;
+        min-width: 92px !important;
+        max-width: 92px !important;
+        height: 30px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        font-size: 9px !important;
+        box-sizing: border-box !important;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -7735,6 +7819,65 @@ const oldLoad=window.loadDataFromSupabase; if(typeof oldLoad==='function'){ wind
     document.addEventListener('click', function () {
         if (window.matchMedia('(max-width: 640px)').matches) {
             setTimeout(enforceMobileCostToolbarScroll, 0);
+        }
+    }, true);
+})();
+</script>
+
+
+
+<script>
+(function () {
+    function finalMobileCostSearchWidthFix() {
+        if (!window.matchMedia('(max-width: 640px)').matches) return;
+
+        ['act-cost', 'perf-cost'].forEach(function (key) {
+            var page = document.getElementById('page-' + key);
+            if (!page) return;
+
+            var toolbar = page.querySelector('.cost-report-toolbar');
+            var actions = toolbar && toolbar.querySelector('.report-actions');
+            if (!toolbar || !actions) return;
+
+            toolbar.style.setProperty('overflow', 'hidden', 'important');
+            toolbar.style.setProperty('max-width', '100%', 'important');
+            toolbar.style.setProperty('min-width', '0', 'important');
+
+            actions.style.setProperty('display', 'flex', 'important');
+            actions.style.setProperty('flex-wrap', 'nowrap', 'important');
+            actions.style.setProperty('width', '100%', 'important');
+            actions.style.setProperty('max-width', '100%', 'important');
+            actions.style.setProperty('min-width', '0', 'important');
+            actions.style.setProperty('overflow-x', 'auto', 'important');
+            actions.style.setProperty('overflow-y', 'hidden', 'important');
+
+            var searchCandidates = toolbar.querySelectorAll(
+                '.quick-search-inline, .quick-search-inline input, input[placeholder*="快速查詢"], input[placeholder*="查詢"]'
+            );
+
+            searchCandidates.forEach(function (el) {
+                el.style.setProperty('width', '92px', 'important');
+                el.style.setProperty('min-width', '92px', 'important');
+                el.style.setProperty('max-width', '92px', 'important');
+                el.style.setProperty('flex', '0 0 92px', 'important');
+                el.style.setProperty('box-sizing', 'border-box', 'important');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(finalMobileCostSearchWidthFix, 0);
+        setTimeout(finalMobileCostSearchWidthFix, 300);
+    });
+
+    window.addEventListener('resize', finalMobileCostSearchWidthFix);
+    window.addEventListener('orientationchange', function () {
+        setTimeout(finalMobileCostSearchWidthFix, 150);
+    });
+
+    document.addEventListener('click', function () {
+        if (window.matchMedia('(max-width: 640px)').matches) {
+            setTimeout(finalMobileCostSearchWidthFix, 0);
         }
     }, true);
 })();
