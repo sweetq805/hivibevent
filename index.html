@@ -3647,23 +3647,55 @@
         function updateSelectedCounter(key) {
             const dataList = getListData(key);
             const selSet = selectedIds[key];
-            let checkedSum = 0;
 
-            dataList.forEach(item => {
-                if (selSet.has(item.id)) {
-                    let amt = item.amount || item.totalAmount || item.finalPrice || item.price || 0;
-                    if (key === 'act-rev') {
-                        amt = item.taxMode === 'tax-included' ? Math.round(amt * 1.05) : amt;
-                    } else if (key === 'perf-rev') {
-                        amt = item.taxMode === 'tax-included' ? Math.round(amt * 1.05) : amt;
-                    }
-                    checkedSum += amt;
+            // 所有金額一律先轉成真正的 Number。
+            // 避免 Supabase / 手動輸入 / Excel 匯入後的字串金額發生字串相加，
+            // 例如 547 + 341 被算成「0547341」。
+            function safeCounterNumber(value) {
+                if (value === undefined || value === null || value === '') return 0;
+                if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+
+                const cleaned = String(value)
+                    .replace(/NT\$/gi, '')
+                    .replace(/\$/g, '')
+                    .replace(/,/g, '')
+                    .replace(/\s/g, '')
+                    .trim();
+
+                const n = Number(cleaned);
+                return Number.isFinite(n) ? n : 0;
+            }
+
+            const selectedItems = dataList.filter(item => selSet.has(item.id));
+
+            let checkedSum = selectedItems.reduce((sum, item) => {
+                let amt = safeCounterNumber(
+                    item.amount !== undefined && item.amount !== ''
+                        ? item.amount
+                        : item.totalAmount !== undefined && item.totalAmount !== ''
+                            ? item.totalAmount
+                            : item.finalPrice !== undefined && item.finalPrice !== ''
+                                ? item.finalPrice
+                                : item.price
+                );
+
+                // 保留原本營收報表的含稅顯示邏輯，只修正型別錯誤。
+                if (key === 'act-rev' || key === 'perf-rev') {
+                    amt = item.taxMode === 'tax-included'
+                        ? Math.round(amt * 1.05)
+                        : amt;
                 }
-            });
+
+                return sum + amt;
+            }, 0);
+
+            checkedSum = Math.round(checkedSum);
 
             const counterEl = document.getElementById(`counter-${key}`);
             if (counterEl) {
-                counterEl.innerText = `已勾選 ${selSet.size} 筆 (總計: NT$ ${checkedSum.toLocaleString()})`;
+                // 筆數改成「目前資料中實際仍存在且被勾選的筆數」，
+                // 避免 selectedIds 中殘留已刪除資料的 id，造成筆數錯誤。
+                counterEl.innerText = `已勾選 ${selectedItems.length} 筆 (總計: NT$ ${checkedSum.toLocaleString('en-US')})`;
             }
         }
 
