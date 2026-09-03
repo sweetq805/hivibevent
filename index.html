@@ -7031,6 +7031,51 @@ ${styles}
         white-space: nowrap !important;
     }
 }
+
+
+/* 手機版：活動月成本／香氛月成本工具列固定單行，超出時左右滑動 */
+@media (max-width: 768px) {
+    #page-act-cost .report-toolbar,
+    #page-perf-cost .report-toolbar {
+        overflow: hidden !important;
+    }
+
+    #page-act-cost .report-actions,
+    #page-perf-cost .report-actions {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+
+    #page-act-cost .report-actions::-webkit-scrollbar,
+    #page-perf-cost .report-actions::-webkit-scrollbar {
+        display: none;
+    }
+
+    #page-act-cost .report-actions > *,
+    #page-perf-cost .report-actions > * {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+    }
+
+    #page-act-cost .report-actions .quick-search-input,
+    #page-perf-cost .report-actions .quick-search-input {
+        min-width: 150px !important;
+        width: 150px !important;
+        max-width: 150px !important;
+    }
+}
+
 </style>
 </head>
 <body>
