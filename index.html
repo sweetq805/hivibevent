@@ -1169,6 +1169,19 @@
     }
 }
 
+
+    /* 用途品項圖表：手機增加可視高度，避免數字與品項名稱互相擠壓 */
+    @media (max-width: 768px) {
+        #actCategoryChart,
+        #perfCategoryChart {
+            min-height: 250px !important;
+        }
+        div:has(> #actCategoryChart),
+        div:has(> #perfCategoryChart) {
+            height: 250px !important;
+        }
+    }
+
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -1326,8 +1339,8 @@
                     <div class="report-first-row">
                         <div class="report-title-block">
                             <h2 class="text-base font-bold">活動月成本報表</h2>
-                            <p class="text-xs text-[var(--medium)] cost-company-id">心引力有限公司統一編號：60676740</p>
                         </div>
+                        <input type="search" id="quick-search-input-act-cost" class="report-action-btn quick-search-inline bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold" placeholder="🔎 快速查詢" aria-label="快速查詢" autocomplete="off" onkeydown="window.handleInlineQuickSearch(event, 'act-cost')">
                         <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('act-cost')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
@@ -1381,6 +1394,7 @@
                             <h2 class="text-base font-bold">活動營收報表</h2>
                             
                         </div>
+                        <input type="search" id="quick-search-input-act-rev" class="report-action-btn quick-search-inline bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold" placeholder="🔎 快速查詢" aria-label="快速查詢" autocomplete="off" onkeydown="window.handleInlineQuickSearch(event, 'act-rev')">
                         <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('act-rev')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
@@ -1432,6 +1446,7 @@
                             <h2 class="text-base font-bold">活動代墊款記錄</h2>
                             
                         </div>
+                        <input type="search" id="quick-search-input-act-adv" class="report-action-btn quick-search-inline bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold" placeholder="🔎 快速查詢" aria-label="快速查詢" autocomplete="off" onkeydown="window.handleInlineQuickSearch(event, 'act-adv')">
                         <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('act-adv')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
@@ -1479,8 +1494,8 @@
                     <div class="report-first-row">
                         <div class="report-title-block">
                             <h2 class="text-base font-bold">Nuitréver 香氛月成本</h2>
-                            <p class="text-xs text-[var(--medium)] cost-company-id">心引力有限公司統一編號：60676740</p>
                         </div>
+                        <input type="search" id="quick-search-input-perf-cost" class="report-action-btn quick-search-inline bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold" placeholder="🔎 快速查詢" aria-label="快速查詢" autocomplete="off" onkeydown="window.handleInlineQuickSearch(event, 'perf-cost')">
                         <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('perf-cost')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
@@ -1534,6 +1549,7 @@
                             <h2 class="text-base font-bold">Nuitréver 香氛營收</h2>
                             
                         </div>
+                        <input type="search" id="quick-search-input-perf-rev" class="report-action-btn quick-search-inline bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold" placeholder="🔎 快速查詢" aria-label="快速查詢" autocomplete="off" onkeydown="window.handleInlineQuickSearch(event, 'perf-rev')">
                         <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('perf-rev')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
@@ -1590,6 +1606,7 @@
                             <h2 class="text-base font-bold">Nuitréver 香氛代墊款</h2>
                             
                         </div>
+                        <input type="search" id="quick-search-input-perf-adv" class="report-action-btn quick-search-inline bg-white border border-[var(--soft-pink)] rounded-xl text-xs font-bold" placeholder="🔎 快速查詢" aria-label="快速查詢" autocomplete="off" onkeydown="window.handleInlineQuickSearch(event, 'perf-adv')">
                         <div class="report-month-control unified-date-range-control" onclick="window.openDateRangeFilter('perf-adv')">
                             <span class="report-calendar-icon">📅</span>
                             <span class="calendar-filter-text text-xs font-bold">日曆篩選：</span>
@@ -2041,12 +2058,12 @@
         let selectedProjects = new Set();
         
         let pagination = {
-            'act-cost': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
-            'act-rev': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
-            'act-adv': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
-            'perf-cost': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
-            'perf-rev': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
-            'perf-adv': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' },
+            'act-cost': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '', searchText: '' },
+            'act-rev': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '', searchText: '' },
+            'act-adv': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '', searchText: '' },
+            'perf-cost': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '', searchText: '' },
+            'perf-rev': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '', searchText: '' },
+            'perf-adv': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '', searchText: '' },
             'proj-mat': { page: 1, size: 20, filterMonth: '', filterStart: '', filterEnd: '' }
         };
 
@@ -2845,6 +2862,58 @@
             }
         }
 
+        // ===== 六大報表：快速查詢（直接在工具列輸入，Enter 查詢） =====
+        function normalizeQuickSearchText(value) {
+            return String(value == null ? '' : value)
+                .toLowerCase()
+                .replace(/\s+/g, '')
+                .trim();
+        }
+
+        function flattenQuickSearchValues(value, bucket) {
+            if (value == null) return;
+            if (Array.isArray(value)) {
+                value.forEach(v => flattenQuickSearchValues(v, bucket));
+                return;
+            }
+            if (typeof value === 'object') {
+                Object.keys(value).forEach(k => {
+                    if (k !== 'id') flattenQuickSearchValues(value[k], bucket);
+                });
+                return;
+            }
+            bucket.push(String(value));
+        }
+
+        function buildQuickSearchHaystack(item) {
+            const values = [];
+            flattenQuickSearchValues(item, values);
+            return normalizeQuickSearchText(values.join(' '));
+        }
+
+        function updateQuickSearchInputState(key) {
+            const input = document.getElementById(`quick-search-input-${key}`);
+            if (!input || !pagination[key]) return;
+            const current = pagination[key].searchText || '';
+            if (document.activeElement !== input && input.value !== current) input.value = current;
+            input.classList.toggle('quick-search-active', !!normalizeQuickSearchText(current));
+            input.title = current ? `目前查詢：${current}；清空後按 Enter 顯示全部` : '輸入文字或數字後按 Enter 快速查詢';
+        }
+
+        function handleInlineQuickSearch(event, key) {
+            if (!event || event.key !== 'Enter' || !pagination[key]) return;
+            event.preventDefault();
+            const input = event.currentTarget || document.getElementById(`quick-search-input-${key}`);
+            pagination[key].searchText = input ? input.value.trim() : '';
+            pagination[key].page = 1;
+            updateQuickSearchInputState(key);
+            renderTable(key);
+            if (input) input.blur();
+        }
+
+        window.handleInlineQuickSearch = handleInlineQuickSearch;
+        window.updateQuickSearchInputState = updateQuickSearchInputState;
+
         function getFilteredData(key) {
             const list = [...getListData(key)];
             const p = pagination[key] || {};
@@ -2863,6 +2932,12 @@
                 });
             } else if (fMonth) {
                 result = result.filter(i => i.date && i.date.startsWith(fMonth));
+            }
+
+            // 快速查詢：支援六大報表的所有可見文字／數字欄位，並可與日期篩選同時使用。
+            const quickQuery = normalizeQuickSearchText(p.searchText || '');
+            if (quickQuery) {
+                result = result.filter(item => buildQuickSearchHaystack(item).includes(quickQuery));
             }
 
             const sort = reportSortState[key];
@@ -6138,23 +6213,39 @@ window.onload = function(){
     const categoryValueLabelPlugin = {
         id: 'categoryValueLabelPlugin',
         afterDatasetsDraw(chart) {
-            const { ctx } = chart;
+            const { ctx, chartArea } = chart;
             const dataset = chart.data.datasets[0];
             const meta = chart.getDatasetMeta(0);
-            if (!dataset || !meta) return;
+            if (!dataset || !meta || !chartArea) return;
+
+            const isMobile = window.innerWidth <= 768;
+            const fontSize = isMobile ? 8 : 10;
 
             ctx.save();
             ctx.fillStyle = '#6b5555';
-            ctx.font = 'bold 11px Arial, sans-serif';
+            ctx.font = `bold ${fontSize}px Arial, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
 
             meta.data.forEach((bar, index) => {
                 const value = Number(dataset.data[index] || 0);
                 if (!Number.isFinite(value)) return;
-                const label = `NT$ ${value.toLocaleString()}`;
-                ctx.fillText(label, bar.x, Math.max(bar.y - 6, 14));
+
+                // 每根柱子上方只顯示純金額數字。
+                // 拿掉重複的「NT$」可大幅縮短文字寬度，避免相鄰品項互相重疊。
+                const label = value.toLocaleString('en-US');
+
+                const textWidth = ctx.measureText(label).width;
+                const halfWidth = textWidth / 2;
+                const safeX = Math.min(
+                    chartArea.right - halfWidth - 2,
+                    Math.max(chartArea.left + halfWidth + 2, bar.x)
+                );
+                const safeY = Math.max(bar.y - 7, chartArea.top + fontSize + 2);
+
+                ctx.fillText(label, safeX, safeY);
             });
+
             ctx.restore();
         }
     };
@@ -6176,14 +6267,28 @@ window.onload = function(){
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { top: 26 } },
+                layout: { padding: { top: 30, left: 4, right: 4 } },
                 plugins: {
                     legend: { display: false },
                     tooltip: { callbacks: { label: ctx => `NT$ ${Number(ctx.raw || 0).toLocaleString()}` } }
                 },
                 scales: {
-                    x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0, font: { size: 10 } } },
-                    y: { beginAtZero: true, grace: '18%', ticks: { callback: value => `NT$ ${Number(value).toLocaleString()}` } }
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 0,
+                            font: ctx => ({ size: window.innerWidth <= 768 ? 8 : 10 })
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grace: '22%',
+                        ticks: {
+                            font: ctx => ({ size: window.innerWidth <= 768 ? 8 : 10 }),
+                            callback: value => `NT$ ${Number(value).toLocaleString()}`
+                        }
+                    }
                 }
             }
         });
@@ -6694,6 +6799,238 @@ ${styles}
             padding: 4mm 16mm 10mm 16mm !important;
         }
     }
+
+
+/* ===== 六大報表：快速查詢（工具列直接輸入） ===== */
+.quick-search-inline{
+    flex:0 0 auto;
+    white-space:nowrap;
+    width:118px;
+    min-width:118px;
+    height:42px;
+    padding:0 12px;
+    outline:none;
+    font-family:inherit;
+    color:var(--dark);
+    text-align:center;
+    box-sizing:border-box;
+}
+.quick-search-inline::placeholder{
+    color:var(--dark);
+    opacity:1;
+}
+.quick-search-inline:focus{
+    text-align:left;
+    border-color:#cda6a2!important;
+    box-shadow:0 0 0 3px rgba(205,166,162,.14);
+}
+.quick-search-inline.quick-search-active{
+    background:#f7dad9!important;
+    border-color:#d9aaa7!important;
+}
+.quick-search-inline::-webkit-search-cancel-button{
+    cursor:pointer;
+}
+@media (max-width:640px){
+    .report-actions .quick-search-inline{
+        width:88px!important;
+        min-width:88px!important;
+        height:30px!important;
+        min-height:30px!important;
+        padding:0 7px!important;
+        font-size:9px!important;
+        line-height:1!important;
+        border-radius:9px!important;
+    }
+}
+
+
+
+/* ===== 電腦版：活動月成本／香氛月成本，快速查詢＋日期＋所有操作固定同一行 ===== */
+@media (min-width: 641px) {
+    #page-act-cost .cost-report-toolbar,
+    #page-perf-cost .cost-report-toolbar {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 14px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    #page-act-cost .cost-report-toolbar::-webkit-scrollbar,
+    #page-perf-cost .cost-report-toolbar::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-first-row,
+    #page-perf-cost .cost-report-toolbar .report-first-row {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        width: auto !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        margin: 0 !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-title-block,
+    #page-perf-cost .cost-report-toolbar .report-title-block {
+        flex: 0 0 auto !important;
+        min-width: 255px !important;
+        margin: 0 !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .quick-search-inline,
+    #page-perf-cost .cost-report-toolbar .quick-search-inline {
+        flex: 0 0 210px !important;
+        width: 210px !important;
+        min-width: 210px !important;
+        max-width: 210px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        margin: 0 !important;
+        padding: 0 12px !important;
+        white-space: nowrap !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-month-control,
+    #page-perf-cost .cost-report-toolbar .report-month-control {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-actions,
+    #page-perf-cost .cost-report-toolbar .report-actions {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: max-content !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 8px !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        white-space: nowrap !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-action-btn,
+    #page-perf-cost .cost-report-toolbar .report-action-btn {
+        flex: 0 0 auto !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+    }
+}
+
+
+/* ===== 最終修正：電腦版活動/香氛月成本，移除統編後六個控制項真正固定同一行 ===== */
+@media (min-width: 641px) {
+    #page-act-cost .cost-report-toolbar,
+    #page-perf-cost .cost-report-toolbar {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 18px !important;
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-first-row,
+    #page-perf-cost .cost-report-toolbar .report-first-row {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: max-content !important;
+        align-items: center !important;
+        margin: 0 !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-title-block,
+    #page-perf-cost .cost-report-toolbar .report-title-block {
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-title-block h2,
+    #page-perf-cost .cost-report-toolbar .report-title-block h2 {
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-actions,
+    #page-perf-cost .cost-report-toolbar .report-actions {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 10px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        white-space: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-actions::-webkit-scrollbar,
+    #page-perf-cost .cost-report-toolbar .report-actions::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-actions > *,
+    #page-perf-cost .cost-report-toolbar .report-actions > * {
+        flex: 0 0 auto !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .quick-search-inline,
+    #page-perf-cost .cost-report-toolbar .quick-search-inline {
+        width: 220px !important;
+        min-width: 220px !important;
+        max-width: 220px !important;
+        height: 42px !important;
+        padding: 0 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-month-control,
+    #page-perf-cost .cost-report-toolbar .report-month-control {
+        width: auto !important;
+        min-width: 104px !important;
+        height: 42px !important;
+        margin: 0 !important;
+        padding: 0 12px !important;
+        box-sizing: border-box !important;
+        flex: 0 0 auto !important;
+    }
+
+    #page-act-cost .cost-report-toolbar .report-action-btn,
+    #page-perf-cost .cost-report-toolbar .report-action-btn {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+    }
+}
 </style>
 </head>
 <body>
@@ -7130,22 +7467,44 @@ const oldLoad=window.loadDataFromSupabase; if(typeof oldLoad==='function'){ wind
             const firstRow = toolbar ? toolbar.querySelector('.report-first-row') : null;
             const titleBlock = toolbar ? toolbar.querySelector('.report-title-block') : null;
             const dateControl = toolbar ? toolbar.querySelector('.report-month-control.unified-date-range-control') : null;
+            const searchInput = toolbar ? toolbar.querySelector('.quick-search-inline') : null;
             const actions = toolbar ? toolbar.querySelector('.report-actions') : null;
 
-            if (!toolbar || !firstRow || !dateControl || !actions) return;
+            if (!toolbar || !firstRow || !dateControl || !searchInput || !actions) return;
 
             if (isMobile) {
-                if (dateControl.parentElement !== actions || actions.firstElementChild !== dateControl) {
+                // 手機第二排順序固定：快速查詢輸入框 → 選取日期 → 其他操作按鈕。
+                if (dateControl.parentElement !== actions) {
                     actions.insertBefore(dateControl, actions.firstElementChild);
                 }
-            } else {
-                if (dateControl.parentElement !== firstRow) {
-                    firstRow.appendChild(dateControl);
+                if (searchInput.parentElement !== actions || actions.firstElementChild !== searchInput) {
+                    actions.insertBefore(searchInput, actions.firstElementChild);
                 }
-                if (titleBlock && titleBlock.nextElementSibling !== dateControl) {
-                    titleBlock.insertAdjacentElement('afterend', dateControl);
+                if (searchInput.nextElementSibling !== dateControl) {
+                    actions.insertBefore(dateControl, searchInput.nextElementSibling);
+                }
+            } else {
+                const isCostReport = key === 'act-cost' || key === 'perf-cost';
+
+                if (isCostReport) {
+                    // 電腦版成本報表：標題獨立在左側；六個控制項全部放在同一個 actions 單行。
+                    if (searchInput.parentElement !== actions || actions.firstElementChild !== searchInput) {
+                        actions.insertBefore(searchInput, actions.firstElementChild);
+                    }
+                    if (dateControl.parentElement !== actions || searchInput.nextElementSibling !== dateControl) {
+                        actions.insertBefore(dateControl, searchInput.nextElementSibling);
+                    }
+                } else {
+                    // 其他四個報表維持原本電腦版排列。
+                    if (searchInput.parentElement !== firstRow) firstRow.appendChild(searchInput);
+                    if (dateControl.parentElement !== firstRow) firstRow.appendChild(dateControl);
+                    if (titleBlock) {
+                        titleBlock.insertAdjacentElement('afterend', searchInput);
+                        searchInput.insertAdjacentElement('afterend', dateControl);
+                    }
                 }
             }
+            if (window.updateQuickSearchInputState) window.updateQuickSearchInputState(key);
         });
     }
 
@@ -7167,6 +7526,9 @@ const oldLoad=window.loadDataFromSupabase; if(typeof oldLoad==='function'){ wind
     });
 })();
 </script>
+
+
+
 
 </body>
 </html>
