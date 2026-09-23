@@ -172,3 +172,42 @@ input[type="checkbox"] { accent-color: #9e7770; width: 15px; height: 15px; curso
 }
 
 .file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* Accounting v2: compact full-column tables and two-level management cards */
+.table-wrap { overflow-x: visible; }
+table { min-width: 0; table-layout: auto; }
+th, td { padding: 8px 7px; }
+th { white-space: normal; }
+.date-text { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sort-btn { display: inline-flex; margin-left: 4px; padding: 2px 4px; border-radius: 4px; background: #f1e2df; color: #806b64; font-size: 8px; font-weight: 800; }
+.items-summary { display: inline-block; white-space: pre-line; line-height: 1.55; min-width: 90px; }
+.row-edit { display: inline-grid; place-items: center; width: 27px; height: 27px; color: #8c7ba0; background: transparent; border-radius: 7px; }
+.row-edit:hover { background: #eee7f3; }
+.group-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; padding: 18px; }
+.group-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-height: 110px; padding: 17px; border: 1px solid #e8c4bc; border-radius: 13px; background: #fffaf7; text-align: left; color: #564a46; }
+.group-card:hover { background: #f9eeeb; border-color: #c89a96; box-shadow: var(--shadow); }
+.group-card strong { font-size: 15px; }
+.group-card span { color: var(--hint); font-size: 11px; }
+.group-card svg { position: absolute; right: 15px; top: 17px; color: #9d827b; }
+.modal-label { display: flex; flex-direction: column; gap: 7px; color: #786760; font-size: 11px; font-weight: 700; }
+@media (max-width: 900px) {
+  .table-wrap { overflow-x: auto; }
+  table { min-width: 760px; font-size: 11px; }
+  .group-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 10px; }
+}
+@media print {
+  .sidebar, .topbar, .mobile-nav, .report-toolbar, .table-footer, .selection-bar, .modal-backdrop, .toast, .action-col, .check-col { display: none !important; }
+  .content { padding: 0 !important; }
+  .report-card, .dash-card { border: 0 !important; box-shadow: none !important; }
+  body { background: #fff !important; color: #111 !important; }
+  table { min-width: 0 !important; font-size: 9pt; }
+}
+
+@media (min-width: 901px) {
+  .table-wrap { overflow-x: hidden; }
+  .table-wrap table { width: 100%; min-width: 0 !important; table-layout: fixed; }
+  .table-wrap th, .table-wrap td { min-width: 0 !important; max-width: 1px; overflow: hidden; }
+  .table-wrap td input, .table-wrap td select { min-width: 0; width: 100%; font-size: 10px; padding-left: 3px; padding-right: 3px; }
+  .table-wrap th { font-size: 9px; padding-left: 4px; padding-right: 4px; }
+  .table-wrap td { font-size: 10px; padding-left: 4px; padding-right: 4px; }
+}

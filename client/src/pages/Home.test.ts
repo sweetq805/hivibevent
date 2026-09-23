@@ -32,4 +32,10 @@ describe("accounting data helpers", () => {
     expect(data.activityCost[0]?.invoiceType).toBe("電子發票");
     expect(data.stocks[0]).toHaveProperty("realizedProfit");
   });
+
+  it("keeps memory records without update dates and supplies with requested fields", () => {
+    const data = seedData();
+    expect(data.memory[0]).not.toHaveProperty("updatedAt");
+    expect(data.supplies[0]).toMatchObject({ itemName: expect.any(String), size: expect.any(String), website: expect.any(String), price: expect.any(Number), checked: expect.any(String), toolboxNo: expect.any(String) });
+  });
 });
