@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMoney, money, seedData } from "./Home";
+import { formatMoney, money, parseDiscount, seedData } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -11,6 +11,12 @@ describe("accounting data helpers", () => {
   it("formats dashboard and table amounts as rounded NT dollars", () => {
     expect(formatMoney("NT$ 12,345.6")).toBe("NT$ 12,346");
     expect(formatMoney(0)).toBe("NT$ 0");
+  });
+
+  it("accepts manual discount formats and converts them to a ratio", () => {
+    expect(parseDiscount("8折")).toBe(0.8);
+    expect(parseDiscount("80%")).toBe(0.8);
+    expect(parseDiscount("0.8")).toBe(0.8);
   });
 
   it("seeds every required report with unique stable ids", () => {

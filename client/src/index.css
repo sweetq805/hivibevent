@@ -120,3 +120,55 @@ input[type="checkbox"] { accent-color: #9e7770; width: 15px; height: 15px; curso
 @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); }.dashboard-grid { grid-template-columns: 1fr 1fr; }.top-actions .top-btn:nth-child(1) { display: none; } }
 @media (max-width: 900px) { .sidebar { display: none; }.mobile-menu { display: grid; }.topbar { padding: 0 16px; height: 60px; }.top-actions { overflow-x: auto; max-width: 63%; }.top-btn { font-size: 10px; padding: 7px 8px; }.mobile-nav { display: flex; gap: 7px; overflow-x: auto; padding: 10px 14px; background: #fffaf6; border-bottom: 1px solid #edd7d0; white-space: nowrap; }.mobile-nav button { background: #f8e9e5; color: #806c65; border-radius: 20px; padding: 8px 12px; font-size: 11px; }.mobile-nav button.active { background: var(--selected); color: #4d413d; font-weight: 700; }.content { padding: 24px 15px 45px; }.page-heading { align-items: flex-start; flex-direction: column; margin-bottom: 18px; }.page-heading h1 { font-size: 25px; }.heading-status { align-self: flex-end; }.report-toolbar { flex-wrap: wrap; white-space: normal; }.search-box { flex: 0 1 190px; width: 190px; min-width: 150px; max-width: 190px; }.toolbar-actions { flex: 1 1 470px; flex-wrap: wrap; justify-content: flex-start; padding-bottom: 3px; }.table-footer { flex-wrap: wrap; }.pagination { order: 3; width: 100%; justify-content: center; }.kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }.kpi-card { padding: 13px; }.kpi-card strong { font-size: 16px; }.dashboard-grid { grid-template-columns: 1fr; }.donut-layout { gap: 18px; }.dash-card { min-height: unset; } }
 @media (max-width: 520px) { .topbar-left { min-width: 0; }.crumb { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }.top-actions .top-btn:nth-child(2), .top-actions .top-btn:nth-child(3) { display: none; }.top-actions { max-width: 46%; }.content { padding: 21px 10px 35px; }.kpi-card small { font-size: 8px; }.donut-layout { flex-direction: column; }.legend { width: 100%; }.form-grid, .date-grid { grid-template-columns: 1fr; }.bar-row { grid-template-columns: 110px 1fr; }.table-footer > span:last-child { display: none; }.toast { left: 12px; right: 12px; bottom: 12px; } }
+
+/* Confirmed visual revision: full-width report surfaces, flat KPI cards, and Morandi calendar. */
+.content { max-width: none; width: 100%; padding-left: 24px; padding-right: 24px; }
+.report-card { width: 100%; }
+.kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi-card { min-height: 112px; padding: 16px 14px; border-radius: 16px; background: #fff !important; border-color: #e8c4bc !important; box-shadow: 0 6px 18px rgba(111,81,75,.055); }
+.kpi-card.is-link { cursor: pointer; }
+.kpi-card:not(.is-link) { cursor: default; }
+.kpi-card strong { font-size: 22px; }
+.kpi-card:hover { transform: none; box-shadow: 0 6px 18px rgba(111,81,75,.055); }
+.kpi-card.is-link:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(111,81,75,.1); }
+.date-picker { position: relative; width: 100%; }
+.date-trigger { width: 100%; display: flex; align-items: center; gap: 7px; border: 1px solid #e4c9c1; border-radius: 8px; background: #fff; color: #645650; padding: 9px 10px; font-size: 12px; text-align: left; }
+.date-trigger:hover { background: #fff7f3; border-color: #bd8f88; }
+.calendar-popover { position: absolute; left: 0; top: calc(100% + 7px); z-index: 24; width: 248px; padding: 12px; border: 1.5px solid #e8c4bc; border-radius: 13px; background: #fffaf7; box-shadow: 0 14px 34px rgba(91,64,59,.18); }
+.calendar-head { display: flex; align-items: center; justify-content: space-between; color: #67534e; margin-bottom: 10px; }
+.calendar-head button { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; color: #8e716a; background: #f5e6e3; }
+.calendar-head strong { font-size: 12px; }
+.calendar-week, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+.calendar-week { color: #ad8e86; font-size: 10px; margin-bottom: 4px; }
+.calendar-grid button, .calendar-grid span { min-height: 26px; border-radius: 7px; display: grid; place-items: center; font-size: 11px; }
+.calendar-grid button { background: transparent; color: #665751; }
+.calendar-grid button:hover { background: #f5e6e3; }
+.calendar-grid button.selected { color: #fff; background: #c89a96; font-weight: 800; }
+.calendar-today { width: 100%; margin-top: 9px; padding: 6px; border-radius: 7px; color: #80645d; background: #f5e6e3; font-size: 10px; }
+.items-editor { margin-top: 17px; padding: 14px; border: 1px solid #edd6cf; border-radius: 12px; background: #fff6f2; }
+.items-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; color: #6c5751; font-size: 12px; }
+.item-row { display: grid; grid-template-columns: 1.6fr .65fr 1fr 30px; gap: 7px; align-items: center; margin-top: 7px; }
+.item-row input, .revenue-summary select { min-width: 0; border: 1px solid #e4c9c1; border-radius: 7px; padding: 8px; background: #fff; font-size: 11px; color: #564a46; }
+.revenue-summary { display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap; padding: 15px 0 0; }
+.revenue-summary > div { display: flex; flex-direction: column; gap: 4px; }
+.revenue-summary span, .revenue-summary label { color: #9b8580; font-size: 10px; }
+.revenue-summary strong { color: #4c403d; font-size: 15px; }
+.revenue-summary label { display: flex; flex-direction: column; gap: 5px; }
+@media (max-width: 900px) {
+  .content { padding-left: 12px; padding-right: 12px; }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 9px; row-gap: 10px; }
+  .kpi-card { min-height: 106px; padding: 13px 11px; }
+  .kpi-card strong { font-size: 22px; }
+  .report-card { border-radius: 14px; }
+  .calendar-popover { width: 238px; }
+}
+@media (max-width: 520px) {
+  .content { padding-left: 8px; padding-right: 8px; }
+  .kpi-card strong { font-size: 22px; }
+  .item-row { grid-template-columns: 1.3fr .65fr 1fr 28px; }
+  .items-editor { padding: 10px; }
+  .revenue-summary { gap: 12px; }
+  .calendar-popover { left: auto; right: 0; }
+}
+
+.file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
