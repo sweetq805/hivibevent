@@ -18,6 +18,8 @@ type PageKey = "dashboard" | "activityCost" | "activityRevenue" | "activityAdvan
 type LineItem = { name: string; quantity: number; amount?: number };
 type Row = { id: string; items?: LineItem[]; [key: string]: string | number | boolean | LineItem[] | undefined };
 type Store = Record<PageKey, Row[]>;
+type CloudStore = Store & { customCategories?: string[] };
+type CloudStorePayload = { success?: boolean; store?: CloudStore; version?: number; updated_at?: number; error?: { message?: string } };
 type Column = { key: string; label: string; type?: "text" | "number" | "date" | "select" | "currency"; options?: string[]; width?: string };
 type Config = { title: string; eyebrow: string; description: string; kind: "cost" | "revenue" | "advance" | "supply" | "stock" | "receipt" | "memory"; columns: Column[]; amountKey?: string; dateKey?: string; addLabel: string };
 type GroupKind = "month" | "project";
@@ -199,11 +201,44 @@ export function seedData(): Store {
 }
 
 function useStoredStore() {
-  const [data, setData] = useState<Store>(() => {
-    try { const saved = localStorage.getItem("xyl-accounting-store"); return saved ? normalizeStore(JSON.parse(saved)) : normalizeStore(seedData()); } catch { return normalizeStore(seedData()); }
-  });
-  useEffect(() => { localStorage.setItem("xyl-accounting-store", JSON.stringify(data)); }, [data]);
-  return [data, setData] as const;
+  const [data, setData] = useState<Store>(() => normalizeStore(seedData()));
+  const [cloudVersion, setCloudVersion] = useState(1);
+  const [cloudAvailable, setCloudAvailable] = useState<boolean | null>(null);
+  const [cloudCategories, setCloudCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/store", { cache: "no-store" })
+      .then(async response => {
+        const payload = await response.json() as CloudStorePayload;
+        if (!response.ok || payload.success !== true || !payload.store) throw new Error(payload.error?.message || "Cloudflare D1 尚未連線");
+        return payload;
+      })
+      .then(payload => {
+        if (!active || !payload.store) return;
+        const remoteStore = normalizeStore(payload.store);
+        const remoteHasRows = Object.values(remoteStore).some(rows => Array.isArray(rows) && rows.length > 0);
+        let nextStore = remoteStore;
+        let nextCategories = Array.isArray(payload.store.customCategories) ? payload.store.customCategories : [];
+        // One-time migration guard only: local data becomes an unsaved draft when D1 is empty.
+        if (!remoteHasRows && Number(payload.version) === 1) {
+          try {
+            const legacy = localStorage.getItem("xyl-accounting-store");
+            if (legacy) nextStore = normalizeStore(JSON.parse(legacy));
+            const legacyCategories = localStorage.getItem("xyl-accounting-categories");
+            if (legacyCategories) nextCategories = JSON.parse(legacyCategories);
+          } catch { /* invalid legacy data is ignored; D1 remains authoritative */ }
+        }
+        setData(nextStore);
+        setCloudVersion(Number(payload.version) || 1);
+        setCloudCategories(nextCategories);
+        setCloudAvailable(true);
+      })
+      .catch(() => { if (active) setCloudAvailable(false); });
+    return () => { active = false; };
+  }, []);
+
+  return { data, setData, cloudVersion, setCloudVersion, cloudAvailable, cloudCategories, setCloudCategories } as const;
 }
 
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
@@ -291,10 +326,10 @@ function ReceiptFiles({ rows, onOpen, onPrint, onDelete }: { rows: Row[]; onOpen
 
 
 export default function Home() {
-  const [data, setData] = useStoredStore();
+  const { data, setData, cloudVersion, setCloudVersion, cloudAvailable, cloudCategories, setCloudCategories } = useStoredStore();
   const [page, setPage] = useState<PageKey>("dashboard"); const [collapsed, setCollapsed] = useState(false);
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" }); const [dateOpen, setDateOpen] = useState(false); const [addOpen, setAddOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState<"add" | "delete" | null>(null); const [customCategories, setCustomCategories] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("xyl-accounting-categories") || "[]"); } catch { return []; } });
+  const [categoryOpen, setCategoryOpen] = useState<"add" | "delete" | null>(null); const [customCategories, setCustomCategories] = useState<string[]>([]);
   const [selected, setSelected] = useState<Record<string, string[]>>({}); const [history, setHistory] = useState<Store[]>([]); const [dirty, setDirty] = useState(false); const [saving, setSaving] = useState(false); const [pageNo, setPageNo] = useState(1); const [toast, setToast] = useState("");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc"); const [drilldown, setDrilldown] = useState<string | null>(null); const [editRow, setEditRow] = useState<Row | null>(null); const [period, setPeriod] = useState("all"); const [receiptViewId, setReceiptViewId] = useState<string | null>(null);
   const [importTarget, setImportTarget] = useState<Exclude<PageKey, "dashboard">>("activityCost"); const fileRef = useRef<HTMLInputElement>(null);
@@ -313,7 +348,7 @@ export default function Home() {
       });
     }
   }, [page]);
-  useEffect(() => { localStorage.setItem("xyl-accounting-categories", JSON.stringify(customCategories)); }, [customCategories]);
+  useEffect(() => { if (cloudAvailable === true) setCustomCategories(cloudCategories); }, [cloudAvailable, cloudCategories]);
 
   const commit = (next: Store) => { setHistory(historyList => [...historyList.slice(-19), data]); setData(normalizeStore(next)); setDirty(true); };
   const baseRows = page === "dashboard" ? [] : data[page];
@@ -343,7 +378,22 @@ export default function Home() {
   const deleteOne = (rowId: string) => { if (!window.confirm("確定刪除這筆資料？")) return; commit({ ...data, [page]: baseRows.filter(row => String(row.id) !== rowId) }); setToast("已刪除資料（草稿）"); };
   const toggleRow = (rowId: string) => setSelected(current => ({ ...current, [page]: current[page]?.includes(rowId) ? current[page].filter(item => item !== rowId) : [...(current[page] || []), rowId] }));
   const toggleAll = () => setSelected(current => ({ ...current, [page]: allCurrentSelected ? (current[page] || []).filter(item => !pageRows.some(row => String(row.id) === item)) : Array.from(new Set([...(current[page] || []), ...pageRows.map(row => String(row.id))])) }));
-  const save = () => { setSaving(true); setTimeout(() => { setSaving(false); setDirty(false); setToast("雲端儲存成功，已完成 read-back 比對"); }, 700); };
+  const save = async () => {
+    if (cloudAvailable !== true) { setToast("儲存失敗，Cloudflare D1 尚未連線，資料尚未保存"); return; }
+    setSaving(true);
+    try {
+      const response = await fetch("/api/store", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ store: { ...data, customCategories }, expected_version: cloudVersion, client_mutation_id: crypto.randomUUID() }) });
+      const payload = await response.json() as CloudStorePayload;
+      if (!response.ok || payload.success !== true || !payload.store || !Number.isInteger(Number(payload.version))) throw new Error(payload.error?.message || "D1 寫入失敗");
+      setData(normalizeStore(payload.store));
+      setCloudVersion(Number(payload.version));
+      setCloudCategories(Array.isArray(payload.store.customCategories) ? payload.store.customCategories : customCategories);
+      setDirty(false);
+      setToast("已儲存至 Cloudflare D1，並完成 read-back 確認");
+    } catch (error) {
+      setToast(error instanceof Error ? `儲存失敗，資料尚未保存：${error.message}` : "儲存失敗，資料尚未保存");
+    } finally { setSaving(false); }
+  };
   const undo = () => { const last = history.at(-1); if (!last) { setToast("目前沒有可復原的操作"); return; } setData(last); setHistory(current => current.slice(0, -1)); setDirty(true); setToast("已復原上一個前端資料操作"); };
   const exportExcel = () => { if (!currentConfig) { setToast("儀表板請使用各報表分頁匯出明細"); return; } const exportRows = selectedIds.length ? rows.filter(row => selectedIds.includes(String(row.id))) : sortedRows; const header = currentConfig.columns.map(column => column.label).join(","); const body = exportRows.map(row => currentConfig.columns.map(column => `"${String(row[column.key] ?? "").replaceAll('"', '""')}"`).join(",")).join("\n"); const blob = new Blob(["\uFEFF" + header + "\n" + body], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${currentConfig.title}.csv`; anchor.click(); URL.revokeObjectURL(url); setToast(`已匯出 ${exportRows.length} 筆 Excel 相容檔案`); };
   const reportPrintTitle = currentConfig ? (drilldown && ["cost", "advance"].includes(currentConfig.kind) ? monthTitle(drilldown, currentConfig.kind === "cost" ? "成本報表" : "代墊報表") : drilldown && currentConfig.kind === "supply" ? drilldown : currentConfig.title) : "總覽儀表板";
@@ -386,9 +436,9 @@ export default function Home() {
   const sidebarGroups = ["總覽", "活動", "香氛", "管理", "知識"]; const isReceiptGallery = currentConfig?.kind === "receipt" && !!drilldown;
 
   return <div className="app-shell">
-    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}><div className="brand"><div className="brand-mark">心</div>{!collapsed && <div><strong>心引力</strong><span>ACCOUNTING OS</span></div>}</div><div className="sidebar-toggle"><button className="icon-btn" onClick={() => setCollapsed(value => !value)} title="收合導覽"><Menu size={20} /></button></div><div className="nav-scroll">{sidebarGroups.map(group => <div className="nav-group" key={group}><div className="nav-group-label">{!collapsed && group}</div>{nav.filter(item => item.group === group).map(item => { const Icon = item.icon; return <button key={item.key} className={`nav-item ${page === item.key ? "active" : ""}`} onClick={() => setPage(item.key)} title={item.label}><Icon size={18} /><span>{!collapsed && item.label}</span>{page === item.key && <i />}</button>; })}</div>)}</div>{!collapsed && <div className="sidebar-foot"><div className="sync-dot"><span />本機草稿已保護</div><small>正式儲存前可隨時復原</small></div>}</aside>
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}><div className="brand"><div className="brand-mark">心</div>{!collapsed && <div><strong>心引力</strong><span>ACCOUNTING OS</span></div>}</div><div className="sidebar-toggle"><button className="icon-btn" onClick={() => setCollapsed(value => !value)} title="收合導覽"><Menu size={20} /></button></div><div className="nav-scroll">{sidebarGroups.map(group => <div className="nav-group" key={group}><div className="nav-group-label">{!collapsed && group}</div>{nav.filter(item => item.group === group).map(item => { const Icon = item.icon; return <button key={item.key} className={`nav-item ${page === item.key ? "active" : ""}`} onClick={() => setPage(item.key)} title={item.label}><Icon size={18} /><span>{!collapsed && item.label}</span>{page === item.key && <i />}</button>; })}</div>)}</div>{!collapsed && <div className="sidebar-foot"><div className="sync-dot"><span />{cloudAvailable === true ? "Cloudflare D1 已連線" : cloudAvailable === false ? "Cloudflare D1 未連線" : "Cloudflare D1 連線中"}</div><small>加入草稿後按儲存才寫入正式資料庫</small></div>}</aside>
     <main className="main-area"><header className="topbar"><div className="topbar-left"><button className="mobile-menu icon-btn" onClick={() => setCollapsed(value => !value)}><Menu size={20} /></button><div className="crumb">心引力有限公司 <span>/</span> {page === "dashboard" ? "總覽儀表板" : currentConfig?.title}</div></div><div className="top-actions"><button className="top-btn" onClick={undo}><Undo2 size={16} />復原 <em>{history.length}</em></button><button className="top-btn" onClick={exportExcel}><FileSpreadsheet size={16} />匯出 Excel</button><button className="top-btn" onClick={exportPdf}><Printer size={16} />另存 PDF</button><button className="top-btn import" onClick={() => { setImportTarget(page === "dashboard" ? "activityCost" : page); fileRef.current?.click(); }}><FolderOpen size={16} />匯入 Excel</button><input ref={fileRef} className="file-input" type="file" accept=".xlsx,.xls,.csv" onChange={event => event.target.files?.[0] && importCsv(event.target.files[0])} /></div></header><div className="mobile-nav">{nav.map(item => <button key={item.key} className={page === item.key ? "active" : ""} onClick={() => setPage(item.key)}>{item.label}</button>)}</div>
-      <section className="content">{page === "dashboard" ? <Dashboard period={period} setPeriod={setPeriod} monthOptions={monthOptions} activityCost={activityCost} fragranceCost={fragranceCost} activityRevenue={activityRevenue} fragranceRevenue={fragranceRevenue} vat={vat} advances={advances} stockProfit={stockProfit} costChart={costChart} onNavigate={setPage} /> : <><div className="page-heading"><div><span className="eyebrow">{currentConfig?.eyebrow}</span><h1>{currentConfig?.title}</h1><p>{currentConfig?.description}</p></div><div className="heading-status"><span className={dirty ? "status-dot dirty" : "status-dot"} />{dirty ? "有未儲存草稿" : "已同步"}</div></div><div className="report-card"><div className="print-report-header"><strong>{reportPrintTitle}</strong><span>共 {isReceiptGallery ? rows.filter(row => String(row.filename || "").trim()).length : pdfRows.length} 筆</span></div><div className="report-toolbar"><div className="report-context-title">{drilldown && (currentConfig?.kind === "cost" || currentConfig?.kind === "advance") ? monthTitle(drilldown, currentConfig.kind === "cost" ? "成本報表" : "代墊報表") : drilldown && currentConfig?.kind === "supply" ? `${drilldown}｜物資明細` : ""}</div><div className="toolbar-actions">{drilldown && <button className="btn ghost" onClick={() => setDrilldown(null)}><ArrowLeft size={16} />返回{groupLabel}</button>}<button className="btn soft" onClick={() => setDateOpen(true)}><CalendarDays size={16} />{dateFilter.from || dateFilter.to ? `${dateFilter.from || "不限"} ~ ${dateFilter.to || "不限"}` : "選取日期"}</button><button className={`btn primary ${saving ? "loading" : ""}`} onClick={save} disabled={saving}><CloudUpload size={16} />{saving ? "儲存中…" : "儲存"}</button>{["cost", "advance", "supply", "stock"].includes(currentConfig!.kind) && <><button className="btn danger-soft" onClick={removeSelected}><Trash2 size={16} />刪除勾選</button>{currentConfig!.kind === "cost" && <><button className="btn lavender" onClick={() => setCategoryOpen("add")}><Plus size={16} />新增品項</button><button className="btn ghost" onClick={() => setCategoryOpen("delete")}><SlidersHorizontal size={16} />刪除品項</button></>}</>}<button className="btn dark" onClick={() => setAddOpen(true)}><Plus size={16} />{groupMode ? `新增${groupLabel}` : currentConfig?.addLabel}</button></div></div>{selectedIds.length > 0 && <div className="selection-bar"><Check size={15} />已勾選 {selectedIds.length} 筆 <span>（總計：{formatMoney(selectedTotal)}）</span><button onClick={() => setSelected(current => ({ ...current, [page]: [] }))}>清除選取</button></div>}
+      <section className="content">{page === "dashboard" ? <Dashboard period={period} setPeriod={setPeriod} monthOptions={monthOptions} activityCost={activityCost} fragranceCost={fragranceCost} activityRevenue={activityRevenue} fragranceRevenue={fragranceRevenue} vat={vat} advances={advances} stockProfit={stockProfit} costChart={costChart} onNavigate={setPage} /> : <><div className="page-heading"><div><span className="eyebrow">{currentConfig?.eyebrow}</span><h1>{currentConfig?.title}</h1><p>{currentConfig?.description}</p></div><div className="heading-status"><span className={dirty ? "status-dot dirty" : "status-dot"} />{dirty ? "有未儲存草稿" : "已同步"}</div></div><div className="report-card"><div className="print-report-header"><strong>{reportPrintTitle}</strong><span>共 {isReceiptGallery ? rows.filter(row => String(row.filename || "").trim()).length : pdfRows.length} 筆</span></div><div className="report-toolbar"><div className="report-context-title">{drilldown && (currentConfig?.kind === "cost" || currentConfig?.kind === "advance") ? monthTitle(drilldown, currentConfig.kind === "cost" ? "成本報表" : "代墊報表") : drilldown && currentConfig?.kind === "supply" ? `${drilldown}｜物資明細` : ""}</div><div className="toolbar-actions">{drilldown && <button className="btn ghost" onClick={() => setDrilldown(null)}><ArrowLeft size={16} />返回{groupLabel}</button>}<button className="btn soft" onClick={() => setDateOpen(true)}><CalendarDays size={16} />{dateFilter.from || dateFilter.to ? `${dateFilter.from || "不限"} ~ ${dateFilter.to || "不限"}` : "選取日期"}</button><button className={`btn primary ${saving ? "loading" : ""}`} onClick={save} disabled={saving || cloudAvailable !== true}><CloudUpload size={16} />{saving ? "儲存中…" : "儲存"}</button>{["cost", "advance", "supply", "stock"].includes(currentConfig!.kind) && <><button className="btn danger-soft" onClick={removeSelected}><Trash2 size={16} />刪除勾選</button>{currentConfig!.kind === "cost" && <><button className="btn lavender" onClick={() => setCategoryOpen("add")}><Plus size={16} />新增品項</button><button className="btn ghost" onClick={() => setCategoryOpen("delete")}><SlidersHorizontal size={16} />刪除品項</button></>}</>}<button className="btn dark" onClick={() => setAddOpen(true)}><Plus size={16} />{groupMode ? `新增${groupLabel}` : currentConfig?.addLabel}</button></div></div>{selectedIds.length > 0 && <div className="selection-bar"><Check size={15} />已勾選 {selectedIds.length} 筆 <span>（總計：{formatMoney(selectedTotal)}）</span><button onClick={() => setSelected(current => ({ ...current, [page]: [] }))}>清除選取</button></div>}
         {groupMode ? <div className="group-grid">{groupValues.map(value => <button className="group-card" key={value} onClick={() => setDrilldown(value)}><strong>{currentConfig?.kind === "supply" ? value : `${value.slice(0, 4)} 年 ${value.slice(5)} 月`}</strong><span>{baseRows.filter(row => groupKey(row) === value && (currentConfig?.kind !== "receipt" || String(row.filename || "").trim())).length} 筆{currentConfig?.kind === "receipt" ? "檔案" : "明細"}</span><ChevronRight size={18} /></button>)}{!groupValues.length && <div className="empty"><strong>尚未建立{groupLabel}</strong><span>請使用右上方新增按鈕建立第一個{groupLabel}。</span></div>}</div> : isReceiptGallery ? <ReceiptFiles rows={rows} onOpen={openReceipt} onPrint={printReceipt} onDelete={deleteReceipt} /> : <><div className="table-wrap print-table"><table><colgroup><col className="serial-col-width" />{currentConfig?.columns.map(column => <col key={column.key} style={{ width: column.width }} />)}</colgroup><thead><tr><th className="serial-col">序號</th>{currentConfig?.columns.map(column => <th key={column.key}>{column.label}</th>)}</tr></thead><tbody>{pdfRows.map((row, rowIndex) => <tr key={`print-${String(row.id)}`}><td className="serial-col">{rowIndex + 1}</td>{currentConfig?.columns.map(column => <td key={column.key}>{printCellValue(row, column)}</td>)}</tr>)}</tbody></table></div><div className={`table-wrap screen-table page-${page} ${currentConfig?.kind === "cost" ? "cost-table" : ""} ${page === "fragranceRevenue" ? "fragrance-revenue-table" : ""} ${page === "supplies" ? "supplies-table" : ""}`}><table><colgroup><col className="check-col-width" /><col className="serial-col-width" />{currentConfig?.columns.map(column => <col key={column.key} style={{ width: column.width }} />)}<col className="action-col-width" /></colgroup><thead><tr><th className="check-col"><input type="checkbox" checked={allCurrentSelected} onChange={toggleAll} /></th><th className="serial-col print-only">序號</th>{currentConfig?.columns.map(column => <th key={column.key}>{column.label}{column.type === "date" && <button className={`sort-btn ${sortDir === "desc" ? "sort-desc" : ""}`} onClick={() => setSortDir(value => value === "asc" ? "desc" : "asc")} title={sortDir === "asc" ? "目前由舊到新，點擊改為由新到舊" : "目前由新到舊，點擊改為由舊到新"}>▲</button>}</th>)}<th className="action-col">操作</th></tr></thead><tbody>{pageRows.length === 0 ? <tr><td colSpan={(currentConfig?.columns.length || 1) + 2}><div className="empty"><Search size={22} /><strong>沒有符合條件的資料</strong><span>調整日期，或按右上角新增一筆資料。</span></div></td></tr> : pageRows.map((row, rowIndex) => <tr key={String(row.id)}><td className="check-col"><input type="checkbox" checked={selectedIds.includes(String(row.id))} onChange={() => toggleRow(String(row.id))} /></td><td className="serial-col print-only">{(pageNo - 1) * 20 + rowIndex + 1}</td>{currentConfig?.columns.map(column => <td key={column.key}>{tableCell(row, column)}</td>)}<td className="action-col">{currentConfig?.kind === "revenue" && <button className="row-edit" onClick={() => setEditRow(row)} title="修改"><Settings2 size={15} /></button>}<button className="row-delete" onClick={() => deleteOne(String(row.id))} title="刪除"><Trash2 size={15} /></button></td></tr>)}</tbody></table></div></>}
         <div className="table-footer"><span>共 {isReceiptGallery ? rows.filter(row => String(row.filename || "").trim()).length : filteredRows.length} 筆</span><div className="pagination"><button disabled={pageNo <= 1} onClick={() => setPageNo(value => Math.max(1, value - 1))}><ChevronLeft size={16} />上一頁</button><strong>{pageNo} / {totalPages}</strong><button disabled={pageNo >= totalPages} onClick={() => setPageNo(value => Math.min(totalPages, value + 1))}>下一頁<ChevronRight size={16} /></button><label>跳至 <input value={pageNo} onChange={event => setPageNo(Math.min(totalPages, Math.max(1, Number(event.target.value) || 1)))} /> 頁</label></div><span>每頁 20 筆</span></div></div></>}</section></main>
     {dateOpen && <DateModal initial={dateFilter} onClose={() => setDateOpen(false)} onApply={setDateFilter} />}
