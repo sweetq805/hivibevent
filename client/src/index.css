@@ -357,3 +357,18 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     white-space: nowrap;
   }
 }
+
+
+/* Mobile-only advance payee width: fit three Chinese characters. */
+@media (max-width: 900px) {
+  .page-activityAdvance col:nth-child(4),
+  .page-fragranceAdvance col:nth-child(4) {
+    width: 64px !important;
+  }
+  .page-activityAdvance td:nth-child(4) .cell-input,
+  .page-fragranceAdvance td:nth-child(4) .cell-input {
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+  }
+}
