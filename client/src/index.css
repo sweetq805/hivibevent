@@ -269,3 +269,50 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
 .fragrance-revenue-table th:nth-child(10), .fragrance-revenue-table td:nth-child(10) { width: 11% !important; }
 .fragrance-revenue-table th:nth-child(12), .fragrance-revenue-table td:nth-child(12) { width: 10% !important; }
 .supplies-table th:nth-child(11), .supplies-table td:nth-child(11), .supplies-table th:nth-child(12), .supplies-table td:nth-child(12) { width: 10% !important; }
+
+
+/* Confirmed mobile-only refinements: three KPI columns, contained dashboard charts, and readable horizontal report tables. */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+  .kpi-card { min-height: 106px; padding: 13px 8px; }
+  .kpi-top { font-size: 10px; margin-bottom: 10px; gap: 3px; }
+  .kpi-top svg { width: 12px; height: 12px; flex: 0 0 auto; }
+  .kpi-card strong { font-size: clamp(15px, 4.6vw, 22px); letter-spacing: -.05em; }
+  .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .dash-card { min-width: 0; padding: 12px 10px; min-height: 250px; overflow: hidden; }
+  .card-heading { gap: 6px; margin-bottom: 10px; }
+  .card-heading h3 { font-size: 13px; line-height: 1.35; }
+  .card-heading .eyebrow { font-size: 8px; letter-spacing: .08em; }
+  .live-pill, .tax-badge { max-width: 80px; overflow-wrap: anywhere; white-space: normal; text-align: right; font-size: 8px; padding: 4px 5px; }
+  .donut-layout { flex-direction: column; gap: 9px; padding-top: 0; }
+  .donut { width: 112px; height: 112px; flex: 0 0 auto; }
+  .donut:after { inset: 19px; }
+  .donut strong { font-size: 20px; }
+  .donut span { font-size: 9px; }
+  .legend { width: 100%; min-width: 0; }
+  .legend > div { grid-template-columns: 8px minmax(0, 1fr) auto; gap: 4px; margin: 7px 0; font-size: 9px; }
+  .legend strong { font-size: 9px; white-space: nowrap; }
+  .progress-ring { width: 112px; height: 112px; margin: 12px auto 12px; }
+  .progress-ring:after { inset: 18px; }
+  .ring-center strong { font-size: 15px; }
+  .ring-center span { font-size: 8px; }
+  .vat-summary { gap: 5px; padding-top: 9px; }
+  .vat-summary span { font-size: 8px; overflow-wrap: anywhere; }
+  .vat-summary strong { font-size: 10px; white-space: nowrap; }
+  .bar-card { min-height: 250px; }
+  .bar-row { grid-template-columns: minmax(0, 1fr); gap: 4px; margin: 10px 0; }
+  .bar-row > span { white-space: normal; overflow-wrap: anywhere; font-size: 9px; line-height: 1.25; }
+  .bar-track { height: 14px; }
+  .bar-track b { right: 5px; font-size: 8px; }
+  .screen-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .screen-table table { min-width: 1180px !important; table-layout: auto !important; }
+  .screen-table th, .screen-table td { white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+  .screen-table td .cell-input, .screen-table td select { min-width: 110px; width: max-content; max-width: none; }
+  .screen-table td .items-summary, .screen-table td .wrap-input { white-space: pre-line; min-width: 150px; }
+  .page-activityCost table, .page-fragranceCost table { min-width: 1260px !important; }
+  .page-activityRevenue table { min-width: 980px !important; }
+  .page-fragranceRevenue table { min-width: 1240px !important; }
+  .page-activityAdvance table, .page-fragranceAdvance table { min-width: 980px !important; }
+  .page-supplies table { min-width: 1400px !important; }
+  .page-stocks table { min-width: 1100px !important; }
+}
