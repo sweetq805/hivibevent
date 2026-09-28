@@ -176,7 +176,7 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
 }
 
 @media print {
-  @page { size: landscape; margin: 12mm 14mm; }
+  @page { size: auto; margin: 12mm 14mm; }
   html, body { background: #fff !important; color: #111 !important; }
   .sidebar, .topbar, .mobile-nav, .report-toolbar, .table-footer, .selection-bar, .modal-backdrop, .toast, .action-col, .check-col, .group-grid, .period-filter, .dashboard-grid, .kpi-grid, .page-heading p, .heading-status, .sort-btn { display: none !important; }
   .main-area, .content { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
