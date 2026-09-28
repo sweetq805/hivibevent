@@ -19,7 +19,9 @@ type LineItem = { name: string; quantity: number; amount?: number };
 type Row = { id: string; items?: LineItem[]; [key: string]: string | number | boolean | LineItem[] | undefined };
 type Store = Record<PageKey, Row[]>;
 type CloudStore = Store & { customCategories?: string[] };
-type CloudStorePayload = { success?: boolean; store?: CloudStore; version?: number; updated_at?: number; error?: { message?: string } };
+type CloudStorePayload = { success?: boolean; store?: CloudStore; version?: number; updated_at?: number; verification?: { deleted?: Array<{ page: string; id: string }>; missing_after_delete?: Array<{ page: string; id: string }> }; error?: { message?: string } };
+type DeletedEntry = { page: PageKey; id: string };
+const D1_MIGRATION_COMPLETED_KEY = "xyl-accounting-d1-migration-completed-v1";
 type Column = { key: string; label: string; type?: "text" | "number" | "date" | "select" | "currency"; options?: string[]; width?: string };
 type Config = { title: string; eyebrow: string; description: string; kind: "cost" | "revenue" | "advance" | "supply" | "stock" | "receipt" | "memory"; columns: Column[]; amountKey?: string; dateKey?: string; addLabel: string };
 type GroupKind = "month" | "project";
@@ -122,6 +124,30 @@ export function stockProfitValue(row: Row) {
   return money(row.realizedProfit) + money(row.dividend);
 }
 
+export function shouldUseLegacyMigration(remoteHasRows: boolean, version: number, completed: boolean) {
+  return !completed && !remoteHasRows && version === 1;
+}
+
+export function deletedIdsStillPresent(store: Store, entries: DeletedEntry[]) {
+  return entries.filter(entry => (store[entry.page] || []).some(row => String(row.id) === entry.id));
+}
+
+export function mergeDraftRows(remote: Store, draft: Store, deleted: DeletedEntry[]) {
+  const result = normalizeStore(remote);
+  (Object.keys(result) as PageKey[]).forEach(page => {
+    const removed = new Set(deleted.filter(entry => entry.page === page).map(entry => entry.id));
+    const remoteRows = result[page] || [];
+    const remoteById = new Map(remoteRows.map(row => [String(row.id), row]));
+    const draftRows = (draft[page] || []).filter(row => !removed.has(String(row.id)));
+    const pending = draftRows.filter(row => {
+      const saved = remoteById.get(String(row.id));
+      return !saved || JSON.stringify(saved) !== JSON.stringify(row);
+    });
+    result[page] = [...remoteRows, ...pending.filter(row => !remoteById.has(String(row.id)))];
+  });
+  return result;
+}
+
 function revenueTaxAmount(row: Row) {
   const amount = revenueValue(row);
   return `${formatMoney(amount)} ${String(row.taxMode) === "含稅" ? "含稅" : "未稅"}`;
@@ -220,14 +246,17 @@ function useStoredStore() {
         const remoteHasRows = Object.values(remoteStore).some(rows => Array.isArray(rows) && rows.length > 0);
         let nextStore = remoteStore;
         let nextCategories = Array.isArray(payload.store.customCategories) ? payload.store.customCategories : [];
-        // One-time migration guard only: local data becomes an unsaved draft when D1 is empty.
-        if (!remoteHasRows && Number(payload.version) === 1) {
+        // One-time migration guard: only an uncompleted, empty v1 Store may read legacy data.
+        const migrationCompleted = localStorage.getItem(D1_MIGRATION_COMPLETED_KEY) === "1";
+        if (shouldUseLegacyMigration(remoteHasRows, Number(payload.version) || 1, migrationCompleted)) {
           try {
             const legacy = localStorage.getItem("xyl-accounting-store");
             if (legacy) nextStore = normalizeStore(JSON.parse(legacy));
             const legacyCategories = localStorage.getItem("xyl-accounting-categories");
             if (legacyCategories) nextCategories = JSON.parse(legacyCategories);
           } catch { /* invalid legacy data is ignored; D1 remains authoritative */ }
+        } else if (remoteHasRows || Number(payload.version) > 1) {
+          localStorage.setItem(D1_MIGRATION_COMPLETED_KEY, "1");
         }
         setData(nextStore);
         setCloudVersion(Number(payload.version) || 1);
@@ -374,8 +403,37 @@ export default function Home() {
   const updateMemory = (memory: Row[], row: Row) => { const name = String(row.vendor ?? row.sellerName ?? "").trim(); const taxId = String(row.sellerTaxId ?? "").trim(); const category = String(row.category || "").trim(); if (!category || (!name && !taxId)) return memory; const index = name ? memory.findIndex(item => String(item.sellerName || "").trim() === name) : -1; const fallback = index >= 0 ? index : taxId ? memory.findIndex(item => String(item.sellerTaxId || "").trim() === taxId) : -1; const record = { id: fallback >= 0 ? memory[fallback].id : id(), sellerTaxId: taxId, sellerName: name, category, note: "由成本明細自動記憶" }; if (fallback >= 0) return memory.map((item, itemIndex) => itemIndex === fallback ? { ...item, ...record } : item); return [record, ...memory]; };
   const updateCell = (rowId: string, key: string, value: string) => { const updatedRow = baseRows.find(row => String(row.id) === rowId); if (!updatedRow) return; const numeric = ["amount", "totalAmount", "finalPrice", "discountedPrice", "realizedProfit", "dividend", "unitPrice", "quantity", "price", "shares", "buyPrice", "sellPrice"].includes(key); const changed = { ...updatedRow, [key]: numeric ? money(value) : value }; let next: Store = { ...data, [page]: baseRows.map(row => String(row.id) === rowId ? changed : row) }; if ((page === "activityCost" || page === "fragranceCost") && key === "category") next = { ...next, memory: updateMemory(data.memory || [], changed) }; commit(next); };
   const addRow = (row: Row) => { const contextual = drilldown && currentConfig?.kind === "supply" ? { ...row, project: drilldown, date: canonicalDate(row.date || today) } : drilldown && (currentConfig?.kind === "cost" || currentConfig?.kind === "advance") ? { ...row, date: dateInMonth(row.date || today, drilldown) } : row; const prepared = page === "activityCost" || page === "fragranceCost" ? classifyCost(contextual, data.memory || []) : contextual; let next: Store = { ...data, [page]: [prepared, ...baseRows] }; if (page === "activityCost" || page === "fragranceCost") next = { ...next, memory: updateMemory(data.memory || [], prepared) }; commit(next); setAddOpen(false); setToast("已加入草稿，請按儲存同步至雲端資料庫"); };
-  const removeSelected = () => { if (!selectedIds.length) { setToast("請先勾選要刪除的資料"); return; } if (!window.confirm(`確定刪除 ${selectedIds.length} 筆資料？此動作可使用復原。`)) return; commit({ ...data, [page]: baseRows.filter(row => !selectedIds.includes(String(row.id))) }); setSelected(current => ({ ...current, [page]: [] })); setToast("已刪除勾選資料（草稿）"); };
-  const deleteOne = (rowId: string) => { if (!window.confirm("確定刪除這筆資料？")) return; commit({ ...data, [page]: baseRows.filter(row => String(row.id) !== rowId) }); setToast("已刪除資料（草稿）"); };
+  const deletePersisted = async (entries: DeletedEntry[]) => {
+    if (cloudAvailable !== true) { setToast("刪除失敗，Cloudflare D1 尚未連線，資料尚未刪除"); return; }
+    if (!entries.length) return;
+    const draftBeforeDelete = data;
+    setSaving(true);
+    try {
+      const latestResponse = await fetch("/api/store", { cache: "no-store" });
+      const latestPayload = await latestResponse.json() as CloudStorePayload;
+      if (!latestResponse.ok || latestPayload.success !== true || !latestPayload.store || !Number.isInteger(Number(latestPayload.version))) throw new Error(latestPayload.error?.message || "無法取得 Cloudflare D1 最新資料");
+      const cloudNext = normalizeStore(latestPayload.store);
+      const next = normalizeStore({ ...cloudNext, [page]: cloudNext[page].filter(row => !entries.some(entry => entry.page === page && entry.id === String(row.id))) });
+      const response = await fetch("/api/store", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ store: { ...next, customCategories: Array.isArray(latestPayload.store.customCategories) ? latestPayload.store.customCategories : customCategories }, expected_version: Number(latestPayload.version), deleted_entries: entries, client_mutation_id: crypto.randomUUID() }) });
+      const payload = await response.json() as CloudStorePayload;
+      if (!response.ok || payload.success !== true || !payload.store || !Number.isInteger(Number(payload.version))) throw new Error(payload.error?.message || "D1 刪除寫入失敗");
+      const savedStore = normalizeStore(payload.store);
+      const missing = deletedIdsStillPresent(savedStore, entries);
+      if (missing.length || (payload.verification?.missing_after_delete?.length || 0) > 0) throw new Error("D1 read-back 仍找到要刪除的資料，刪除未完成");
+      const displayStore = mergeDraftRows(savedStore, draftBeforeDelete, entries);
+      setData(displayStore);
+      setCloudVersion(Number(payload.version));
+      setCloudCategories(Array.isArray(payload.store.customCategories) ? payload.store.customCategories : customCategories);
+      setDirty(JSON.stringify(displayStore) !== JSON.stringify(savedStore));
+      setSelected(current => ({ ...current, [page]: [] }));
+      localStorage.setItem(D1_MIGRATION_COMPLETED_KEY, "1");
+      setToast(`刪除成功，已由 Cloudflare D1 read-back 確認 ${entries.length} 筆資料不存在`);
+    } catch (error) {
+      setToast(error instanceof Error ? `刪除失敗，資料尚未刪除：${error.message}` : "刪除失敗，資料尚未刪除");
+    } finally { setSaving(false); }
+  };
+  const removeSelected = () => { if (!selectedIds.length) { setToast("請先勾選要刪除的資料"); return; } if (!window.confirm(`確定刪除 ${selectedIds.length} 筆資料？此動作會立即同步至 Cloudflare D1。`)) return; void deletePersisted(selectedIds.map(id => ({ page, id }))); };
+  const deleteOne = (rowId: string) => { if (!window.confirm("確定刪除這筆資料？刪除確認後會立即同步至 Cloudflare D1。")) return; void deletePersisted([{ page, id: rowId }]); };
   const toggleRow = (rowId: string) => setSelected(current => ({ ...current, [page]: current[page]?.includes(rowId) ? current[page].filter(item => item !== rowId) : [...(current[page] || []), rowId] }));
   const toggleAll = () => setSelected(current => ({ ...current, [page]: allCurrentSelected ? (current[page] || []).filter(item => !pageRows.some(row => String(row.id) === item)) : Array.from(new Set([...(current[page] || []), ...pageRows.map(row => String(row.id))])) }));
   const save = async () => {
@@ -389,6 +447,7 @@ export default function Home() {
       setCloudVersion(Number(payload.version));
       setCloudCategories(Array.isArray(payload.store.customCategories) ? payload.store.customCategories : customCategories);
       setDirty(false);
+      localStorage.setItem(D1_MIGRATION_COMPLETED_KEY, "1");
       setToast("已儲存至 Cloudflare D1，並完成 read-back 確認");
     } catch (error) {
       setToast(error instanceof Error ? `儲存失敗，資料尚未保存：${error.message}` : "儲存失敗，資料尚未保存");

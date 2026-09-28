@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalDate, formatMoney, money, monthKey, parseDiscount, revenueValue, seedData, stockProfitValue } from "./Home";
+import { canonicalDate, deletedIdsStillPresent, formatMoney, mergeDraftRows, money, monthKey, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -37,6 +37,30 @@ describe("accounting data helpers", () => {
   it("includes cash dividend in stock KPI profit", () => {
     expect(stockProfitValue({ id: "stock-1", realizedProfit: 1300, dividend: 360 })).toBe(1660);
     expect(stockProfitValue({ id: "stock-2", realizedProfit: 1300 })).toBe(1300);
+  });
+
+
+  it("verifies single and multiple deleted ids are absent after D1 read-back", () => {
+    const store = seedData();
+    const entries = [{ page: "stocks", id: String(store.stocks[0].id) }, { page: "receipts", id: "already-gone" }] as const;
+    expect(deletedIdsStillPresent(store, entries as any).map(entry => entry.id)).toEqual([String(store.stocks[0].id)]);
+    const afterDelete = { ...store, stocks: store.stocks.slice(1) };
+    expect(deletedIdsStillPresent(afterDelete, entries as any)).toEqual([]);
+  });
+
+  it("keeps unsaved drafts local while deleting only the latest D1 snapshot", () => {
+    const remote = seedData();
+    const draft = { ...remote, stocks: [{ ...remote.stocks[0], name: "尚未儲存修改" }, ...remote.stocks.slice(1), { id: "draft-stock", name: "草稿" }] };
+    const displayed = mergeDraftRows({ ...remote, stocks: remote.stocks.slice(1) }, draft, [{ page: "stocks", id: String(remote.stocks[0].id) } as any]);
+    expect(displayed.stocks.some(row => row.id === "draft-stock")).toBe(true);
+    expect(displayed.stocks.some(row => String(row.id) === String(remote.stocks[0].id))).toBe(false);
+  });
+
+  it("does not re-import legacy local data after migration is completed", () => {
+    expect(shouldUseLegacyMigration(false, 1, false)).toBe(true);
+    expect(shouldUseLegacyMigration(false, 1, true)).toBe(false);
+    expect(shouldUseLegacyMigration(false, 2, false)).toBe(false);
+    expect(shouldUseLegacyMigration(true, 1, false)).toBe(false);
   });
 
   it("seeds every required report with unique stable ids", () => {

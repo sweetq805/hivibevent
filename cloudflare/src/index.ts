@@ -240,6 +240,10 @@ async function putStore(env: Env, input: JsonRecord) {
   if (!Number.isInteger(expectedVersion) || expectedVersion < 1) throw new Error("缺少有效的 Store 版本");
   const store = input.store;
   if (!store || typeof store !== "object" || Array.isArray(store)) throw new Error("Store 資料格式不正確");
+  const deletedEntries = Array.isArray(input.deleted_entries) ? input.deleted_entries.filter(item => item && typeof item === "object") as Array<{ page: string; id: string }> : [];
+  for (const entry of deletedEntries) {
+    if (!asString(entry.page) || !asString(entry.id)) throw new Error("刪除驗證資料格式不正確");
+  }
   const storeJson = JSON.stringify(store);
   if (storeJson.length > 8_000_000) throw new Error("Store 資料超過 Cloudflare D1 單筆大小限制");
   const mutationId = asString(input.client_mutation_id ?? input.clientMutationId);
@@ -257,7 +261,14 @@ async function putStore(env: Env, input: JsonRecord) {
   if (!result[0]?.success || Number(result[0]?.meta?.changes || 0) !== 1) return errorResponse("資料已在其他裝置更新，尚未覆蓋最新版；請重新取得資料後再儲存", 409, "VERSION_CONFLICT");
   const saved = await one<{ store_json: string; updated_at: number; version: number }>(env.ACCOUNTING_DB, "SELECT store_json, updated_at, version FROM app_store WHERE id = 1 AND version = ?", nextVersion);
   if (!saved) throw new Error("D1 Store 寫入後無法 read-back，資料尚未保存");
-  return json({ success: true, replay: false, store: JSON.parse(saved.store_json), version: Number(saved.version), updated_at: Number(saved.updated_at) });
+  let readBackStore: JsonRecord;
+  try { readBackStore = JSON.parse(saved.store_json) as JsonRecord; } catch { throw new Error("D1 Store read-back 格式損壞，資料尚未保存"); }
+  const missingAfterDelete = deletedEntries.filter(entry => {
+    const rows = readBackStore[entry.page];
+    return Array.isArray(rows) && rows.some(row => row && typeof row === "object" && String((row as JsonRecord).id) === String(entry.id));
+  });
+  if (missingAfterDelete.length) throw new Error("D1 read-back 仍找到要刪除的資料，刪除未完成");
+  return json({ success: true, replay: false, store: readBackStore, version: Number(saved.version), updated_at: Number(saved.updated_at), verification: { deleted: deletedEntries, missing_after_delete: missingAfterDelete } });
 }
 
 async function bootstrap(env: Env) {
