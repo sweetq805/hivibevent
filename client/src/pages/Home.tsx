@@ -98,6 +98,10 @@ async function loadReceiptBlob(row: Row) {
     if (!response.ok) throw new Error("R2 檔案讀取失敗");
     return await response.blob();
   }
+  try {
+    const normalized = await fetch(`/api/receipts/${encodeURIComponent(String(row.id))}/content`, { cache: "no-store" });
+    if (normalized.ok) return await normalized.blob();
+  } catch { /* legacy local file fallback below */ }
   if (row.fileKey) return await loadReceiptIndexedDbBlob(String(row.fileKey));
   return row.fileDataUrl ? await (await fetch(String(row.fileDataUrl))).blob() : null;
 }
