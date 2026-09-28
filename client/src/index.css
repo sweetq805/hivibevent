@@ -327,3 +327,15 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     text-align: right;
   }
 }
+
+
+/* Mobile-only KPI amount sizing: slightly smaller and contained. */
+@media (max-width: 900px) {
+  .kpi-card strong {
+    font-size: clamp(14px, 4vw, 18px) !important;
+    letter-spacing: -.06em;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
