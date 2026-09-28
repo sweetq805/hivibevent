@@ -263,3 +263,9 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .print-table .serial-col-width, .print-table .serial-col { width: 42px !important; text-align: center !important; }
   .print-table th:nth-child(2), .print-table td:nth-child(2) { white-space: nowrap !important; }
 }
+
+/* Confirmed scoped refinements only: fragrance revenue and project supplies. */
+.fragrance-revenue-table th:nth-child(8), .fragrance-revenue-table td:nth-child(8) { width: 5% !important; }
+.fragrance-revenue-table th:nth-child(10), .fragrance-revenue-table td:nth-child(10) { width: 11% !important; }
+.fragrance-revenue-table th:nth-child(12), .fragrance-revenue-table td:nth-child(12) { width: 10% !important; }
+.supplies-table th:nth-child(11), .supplies-table td:nth-child(11), .supplies-table th:nth-child(12), .supplies-table td:nth-child(12) { width: 10% !important; }
