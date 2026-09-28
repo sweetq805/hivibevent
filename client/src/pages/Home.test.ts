@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMoney, money, parseDiscount, revenueValue, seedData } from "./Home";
+import { canonicalDate, formatMoney, money, monthKey, parseDiscount, revenueValue, seedData } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -20,6 +20,12 @@ describe("accounting data helpers", () => {
     expect(parseDiscount("84折")).toBe(0.84);
     expect(parseDiscount("80%")).toBe(0.8);
     expect(parseDiscount("0.84")).toBe(0.84);
+  });
+
+  it("normalizes slash, ISO, and Excel-like dates to one month key", () => {
+    expect(canonicalDate("2026/08/21")).toBe("2026-08-21");
+    expect(monthKey("2026/08/21")).toBe("2026-08");
+    expect(monthKey("2026-08-03")).toBe("2026-08");
   });
 
   it("uses each revenue row's selected tax mode for dashboard totals", () => {

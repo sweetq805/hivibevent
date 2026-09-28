@@ -225,3 +225,23 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .tax-amount-screen { display: none !important; }
   .report-context-title { display: none !important; }
 }
+
+/* v4 scoped layout corrections: restore full-width screen tables without changing other page structure */
+.print-table { display: none; }
+.screen-table .serial-col-width { width: 0 !important; }
+.screen-table .action-col-width { width: 54px !important; }
+.screen-table .check-col-width { width: 38px !important; }
+.screen-table .serial-col.print-only { display: none; }
+.screen-table td, .screen-table th { overflow-wrap: anywhere; }
+.screen-table .currency-input { width: 92px; max-width: 92px; text-align: right; }
+.screen-table .cost-category-select { white-space: normal; line-height: 1.35; min-height: 32px; }
+.screen-table .wrap-input { min-height: 32px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; resize: none; }
+.screen-table td:has(.wrap-input), .screen-table td:has(.cost-category-select) { overflow: visible; }
+@media print {
+  .screen-table { display: none !important; }
+  .print-table { display: block !important; overflow: visible !important; }
+  .print-table table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; font-size: 10.5px !important; }
+  .print-table th, .print-table td { padding: 5px 4px !important; white-space: normal !important; overflow: visible !important; overflow-wrap: anywhere !important; word-break: break-word !important; line-height: 1.35 !important; color: #111 !important; }
+  .print-table .serial-col-width { width: 42px !important; }
+  .print-table .serial-col { width: 42px !important; text-align: center !important; }
+}
