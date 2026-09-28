@@ -490,3 +490,37 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .page-supplies th:nth-child(12), .page-supplies td:nth-child(12) { width: 82px !important; min-width: 82px !important; max-width: 82px !important; }
   .page-supplies td:nth-child(11) select, .page-supplies td:nth-child(12) select { width: 100% !important; min-width: 0 !important; max-width: 100% !important; white-space: nowrap; }
 }
+
+/* Mobile-only revenue tax/status select widths. */
+@media (max-width: 900px) {
+  .page-activityRevenue col:nth-child(7),
+  .page-activityRevenue th:nth-child(7),
+  .page-activityRevenue td:nth-child(7),
+  .page-fragranceRevenue col:nth-child(9),
+  .page-fragranceRevenue th:nth-child(9),
+  .page-fragranceRevenue td:nth-child(9) {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+  }
+  .page-activityRevenue col:nth-child(9),
+  .page-activityRevenue th:nth-child(9),
+  .page-activityRevenue td:nth-child(9),
+  .page-fragranceRevenue col:nth-child(11),
+  .page-fragranceRevenue th:nth-child(11),
+  .page-fragranceRevenue td:nth-child(11) {
+    width: 112px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+  }
+  .page-activityRevenue td:nth-child(7) select,
+  .page-activityRevenue td:nth-child(9) select,
+  .page-fragranceRevenue td:nth-child(9) select,
+  .page-fragranceRevenue td:nth-child(11) select {
+    display: block;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+  }
+}
