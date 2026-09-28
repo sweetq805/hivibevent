@@ -379,3 +379,28 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     max-width: 64px !important;
   }
 }
+
+
+/* Desktop-only fragrance revenue tax/status columns: show every option fully. */
+@media (min-width: 901px) {
+  .page-fragranceRevenue col:nth-child(9),
+  .page-fragranceRevenue th:nth-child(9),
+  .page-fragranceRevenue td:nth-child(9) {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+  }
+  .page-fragranceRevenue col:nth-child(11),
+  .page-fragranceRevenue th:nth-child(11),
+  .page-fragranceRevenue td:nth-child(11) {
+    width: 112px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+  }
+  .page-fragranceRevenue td:nth-child(9) select,
+  .page-fragranceRevenue td:nth-child(11) select {
+    width: 100%;
+    min-width: 100%;
+    white-space: nowrap;
+  }
+}
