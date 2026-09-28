@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMoney, money, parseDiscount, seedData } from "./Home";
+import { formatMoney, money, parseDiscount, revenueValue, seedData } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -13,10 +13,19 @@ describe("accounting data helpers", () => {
     expect(formatMoney(0)).toBe("NT$ 0");
   });
 
-  it("accepts manual discount formats and converts them to a ratio", () => {
+  it("parses one and two digit manual discount formats", () => {
+    expect(parseDiscount("6折")).toBe(0.6);
     expect(parseDiscount("8折")).toBe(0.8);
+    expect(parseDiscount("65折")).toBe(0.65);
+    expect(parseDiscount("84折")).toBe(0.84);
     expect(parseDiscount("80%")).toBe(0.8);
-    expect(parseDiscount("0.8")).toBe(0.8);
+    expect(parseDiscount("0.84")).toBe(0.84);
+  });
+
+  it("uses each revenue row's selected tax mode for dashboard totals", () => {
+    expect(revenueValue({ id: "1", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "未稅" })).toBe(1000);
+    expect(revenueValue({ id: "2", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "含稅" })).toBe(1050);
+    expect(revenueValue({ id: "3", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "tax-included" })).toBe(1050);
   });
 
   it("seeds every required report with unique stable ids", () => {
