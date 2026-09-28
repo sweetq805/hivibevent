@@ -538,3 +538,38 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     max-width: 80px !important;
   }
 }
+
+/* Mobile-only requested amount alignment and fragrance customer wrapping. */
+@media (max-width: 900px) {
+  .page-activityCost td:nth-child(10) .currency-input,
+  .page-activityRevenue td:nth-child(6) .currency-input,
+  .page-activityAdvance td:nth-child(6) .currency-input,
+  .page-fragranceCost td:nth-child(10) .currency-input,
+  .page-fragranceRevenue td:nth-child(8) .currency-input,
+  .page-fragranceAdvance td:nth-child(6) .currency-input,
+  .page-supplies td:nth-child(10) .currency-input,
+  .page-stocks td:nth-child(7) .currency-input,
+  .page-stocks td:nth-child(8) .currency-input,
+  .page-stocks td:nth-child(9) .currency-input {
+    text-align: left !important;
+  }
+  .page-fragranceRevenue col:nth-child(4),
+  .page-fragranceRevenue th:nth-child(4),
+  .page-fragranceRevenue td:nth-child(4) {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+  }
+  .page-fragranceRevenue td:nth-child(4) .mobile-wrap-source {
+    display: none !important;
+  }
+  .page-fragranceRevenue td:nth-child(4) .mobile-wrap-editor {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+}
