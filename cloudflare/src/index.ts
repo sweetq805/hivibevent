@@ -299,6 +299,59 @@ async function sync(env: Env, url: URL) {
   return json({ success: true, cursor, events });
 }
 
+
+const RECEIPT_MIME_BY_EXTENSION: Record<string, string> = {
+  jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", pdf: "application/pdf", heic: "image/heic", heif: "image/heif",
+};
+function receiptExtension(filename: string) { return filename.toLowerCase().split(".").pop() || ""; }
+function receiptMime(filename: string, supplied: string) {
+  const ext = receiptExtension(filename);
+  const expected = RECEIPT_MIME_BY_EXTENSION[ext];
+  if (!expected) throw new Error("只支援 JPG、JPEG、PNG、HEIC、HEIF 或 PDF");
+  if (supplied && supplied !== "application/octet-stream" && supplied !== expected) throw new Error("檔案 MIME type 與副檔名不一致");
+  return expected;
+}
+async function validateReceiptBytes(file: File, mime: string) {
+  const bytes = new Uint8Array(await file.slice(0, 16).arrayBuffer());
+  const text = new TextDecoder().decode(bytes);
+  const jpeg = mime === "image/jpeg" && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  const png = mime === "image/png" && bytes.slice(0, 8).every((value, index) => value === [137, 80, 78, 71, 13, 10, 26, 10][index]);
+  const pdf = mime === "application/pdf" && text.startsWith("%PDF-");
+  const heif = (mime === "image/heic" || mime === "image/heif") && text.slice(4, 12).includes("ftyp");
+  if (!(jpeg || png || pdf || heif)) throw new Error("檔案內容與宣告的檔案類型不符");
+}
+async function receiptObject(request: Request, env: Env, key = "") {
+  if (request.method === "POST") {
+    const form = await request.formData();
+    const entry = form.get("file");
+    if (!(entry instanceof File)) return errorResponse("缺少憑證檔案", 400, "FILE_REQUIRED");
+    if (entry.size <= 0 || entry.size > 25 * 1024 * 1024) return errorResponse("憑證檔案大小必須介於 1 byte 與 25 MB", 400, "FILE_SIZE_INVALID");
+    const mime = receiptMime(entry.name, entry.type);
+    await validateReceiptBytes(entry, mime);
+    const extension = receiptExtension(entry.name);
+    const objectKey = `receipt-${crypto.randomUUID()}.${extension}`;
+    await env.RECEIPTS.put(objectKey, await entry.arrayBuffer(), { httpMetadata: { contentType: mime, contentDisposition: `inline; filename*=UTF-8''${encodeURIComponent(entry.name)}` }, customMetadata: { filename: entry.name, mime_type: mime } });
+    const saved = await env.RECEIPTS.head(objectKey);
+    if (!saved) throw new Error("R2 寫入後無法確認檔案存在");
+    return json({ success: true, key: objectKey, filename: entry.name, mime_type: mime, size_bytes: entry.size });
+  }
+  if (request.method === "GET") {
+    if (!key || !/^receipt-[a-f0-9-]+\.(jpg|jpeg|png|pdf|heic|heif)$/i.test(key)) return errorResponse("憑證檔案 key 不正確", 400, "INVALID_FILE_KEY");
+    const object = await env.RECEIPTS.get(key);
+    if (!object) return errorResponse("R2 找不到憑證檔案", 404, "OBJECT_NOT_FOUND");
+    const mime = object.httpMetadata?.contentType || RECEIPT_MIME_BY_EXTENSION[receiptExtension(key)] || "application/octet-stream";
+    return new Response(object.body as unknown as BodyInit, { headers: { "Content-Type": mime, "Content-Disposition": object.httpMetadata?.contentDisposition || "inline", "Cache-Control": "private, max-age=300", "X-Content-Type-Options": "nosniff" } });
+  }
+  if (request.method === "DELETE") {
+    if (!key) return errorResponse("缺少憑證檔案 key", 400, "INVALID_FILE_KEY");
+    await env.RECEIPTS.delete(key);
+    const remaining = await env.RECEIPTS.head(key);
+    if (remaining) throw new Error("R2 刪除後檔案仍存在");
+    return json({ success: true, deleted_key: key });
+  }
+  return errorResponse("不支援的憑證檔案操作", 405, "METHOD_NOT_ALLOWED");
+}
+
 async function receiptsContent(env: Env, request: Request, id: string) {
   const row = await one<{ r2_object_key: string; mime_type: string; filename: string; upload_status: string }>(env.ACCOUNTING_DB, "SELECT r2_object_key, mime_type, filename, upload_status FROM receipt_files WHERE id = ? AND deleted_at IS NULL LIMIT 1", id);
   if (!row) return errorResponse("找不到憑證", 404, "NOT_FOUND");
@@ -325,6 +378,9 @@ async function route(request: Request, env: Env) {
   if (path === "/api/health" && request.method === "GET") return json({ success: true, service: "hivibevent-accounting-preview", sourceOfTruth: "cloudflare-d1" });
   if (path === "/api/store" && request.method === "GET") return getStore(env);
   if (path === "/api/store" && request.method === "PUT") return putStore(env, await bodyJson(request));
+  if (path === "/api/receipt-objects" && request.method === "POST") return receiptObject(request, env);
+  const receiptObjectMatch = path.match(/^\/api\/receipt-objects\/([^/]+)$/);
+  if (receiptObjectMatch && (request.method === "GET" || request.method === "DELETE")) return receiptObject(request, env, decodeURIComponent(receiptObjectMatch[1]));
   if (path === "/api/bootstrap" && request.method === "GET") return bootstrap(env);
   if (path === "/api/dashboard" && request.method === "GET") return dashboard(env, url);
   if (path === "/api/sync" && request.method === "GET") return sync(env, url);
