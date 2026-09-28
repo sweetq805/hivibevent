@@ -262,3 +262,35 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .screen-table { overflow-x: auto; }
   .screen-table table { min-width: 720px !important; }
 }
+
+/* Final detail-table layout: full width, readable controls, and no trailing blank space. */
+.screen-table { width: 100%; overflow-x: hidden; }
+.screen-table table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+.screen-table colgroup col { width: auto !important; }
+.screen-table colgroup .check-col-width { width: 42px !important; min-width: 42px; }
+.screen-table colgroup .serial-col-width { width: 0 !important; min-width: 0; }
+.screen-table colgroup .action-col-width { width: 58px !important; min-width: 58px; }
+.screen-table colgroup col:not(.check-col-width):not(.serial-col-width):not(.action-col-width) { width: auto !important; }
+.screen-table th, .screen-table td { min-width: 0; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+.screen-table th.check-col, .screen-table td.check-col { width: 42px; min-width: 42px; padding-left: 6px; padding-right: 6px; }
+.screen-table th.action-col, .screen-table td.action-col { width: 58px; min-width: 58px; padding-left: 3px; padding-right: 3px; white-space: nowrap; }
+.screen-table .cell-input, .screen-table td select, .screen-table .wrap-input { min-width: 0; max-width: 100%; }
+.screen-table select { appearance: auto; }
+.screen-table .action-col .row-edit, .screen-table .action-col .row-delete { width: 24px; height: 26px; }
+@media (max-width: 900px) {
+  .screen-table { overflow-x: auto; }
+  .screen-table table { min-width: 720px !important; }
+}
+.cost-table colgroup col:nth-child(3) { width: 13% !important; }
+.cost-table colgroup col:nth-child(4) { width: 10% !important; }
+.cost-table colgroup col:nth-child(5) { width: 10% !important; }
+.cost-table colgroup col:nth-child(6) { width: 9% !important; }
+.cost-table colgroup col:nth-child(7) { width: 9% !important; }
+.cost-table colgroup col:nth-child(8) { width: 14% !important; }
+.cost-table colgroup col:nth-child(9) { width: 21% !important; }
+.cost-table colgroup col:nth-child(10) { width: 7% !important; }
+.cost-table th:nth-child(3) { white-space: nowrap; }
+.cost-table td:nth-child(3) select { width: 100%; min-width: 0; white-space: nowrap; }
+@media print {
+  .print-table th:nth-child(2), .print-table td:nth-child(2) { white-space: nowrap !important; }
+}
