@@ -226,71 +226,40 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .report-context-title { display: none !important; }
 }
 
-/* v4 scoped layout corrections: restore full-width screen tables without changing other page structure */
 .print-table { display: none; }
-.screen-table .serial-col-width { width: 0 !important; }
-.screen-table .action-col-width { width: 54px !important; }
-.screen-table .check-col-width { width: 38px !important; }
+/* Unified detail-table layout. One rule set owns screen width distribution. */
+.screen-table { width: 100%; overflow-x: hidden; }
+.screen-table table { width: 100% !important; min-width: 0 !important; table-layout: auto !important; }
+.screen-table colgroup col { width: auto !important; min-width: 0; }
+.screen-table colgroup .check-col-width { width: 42px !important; min-width: 42px; }
+.screen-table colgroup .serial-col-width { width: 0 !important; min-width: 0; }
+.screen-table colgroup .action-col-width { width: 58px !important; min-width: 58px; }
 .screen-table .serial-col.print-only { display: none; }
-.screen-table td, .screen-table th { overflow-wrap: anywhere; }
+.screen-table th, .screen-table td { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+.screen-table th { white-space: nowrap; }
+.screen-table td { white-space: normal; }
+.screen-table th.check-col, .screen-table td.check-col { width: 42px; min-width: 42px; padding-left: 6px; padding-right: 6px; text-align: center; }
+.screen-table th.action-col, .screen-table td.action-col { width: 58px; min-width: 58px; padding-left: 3px; padding-right: 3px; text-align: center; white-space: nowrap; }
+.screen-table .cell-input, .screen-table td select, .screen-table .wrap-input { width: 100%; min-width: 0; max-width: 100%; }
+.screen-table select { appearance: auto; }
 .screen-table .currency-input { width: 92px; max-width: 92px; text-align: right; }
 .screen-table .cost-category-select { white-space: normal; line-height: 1.35; min-height: 32px; }
 .screen-table .wrap-input { min-height: 32px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; resize: none; }
 .screen-table td:has(.wrap-input), .screen-table td:has(.cost-category-select) { overflow: visible; }
+.screen-table .action-col .row-edit, .screen-table .action-col .row-delete { width: 24px; height: 26px; }
+.cost-table colgroup col:nth-child(3) { width: 13% !important; min-width: 118px; }
+.cost-table th:nth-child(3), .cost-table td:nth-child(3) { white-space: nowrap; }
+.cost-table td:nth-child(3) select { width: 100%; min-width: 118px; white-space: nowrap; }
+@media (max-width: 900px) {
+  .screen-table { overflow-x: auto; }
+  .screen-table table { min-width: 720px !important; }
+  .screen-table th { white-space: normal; }
+}
 @media print {
   .screen-table { display: none !important; }
-  .print-table { display: block !important; overflow: visible !important; }
+  .print-table { display: block !important; width: 100% !important; overflow: visible !important; }
   .print-table table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; font-size: 10.5px !important; }
   .print-table th, .print-table td { padding: 5px 4px !important; white-space: normal !important; overflow: visible !important; overflow-wrap: anywhere !important; word-break: break-word !important; line-height: 1.35 !important; color: #111 !important; }
-  .print-table .serial-col-width { width: 42px !important; }
-  .print-table .serial-col { width: 42px !important; text-align: center !important; }
-}
-
-/* Full-width detail tables: preserve every column, remove the right-side dead space, and let content columns share the remaining width. */
-.screen-table { width: 100%; overflow-x: hidden; }
-.screen-table table { width: 100% !important; min-width: 0 !important; table-layout: auto !important; }
-.screen-table colgroup col { width: auto !important; }
-.screen-table colgroup .check-col-width { width: 42px !important; min-width: 42px; }
-.screen-table colgroup .serial-col-width { width: 0 !important; min-width: 0; }
-.screen-table colgroup .action-col-width { width: 58px !important; min-width: 58px; }
-.screen-table th, .screen-table td { min-width: 0; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
-.screen-table th.check-col, .screen-table td.check-col { width: 42px; min-width: 42px; padding-left: 6px; padding-right: 6px; }
-.screen-table th.action-col, .screen-table td.action-col { width: 58px; min-width: 58px; padding-left: 3px; padding-right: 3px; }
-.screen-table .cell-input, .screen-table td select, .screen-table .wrap-input { min-width: 0; max-width: 100%; }
-.screen-table .action-col .row-edit, .screen-table .action-col .row-delete { width: 24px; height: 26px; }
-@media (max-width: 900px) {
-  .screen-table { overflow-x: auto; }
-  .screen-table table { min-width: 720px !important; }
-}
-
-/* Final detail-table layout: full width, readable controls, and no trailing blank space. */
-.screen-table { width: 100%; overflow-x: hidden; }
-.screen-table table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
-.screen-table colgroup col { width: auto !important; }
-.screen-table colgroup .check-col-width { width: 42px !important; min-width: 42px; }
-.screen-table colgroup .serial-col-width { width: 0 !important; min-width: 0; }
-.screen-table colgroup .action-col-width { width: 58px !important; min-width: 58px; }
-.screen-table colgroup col:not(.check-col-width):not(.serial-col-width):not(.action-col-width) { width: auto !important; }
-.screen-table th, .screen-table td { min-width: 0; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
-.screen-table th.check-col, .screen-table td.check-col { width: 42px; min-width: 42px; padding-left: 6px; padding-right: 6px; }
-.screen-table th.action-col, .screen-table td.action-col { width: 58px; min-width: 58px; padding-left: 3px; padding-right: 3px; white-space: nowrap; }
-.screen-table .cell-input, .screen-table td select, .screen-table .wrap-input { min-width: 0; max-width: 100%; }
-.screen-table select { appearance: auto; }
-.screen-table .action-col .row-edit, .screen-table .action-col .row-delete { width: 24px; height: 26px; }
-@media (max-width: 900px) {
-  .screen-table { overflow-x: auto; }
-  .screen-table table { min-width: 720px !important; }
-}
-.cost-table colgroup col:nth-child(3) { width: 13% !important; }
-.cost-table colgroup col:nth-child(4) { width: 10% !important; }
-.cost-table colgroup col:nth-child(5) { width: 10% !important; }
-.cost-table colgroup col:nth-child(6) { width: 9% !important; }
-.cost-table colgroup col:nth-child(7) { width: 9% !important; }
-.cost-table colgroup col:nth-child(8) { width: 14% !important; }
-.cost-table colgroup col:nth-child(9) { width: 21% !important; }
-.cost-table colgroup col:nth-child(10) { width: 7% !important; }
-.cost-table th:nth-child(3) { white-space: nowrap; }
-.cost-table td:nth-child(3) select { width: 100%; min-width: 0; white-space: nowrap; }
-@media print {
+  .print-table .serial-col-width, .print-table .serial-col { width: 42px !important; text-align: center !important; }
   .print-table th:nth-child(2), .print-table td:nth-child(2) { white-space: nowrap !important; }
 }
