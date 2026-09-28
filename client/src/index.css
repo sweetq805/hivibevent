@@ -339,3 +339,21 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     white-space: nowrap;
   }
 }
+
+
+/* Dashboard-only label layout: keep total revenue label and VAT badge on one line. */
+.legend > div:last-of-type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.legend > div:last-of-type span {
+  white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .tax-badge {
+    max-width: none;
+    white-space: nowrap;
+  }
+}
