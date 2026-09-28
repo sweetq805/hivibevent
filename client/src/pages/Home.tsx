@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ElementType } from "react";
 import * as XLSX from "xlsx";
 import {
-  ArrowLeft, ArrowRight, BarChart3, BookOpen, CalendarDays, Check, ChevronDown,
+  ArrowLeft, ArrowRight, BarChart3, CalendarDays, Check, ChevronDown,
   ChevronLeft, ChevronRight, CloudUpload, Download, FileSpreadsheet, FileText,
   FolderOpen, Image as ImageIcon, LayoutDashboard, Menu, Package, Plus, Printer,
   Search, Settings2, SlidersHorizontal, Sprout, Tags, Trash2, TrendingUp, Undo2,
@@ -14,12 +14,12 @@ const BASE_CATEGORIES = [
   "軟體訂閱費", "專業服務費（會計/律師/顧問）", "勞報新資費", "充電費", "水電瓦斯費", "其他營業雜支"
 ];
 
-type PageKey = "dashboard" | "activityCost" | "activityRevenue" | "activityAdvance" | "fragranceCost" | "fragranceRevenue" | "fragranceAdvance" | "supplies" | "stocks" | "receipts" | "laws" | "memory";
+type PageKey = "dashboard" | "activityCost" | "activityRevenue" | "activityAdvance" | "fragranceCost" | "fragranceRevenue" | "fragranceAdvance" | "supplies" | "stocks" | "receipts" | "memory";
 type LineItem = { name: string; quantity: number; amount?: number };
 type Row = { id: string; items?: LineItem[]; [key: string]: string | number | boolean | LineItem[] | undefined };
 type Store = Record<PageKey, Row[]>;
 type Column = { key: string; label: string; type?: "text" | "number" | "date" | "select" | "currency"; options?: string[]; width?: string };
-type Config = { title: string; eyebrow: string; description: string; kind: "cost" | "revenue" | "advance" | "supply" | "stock" | "receipt" | "law" | "memory"; columns: Column[]; amountKey?: string; dateKey?: string; addLabel: string };
+type Config = { title: string; eyebrow: string; description: string; kind: "cost" | "revenue" | "advance" | "supply" | "stock" | "receipt" | "memory"; columns: Column[]; amountKey?: string; dateKey?: string; addLabel: string };
 type GroupKind = "month" | "project";
 
 const nav: { key: PageKey; label: string; icon: ElementType; group: string }[] = [
@@ -33,7 +33,6 @@ const nav: { key: PageKey; label: string; icon: ElementType; group: string }[] =
   { key: "supplies", label: "專案物資單", icon: Package, group: "管理" },
   { key: "stocks", label: "股票投資報表", icon: BarChart3, group: "管理" },
   { key: "receipts", label: "每月紙本憑證圖庫", icon: ImageIcon, group: "管理" },
-  { key: "laws", label: "國稅局法規對照", icon: BookOpen, group: "知識" },
   { key: "memory", label: "分類記憶庫", icon: Tags, group: "知識" },
 ];
 
@@ -58,10 +57,10 @@ const configs: Record<Exclude<PageKey, "dashboard">, Config> = {
     { key: "date", label: "日期", type: "date", width: "10%" }, { key: "customer", label: "客戶名稱", type: "text", width: "13%" }, { key: "itemsSummary", label: "品項明細", type: "text", width: "14%" }, { key: "originalPrice", label: "原價", type: "currency", width: "8%" }, { key: "discount", label: "折扣", type: "text", width: "7%" }, { key: "discountedPrice", label: "優惠價格", type: "currency", width: "9%" }, { key: "taxMode", label: "稅率", type: "select", options: ["未稅", "含稅"], width: "9%" }, { key: "taxAmount", label: "稅額金額", type: "currency", width: "12%" }, { key: "status", label: "狀態", type: "select", options: ["已收款", "待收款", "部分收款"], width: "8%" }
   ], amountKey: "finalPrice", dateKey: "date", addLabel: "新增營收" },
   activityAdvance: { title: "活動代墊款", eyebrow: "ACTIVITY / ADVANCE", description: "記錄活動團隊代墊與結清進度。", kind: "advance", columns: [
-    { key: "date", label: "日期", type: "date", width: "15%" }, { key: "payee", label: "代墊人", type: "text", width: "16%" }, { key: "description", label: "用途說明", type: "text", width: "27%" }, { key: "amount", label: "金額", type: "currency", width: "12%" }, { key: "status", label: "狀態", type: "select", options: ["已結清", "未結清"], width: "12%" }
+    { key: "date", label: "日期", type: "date", width: "15%" }, { key: "payee", label: "代墊人", type: "select", options: ["Rok", "Nita"], width: "16%" }, { key: "description", label: "用途說明", type: "text", width: "27%" }, { key: "amount", label: "金額", type: "currency", width: "12%" }, { key: "status", label: "狀態", type: "select", options: ["已結清", "未結清"], width: "12%" }
   ], amountKey: "amount", dateKey: "date", addLabel: "新增代墊" },
   fragranceAdvance: { title: "香氛代墊款", eyebrow: "FRAGRANCE / ADVANCE", description: "香氛採購與製作過程的代墊款追蹤。", kind: "advance", columns: [
-    { key: "date", label: "日期", type: "date", width: "15%" }, { key: "payee", label: "代墊人", type: "text", width: "16%" }, { key: "description", label: "用途說明", type: "text", width: "27%" }, { key: "amount", label: "金額", type: "currency", width: "12%" }, { key: "status", label: "狀態", type: "select", options: ["已結清", "未結清"], width: "12%" }
+    { key: "date", label: "日期", type: "date", width: "15%" }, { key: "payee", label: "代墊人", type: "select", options: ["Rok", "Nita"], width: "16%" }, { key: "description", label: "用途說明", type: "text", width: "27%" }, { key: "amount", label: "金額", type: "currency", width: "12%" }, { key: "status", label: "狀態", type: "select", options: ["已結清", "未結清"], width: "12%" }
   ], amountKey: "amount", dateKey: "date", addLabel: "新增代墊" },
   supplies: { title: "專案物資單", eyebrow: "PROJECT / SUPPLIES", description: "管理活動與香氛專案的物料需求、數量與採購狀態。", kind: "supply", columns: [
     { key: "date", label: "日期", type: "date", width: "8%" }, { key: "project", label: "專案", type: "text", width: "13%" }, { key: "item", label: "品項", type: "text", width: "9%" }, { key: "itemName", label: "物資名稱", type: "text", width: "14%" }, { key: "quantity", label: "數量", type: "number", width: "6%" }, { key: "size", label: "尺寸", type: "text", width: "8%" }, { key: "website", label: "網站", type: "text", width: "13%" }, { key: "price", label: "價錢", type: "currency", width: "8%" }, { key: "status", label: "狀態", type: "select", options: ["待採購", "已採購", "已入庫"], width: "8%" }, { key: "checked", label: "已檢查", type: "select", options: ["未檢查", "已檢查"], width: "8%" }, { key: "toolboxNo", label: "工具箱號碼", type: "text", width: "9%" }
@@ -72,9 +71,6 @@ const configs: Record<Exclude<PageKey, "dashboard">, Config> = {
   receipts: { title: "每月紙本憑證圖庫", eyebrow: "ARCHIVE / RECEIPTS", description: "以月份整理紙本憑證，支援 JPG、JPEG 與 PDF。", kind: "receipt", columns: [
     { key: "month", label: "月份", type: "text", width: "12%" }, { key: "date", label: "憑證日期", type: "date", width: "12%" }, { key: "filename", label: "檔案名稱", type: "text", width: "28%" }, { key: "category", label: "分類", type: "select", options: BASE_CATEGORIES, width: "18%" }, { key: "amount", label: "金額", type: "currency", width: "12%" }, { key: "note", label: "備註", type: "text", width: "18%" }
   ], amountKey: "amount", dateKey: "date", addLabel: "新增憑證" },
-  laws: { title: "國稅局法規對照", eyebrow: "REFERENCE / TAX LAW", description: "集中管理常用國稅局法規與公司內部對照摘要。", kind: "law", columns: [
-    { key: "code", label: "法規編號", type: "text", width: "15%" }, { key: "title", label: "法規標題", type: "text", width: "24%" }, { key: "summary", label: "對照摘要", type: "text", width: "35%" }, { key: "updatedAt", label: "更新日期", type: "date", width: "12%" }, { key: "url", label: "來源連結", type: "text", width: "20%" }
-  ], dateKey: "updatedAt", addLabel: "新增法規" },
   memory: { title: "分類記憶庫", eyebrow: "AUTOMATION / MEMORY", description: "依賣方名稱優先、統編其次，自動帶入用途分類。", kind: "memory", columns: [
     { key: "sellerTaxId", label: "賣方統編", type: "text", width: "18%" }, { key: "sellerName", label: "賣方名稱", type: "text", width: "30%" }, { key: "category", label: "自動分類", type: "select", options: BASE_CATEGORIES, width: "25%" }, { key: "note", label: "備註", type: "text", width: "27%" }
   ], addLabel: "新增記憶" },
@@ -194,7 +190,6 @@ export function seedData(): Store {
     supplies: [{ id: id(), date: "2026-09-01", project: "秋日品牌發表會", item: "展示", itemName: "桌上立牌", quantity: 30, size: "A4", website: "", price: 2850, status: "已採購", checked: "已檢查", toolboxNo: "A-01" }, { id: id(), date: "2026-09-03", project: "室內擴香禮盒", item: "包裝", itemName: "霧面紙盒", quantity: 100, size: "20cm", website: "", price: 4200, status: "待採購", checked: "未檢查", toolboxNo: "" }],
     stocks: [{ id: id(), date: "2026-08-12", ticker: "0050", name: "元大台灣50", shares: 100, buyPrice: 182, sellPrice: 195, realizedProfit: 1300, dividend: 0 }, { id: id(), date: "2026-07-19", ticker: "2330", name: "台積電", shares: 20, buyPrice: 960, sellPrice: 1015, realizedProfit: 1100, dividend: 0 }, { id: id(), date: "2026-06-30", ticker: "00878", name: "國泰永續高股息", shares: 200, buyPrice: 21, sellPrice: 0, realizedProfit: 0, dividend: 360 }],
     receipts: [{ id: id(), month: "2026-09", date: "2026-09-03", filename: "20260903_場地押金.jpg", category: "場地租借費", amount: 12000, note: "紙本憑證已核對", fileType: "image/jpeg" }],
-    laws: [{ id: id(), code: "營業稅法§19", title: "進項稅額不得扣抵之憑證", summary: "紙本收據與餐飲膳食費需依規則排除可扣抵營業稅。", updatedAt: "2026-08-30", url: "https://www.etax.nat.gov.tw/" }, { id: id(), code: "統一發票使用辦法", title: "發票保存與記載", summary: "發票號碼、日期及交易對象欄位應保存原始文字。", updatedAt: "2026-08-18", url: "https://law.moj.gov.tw/" }],
     memory: [{ id: id(), sellerTaxId: "801234567", sellerName: "好日子場地股份有限公司", category: "場地租借費", note: "賣方名稱優先比對" }, { id: id(), sellerTaxId: "901234567", sellerName: "香氣原料行", category: "進貨營業成本", note: "供香氛原料使用" }],
   };
 }
@@ -301,7 +296,19 @@ export default function Home() {
   const [importTarget, setImportTarget] = useState<Exclude<PageKey, "dashboard">>("activityCost"); const fileRef = useRef<HTMLInputElement>(null);
   const categories = [...BASE_CATEGORIES, ...customCategories]; const currentConfig = page === "dashboard" ? null : configs[page];
 
-  useEffect(() => { setPageNo(1); setDateFilter({ from: "", to: "" }); setImportTarget(page === "dashboard" ? "activityCost" : page); setSortDir("asc"); setDrilldown(null); setEditRow(null); }, [page]);
+  useEffect(() => {
+    setPageNo(1);
+    setDateFilter({ from: "", to: "" });
+    setImportTarget(page === "dashboard" ? "activityCost" : page);
+    setSortDir("asc");
+    setDrilldown(null);
+    setEditRow(null);
+    if (page === "activityRevenue" || page === "fragranceRevenue" || page === "stocks") {
+      requestAnimationFrame(() => {
+      document.querySelector(`.page-${page}`)?.scrollTo({ left: 0, behavior: "auto" });
+      });
+    }
+  }, [page]);
   useEffect(() => { localStorage.setItem("xyl-accounting-categories", JSON.stringify(customCategories)); }, [customCategories]);
 
   const commit = (next: Store) => { setHistory(historyList => [...historyList.slice(-19), data]); setData(normalizeStore(next)); setDirty(true); };
@@ -370,7 +377,7 @@ export default function Home() {
     if (column.type === "date") return <span className="date-text">{value || "—"}</span>;
     if (column.type === "select") return <><span className="print-value">{printText}</span><select className={`screen-cell ${currentConfig?.kind === "cost" && column.key === "category" ? "cost-category-select" : ""}`} value={value} onChange={event => updateCell(String(row.id), column.key, event.target.value)}>{(column.key === "category" ? categories : column.options || categories).map(option => <option key={option}>{option}</option>)}</select></>;
     if (column.key === "itemsSummary") return <span className="items-summary">{value || "—"}</span>;
-    if (currentConfig?.kind === "cost" && column.key === "vendor") return <><span className="print-value">{printText}</span><textarea className="cell-input screen-cell wrap-input" rows={Math.max(1, Math.ceil(value.length / 10))} value={value} onChange={event => updateCell(String(row.id), column.key, event.target.value)} /></>; return <><span className="print-value">{printText}</span><input className={`cell-input screen-cell ${column.type === "currency" ? "currency-input" : ""}`} type={column.type === "currency" || column.type === "number" ? "number" : "text"} value={value} onChange={event => updateCell(String(row.id), column.key, event.target.value)} /></>;
+    if ((currentConfig?.kind === "cost" && column.key === "vendor") || (currentConfig?.kind === "revenue" && column.key === "customer") || (currentConfig?.kind === "supply" && ["project", "item", "itemName"].includes(column.key))) return <><span className="print-value">{printText}</span><input className={`cell-input screen-cell ${column.type === "currency" ? "currency-input" : ""} mobile-wrap-source`} type={column.type === "currency" || column.type === "number" ? "number" : "text"} value={value} onChange={event => updateCell(String(row.id), column.key, event.target.value)} /><textarea className="cell-input screen-cell mobile-wrap-editor" rows={Math.max(1, Math.ceil(value.length / 8))} value={value} onChange={event => updateCell(String(row.id), column.key, event.target.value)} /></>; return <><span className="print-value">{printText}</span><input className={`cell-input screen-cell ${column.type === "currency" ? "currency-input" : ""}`} type={column.type === "currency" || column.type === "number" ? "number" : "text"} value={value} onChange={event => updateCell(String(row.id), column.key, event.target.value)} /></>;
   };
   const sidebarGroups = ["總覽", "活動", "香氛", "管理", "知識"]; const isReceiptGallery = currentConfig?.kind === "receipt" && !!drilldown;
 

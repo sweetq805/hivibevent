@@ -39,7 +39,7 @@ describe("accounting data helpers", () => {
     const keys = [
       "activityCost", "activityRevenue", "activityAdvance", "fragranceCost",
       "fragranceRevenue", "fragranceAdvance", "supplies", "stocks", "receipts",
-      "laws", "memory",
+      "memory",
     ] as const;
     const rows = keys.flatMap(key => data[key]);
     expect(rows.length).toBeGreaterThan(10);

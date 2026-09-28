@@ -315,6 +315,70 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .page-activityAdvance table, .page-fragranceAdvance table { min-width: 980px !important; }
   .page-supplies table { min-width: 1400px !important; }
   .page-stocks table { min-width: 1100px !important; }
+
+  /* Each requested page gets only its own compact columns; table order stays unchanged. */
+  .page-activityCost table, .page-fragranceCost table { min-width: 900px !important; }
+  .page-activityCost th:nth-child(3), .page-activityCost td:nth-child(3),
+  .page-fragranceCost th:nth-child(3), .page-fragranceCost td:nth-child(3) { width: 96px !important; min-width: 96px !important; max-width: 96px !important; }
+  .page-activityCost th:nth-child(5), .page-activityCost td:nth-child(5),
+  .page-activityCost th:nth-child(6), .page-activityCost td:nth-child(6),
+  .page-fragranceCost th:nth-child(5), .page-fragranceCost td:nth-child(5),
+  .page-fragranceCost th:nth-child(6), .page-fragranceCost td:nth-child(6) { width: 84px !important; min-width: 84px !important; max-width: 84px !important; }
+  .page-activityCost th:nth-child(8), .page-activityCost td:nth-child(8),
+  .page-fragranceCost th:nth-child(8), .page-fragranceCost td:nth-child(8) { width: 150px !important; min-width: 150px !important; max-width: 150px !important; }
+
+  .page-activityRevenue table { min-width: 820px !important; }
+  .page-activityRevenue th:nth-child(3), .page-activityRevenue td:nth-child(3),
+  .page-fragranceRevenue th:nth-child(3), .page-fragranceRevenue td:nth-child(3) { width: 130px !important; min-width: 130px !important; max-width: 130px !important; }
+  .page-fragranceRevenue table { min-width: 1000px !important; }
+  .page-fragranceRevenue th:nth-child(6), .page-fragranceRevenue td:nth-child(6) { width: 64px !important; min-width: 64px !important; max-width: 64px !important; }
+
+  .page-activityAdvance table, .page-fragranceAdvance table { min-width: 780px !important; }
+  .page-activityAdvance th:nth-child(3), .page-activityAdvance td:nth-child(3),
+  .page-fragranceAdvance th:nth-child(3), .page-fragranceAdvance td:nth-child(3) { width: 92px !important; min-width: 92px !important; max-width: 92px !important; }
+  .page-activityAdvance th:nth-child(5), .page-activityAdvance td:nth-child(5),
+  .page-fragranceAdvance th:nth-child(5), .page-fragranceAdvance td:nth-child(5) { width: 150px !important; min-width: 150px !important; max-width: 150px !important; }
+
+  .page-supplies table { min-width: 1050px !important; }
+  .page-supplies th:nth-child(3), .page-supplies td:nth-child(3),
+  .page-supplies th:nth-child(4), .page-supplies td:nth-child(4),
+  .page-supplies th:nth-child(5), .page-supplies td:nth-child(5),
+  .page-supplies th:nth-child(7), .page-supplies td:nth-child(7),
+  .page-supplies th:nth-child(8), .page-supplies td:nth-child(8),
+  .page-supplies th:nth-child(9), .page-supplies td:nth-child(9) { width: 86px !important; min-width: 86px !important; max-width: 86px !important; }
+  .page-supplies th:nth-child(6), .page-supplies td:nth-child(6) { width: 58px !important; min-width: 58px !important; max-width: 58px !important; }
+
+  .page-stocks table { min-width: 900px !important; }
+  .page-stocks th:nth-child(4), .page-stocks td:nth-child(4) { width: 82px !important; min-width: 82px !important; max-width: 82px !important; }
+  .page-stocks th:nth-child(5), .page-stocks td:nth-child(5) { width: 130px !important; min-width: 130px !important; max-width: 130px !important; }
+  .page-stocks th:nth-child(6), .page-stocks td:nth-child(6),
+  .page-stocks th:nth-child(7), .page-stocks td:nth-child(7),
+  .page-stocks th:nth-child(8), .page-stocks td:nth-child(8),
+  .page-stocks th:nth-child(10), .page-stocks td:nth-child(10) { width: 76px !important; min-width: 76px !important; max-width: 76px !important; }
+
+  .page-memory table { min-width: 620px !important; }
+  .page-memory th:nth-child(3), .page-memory td:nth-child(3) { width: 84px !important; min-width: 84px !important; max-width: 84px !important; }
+  .page-memory th:nth-child(4), .page-memory td:nth-child(4) { width: 130px !important; min-width: 130px !important; max-width: 130px !important; }
+  .page-memory th:nth-child(6), .page-memory td:nth-child(6) { width: 130px !important; min-width: 130px !important; max-width: 130px !important; }
+
+  .page-activityCost td, .page-activityCost td .cell-input, .page-activityCost td select,
+  .page-fragranceCost td, .page-fragranceCost td .cell-input, .page-fragranceCost td select,
+  .page-activityRevenue td, .page-activityRevenue td .cell-input, .page-activityRevenue td select,
+  .page-fragranceRevenue td, .page-fragranceRevenue td .cell-input, .page-fragranceRevenue td select,
+  .page-activityAdvance td, .page-activityAdvance td .cell-input, .page-activityAdvance td select,
+  .page-fragranceAdvance td, .page-fragranceAdvance td .cell-input, .page-fragranceAdvance td select,
+  .page-supplies td, .page-supplies td .cell-input, .page-supplies td select,
+  .page-stocks td, .page-stocks td .cell-input, .page-stocks td select,
+  .page-memory td, .page-memory td .cell-input, .page-memory td select { overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
+  .page-activityCost td .cell-input, .page-activityCost td select,
+  .page-fragranceCost td .cell-input, .page-fragranceCost td select,
+  .page-activityRevenue td .cell-input, .page-activityRevenue td select,
+  .page-fragranceRevenue td .cell-input, .page-fragranceRevenue td select,
+  .page-activityAdvance td .cell-input, .page-activityAdvance td select,
+  .page-fragranceAdvance td .cell-input, .page-fragranceAdvance td select,
+  .page-supplies td .cell-input, .page-supplies td select,
+  .page-stocks td .cell-input, .page-stocks td select,
+  .page-memory td .cell-input, .page-memory td select { width: 100% !important; min-width: 0 !important; max-width: 100% !important; }
 }
 
 
@@ -403,4 +467,26 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     min-width: 100%;
     white-space: nowrap;
   }
+}
+
+/* Mobile-only requested field sizing and wrapping. Desktop rules remain unchanged. */
+@media (max-width: 900px) {
+  .mobile-wrap-editor { display: none; resize: vertical; overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.35; }
+  .mobile-wrap-source { display: block; }
+  .page-activityCost th:nth-child(9), .page-activityCost td:nth-child(9),
+  .page-fragranceCost th:nth-child(9), .page-fragranceCost td:nth-child(9) { width: 112px !important; min-width: 112px !important; max-width: 112px !important; }
+  .page-activityCost td:nth-child(9) .mobile-wrap-source, .page-fragranceCost td:nth-child(9) .mobile-wrap-source,
+  .page-activityRevenue td:nth-child(4) .mobile-wrap-source,
+  .page-supplies td:nth-child(4) .mobile-wrap-source, .page-supplies td:nth-child(5) .mobile-wrap-source, .page-supplies td:nth-child(6) .mobile-wrap-source { display: none; }
+  .page-activityCost td:nth-child(9) .mobile-wrap-editor, .page-fragranceCost td:nth-child(9) .mobile-wrap-editor,
+  .page-activityRevenue td:nth-child(4) .mobile-wrap-editor,
+  .page-supplies td:nth-child(4) .mobile-wrap-editor, .page-supplies td:nth-child(5) .mobile-wrap-editor, .page-supplies td:nth-child(6) .mobile-wrap-editor { display: block; width: 100% !important; min-width: 0 !important; max-width: 100% !important; }
+  .page-activityRevenue th:nth-child(4), .page-activityRevenue td:nth-child(4) { width: 112px !important; min-width: 112px !important; max-width: 112px !important; }
+  .page-activityAdvance th:nth-child(4), .page-activityAdvance td:nth-child(4), .page-fragranceAdvance th:nth-child(4), .page-fragranceAdvance td:nth-child(4) { width: 88px !important; min-width: 88px !important; max-width: 88px !important; }
+  .page-activityAdvance td:nth-child(4) select, .page-fragranceAdvance td:nth-child(4) select { width: 100% !important; min-width: 0 !important; max-width: 100% !important; }
+  .page-fragranceRevenue td:nth-child(6) .currency-input { text-align: left !important; }
+  .page-supplies th:nth-child(4), .page-supplies td:nth-child(4), .page-supplies th:nth-child(5), .page-supplies td:nth-child(5), .page-supplies th:nth-child(6), .page-supplies td:nth-child(6) { width: 112px !important; min-width: 112px !important; max-width: 112px !important; }
+  .page-supplies th:nth-child(11), .page-supplies td:nth-child(11) { width: 92px !important; min-width: 92px !important; max-width: 92px !important; }
+  .page-supplies th:nth-child(12), .page-supplies td:nth-child(12) { width: 82px !important; min-width: 82px !important; max-width: 82px !important; }
+  .page-supplies td:nth-child(11) select, .page-supplies td:nth-child(12) select { width: 100% !important; min-width: 0 !important; max-width: 100% !important; white-space: nowrap; }
 }
