@@ -86,7 +86,7 @@ input:focus, select:focus, button:focus-visible { outline: 3px solid rgba(142,12
 .selection-bar span { color: #ad8961; }
 .selection-bar button { margin-left: auto; background: transparent; color: #9e6d47; text-decoration: underline; font-size: 12px; }
 .table-wrap { width: 100%; overflow-x: auto; }
-table { width: 100%; min-width: 0; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+table { width: 100%; min-width: 0; border-collapse: collapse; table-layout: auto; font-size: 12px; }
 th { background: #f8eeeb; color: #806b64; font-weight: 800; font-size: 12px; letter-spacing: .02em; text-align: left; padding: 12px 8px; border-bottom: 1px solid #ecd8d1; white-space: normal; }
 td { padding: 10px 8px; border-bottom: 1px solid #f3e7e3; color: #564c47; vertical-align: middle; font-size: 12px; overflow: hidden; }
 tr:hover td { background: #fffaf7; }
@@ -175,59 +175,8 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .topbar-left { min-width: 0; }.crumb { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }.top-actions .top-btn:nth-child(2), .top-actions .top-btn:nth-child(3) { display: none; }.top-actions { max-width: 46%; }.content { padding: 21px 8px 35px; }.kpi-card strong { font-size: 22px; }.donut-layout { flex-direction: column; }.legend { width: 100%; }.bar-row { grid-template-columns: 110px 1fr; }.table-footer > span:last-child { display: none; }.toast { left: 12px; right: 12px; bottom: 12px; }.item-row { grid-template-columns: 1.3fr .65fr 1fr 28px; }.items-editor { padding: 10px; }.revenue-summary { gap: 12px; }.calendar-popover { left: auto; right: 0; }.receipt-grid { grid-template-columns: 1fr; }.receipt-preview { height: 220px; }
 }
 
-@media print {
-  @page { size: landscape; margin: 12mm 14mm; }
-  html, body { background: #fff !important; color: #111 !important; }
-  .sidebar, .topbar, .mobile-nav, .report-toolbar, .table-footer, .selection-bar, .modal-backdrop, .toast, .action-col, .check-col, .group-grid, .period-filter, .dashboard-grid, .kpi-grid, .page-heading p, .heading-status, .sort-btn { display: none !important; }
-  .main-area, .content { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
-  .report-card { border: 0 !important; box-shadow: none !important; width: 100% !important; overflow: visible !important; }
-  .table-wrap { overflow: visible !important; width: 100% !important; }
-  table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; font-size: 12px !important; }
-  th, td { font-size: 12px !important; padding: 5px 4px !important; white-space: normal !important; overflow-wrap: anywhere !important; color: #111 !important; }
-  .screen-cell { display: none !important; }
-  .print-value { display: inline !important; font-size: 12px !important; white-space: pre-line !important; overflow-wrap: anywhere !important; }
-  .date-text, .items-summary { font-size: 12px !important; white-space: pre-line !important; overflow-wrap: anywhere !important; }
-  .content > :not(.report-card) { display: none !important; }
-  .receipt-grid { display: grid !important; padding: 0 !important; grid-template-columns: repeat(3, 1fr) !important; }
-  .receipt-card { break-inside: avoid; border: 1px solid #ccc !important; }
-  .receipt-actions { display: none !important; }
-  body.printing-receipt * { visibility: hidden !important; }
-  body.printing-receipt .receipt-print-layer, body.printing-receipt .receipt-print-layer * { visibility: visible !important; }
-  body.printing-receipt .receipt-print-layer { display: block !important; position: fixed; inset: 0; padding: 12mm 14mm; background: #fff; }
-  body.printing-receipt .receipt-print-layer img { max-width: 100%; max-height: 90vh; display: block; margin: auto; }
-  body.printing-receipt .receipt-print-layer iframe { width: 100%; height: 90vh; border: 0; }
-}
-
-/* v3: report print context, serials, in-app PDF options, and contained charts */
-.report-context-title { min-width: 0; flex: 0 1 auto; color: #6d5650; font-size: 13px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.print-report-header { display: none; }
-.print-only { display: none; }
-.tax-amount-screen { display: inline-block; white-space: nowrap; font-size: 12px; font-weight: 700; color: #5f514b; }
-.viewer-modal { width: min(900px, 100%); }
-.receipt-viewer { min-height: 300px; max-height: 65vh; display: grid; place-items: center; overflow: auto; border: 1px solid #edd6cf; border-radius: 12px; background: #f8eee9; padding: 12px; }
-.receipt-viewer img { max-width: 100%; max-height: 62vh; object-fit: contain; }
-.receipt-viewer iframe { width: 100%; height: 62vh; border: 0; background: #fff; }
-.bar-track { overflow: hidden; }
-.bar-track b { right: 7px; top: 1px; transform: none; color: #5f514b; background: rgba(255,255,255,.62); padding: 0 3px; border-radius: 4px; }
-@media (max-width: 900px) {
-  .report-context-title { width: 100%; order: 0; }
-  .report-toolbar { align-items: flex-start; }
-  .toolbar-actions { width: 100%; }
-}
-@media print {
-  @page { margin: 12mm 14mm; }
-  .print-report-header { display: flex !important; align-items: center; justify-content: space-between; padding: 0 0 8mm; color: #111 !important; font-size: 14px !important; }
-  .print-report-header strong { font-size: 18px !important; }
-  .print-report-header span { font-size: 12px !important; }
-  .print-only { display: table-cell !important; }
-  col.serial-col-width { display: table-column !important; width: 42px !important; }
-  .serial-col { text-align: center; font-weight: 700; color: #111 !important; }
-  .tax-amount-screen { display: none !important; }
-  .report-context-title { display: none !important; }
-}
-
+/* Complete, single-source report table layout. */
 .print-table { display: none; }
-/* Unified detail-table layout. One rule set owns screen width distribution. */
 .screen-table { width: 100%; overflow-x: hidden; }
 .screen-table table { width: 100% !important; min-width: 0 !important; table-layout: auto !important; }
 .screen-table colgroup col { width: auto !important; min-width: 0; }
@@ -239,27 +188,57 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
 .screen-table th { white-space: nowrap; }
 .screen-table td { white-space: normal; }
 .screen-table th.check-col, .screen-table td.check-col { width: 42px; min-width: 42px; padding-left: 6px; padding-right: 6px; text-align: center; }
-.screen-table th.action-col, .screen-table td.action-col { width: 58px; min-width: 58px; padding-left: 3px; padding-right: 3px; text-align: center; white-space: nowrap; }
+.screen-table th.action-col, .screen-table td.action-col { width: 58px; min-width: 58px; padding-left: 2px; padding-right: 2px; text-align: center; white-space: nowrap; }
 .screen-table .cell-input, .screen-table td select, .screen-table .wrap-input { width: 100%; min-width: 0; max-width: 100%; }
-.screen-table select { appearance: auto; }
+.screen-table select { white-space: nowrap; }
 .screen-table .currency-input { width: 92px; max-width: 92px; text-align: right; }
-.screen-table .cost-category-select { white-space: normal; line-height: 1.35; min-height: 32px; }
+.screen-table .cost-category-select { min-height: 32px; }
 .screen-table .wrap-input { min-height: 32px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; resize: none; }
 .screen-table td:has(.wrap-input), .screen-table td:has(.cost-category-select) { overflow: visible; }
 .screen-table .action-col .row-edit, .screen-table .action-col .row-delete { width: 24px; height: 26px; }
-.cost-table colgroup col:nth-child(3) { width: 13% !important; min-width: 118px; }
-.cost-table th:nth-child(3), .cost-table td:nth-child(3) { white-space: nowrap; }
-.cost-table td:nth-child(3) select { width: 100%; min-width: 118px; white-space: nowrap; }
+/* Every page gets an explicit content-column budget; controls are never allowed to steal it. */
+.report-table-fragranceRevenue colgroup col:nth-child(7) { width: 5% !important; min-width: 44px; }
+.report-table-fragranceRevenue colgroup col:nth-child(9) { width: 11% !important; min-width: 66px; }
+.report-table-fragranceRevenue colgroup col:nth-child(11) { width: 12% !important; min-width: 76px; }
+.report-table-fragranceRevenue td:nth-child(7) input { width: 44px; }
+.report-table-fragranceRevenue td:nth-child(9) select, .report-table-fragranceRevenue td:nth-child(11) select { min-width: 66px; }
+.report-table-supplies colgroup col:nth-child(10) { width: 10% !important; min-width: 70px; }
+.report-table-supplies colgroup col:nth-child(11) { width: 10% !important; min-width: 70px; }
+.report-table-supplies td:nth-child(10) select, .report-table-supplies td:nth-child(11) select { min-width: 70px; }
+
 @media (max-width: 900px) {
   .screen-table { overflow-x: auto; }
   .screen-table table { min-width: 720px !important; }
   .screen-table th { white-space: normal; }
 }
+
 @media print {
+  @page { margin: 12mm 14mm; }
+  html, body { background: #fff !important; color: #111 !important; }
+  .sidebar, .topbar, .mobile-nav, .report-toolbar, .table-footer, .selection-bar, .modal-backdrop, .toast, .action-col, .check-col, .group-grid, .period-filter, .dashboard-grid, .kpi-grid, .page-heading p, .heading-status, .sort-btn { display: none !important; }
+  .main-area, .content { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+  .report-card { border: 0 !important; box-shadow: none !important; width: 100% !important; overflow: visible !important; }
   .screen-table { display: none !important; }
   .print-table { display: block !important; width: 100% !important; overflow: visible !important; }
   .print-table table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; font-size: 10.5px !important; }
-  .print-table th, .print-table td { padding: 5px 4px !important; white-space: normal !important; overflow: visible !important; overflow-wrap: anywhere !important; word-break: break-word !important; line-height: 1.35 !important; color: #111 !important; }
+  .print-table th, .print-table td { font-size: 10.5px !important; padding: 5px 4px !important; white-space: normal !important; overflow: visible !important; overflow-wrap: anywhere !important; color: #111 !important; line-height: 1.35 !important; }
   .print-table .serial-col-width, .print-table .serial-col { width: 42px !important; text-align: center !important; }
-  .print-table th:nth-child(2), .print-table td:nth-child(2) { white-space: nowrap !important; }
+  .print-table .print-only { display: table-cell !important; }
+  .print-value { display: inline !important; font-size: 10.5px !important; white-space: pre-line !important; overflow-wrap: anywhere !important; }
+  .screen-cell { display: none !important; }
+  .print-report-header { display: flex !important; align-items: center; justify-content: space-between; padding: 0 0 8mm; color: #111 !important; font-size: 14px !important; }
+  .print-report-header strong { font-size: 18px !important; }
+  .print-report-header span { font-size: 12px !important; }
+  .tax-amount-screen, .report-context-title { display: none !important; }
+  .content > :not(.report-card) { display: none !important; }
+}
+
+/* In-browser receipt viewer/printing; original PDF bytes live in IndexedDB, not localStorage. */
+.receipt-print-layer { display: none; }
+@media print {
+  body.printing-receipt * { visibility: hidden !important; }
+  body.printing-receipt .receipt-print-layer, body.printing-receipt .receipt-print-layer * { visibility: visible !important; }
+  body.printing-receipt .receipt-print-layer { display: block !important; position: fixed; inset: 0; padding: 12mm 14mm; background: #fff; }
+  body.printing-receipt .receipt-print-layer img { max-width: 100%; max-height: 90vh; display: block; margin: auto; }
+  body.printing-receipt .receipt-print-layer iframe { width: 100%; height: 90vh; border: 0; }
 }
