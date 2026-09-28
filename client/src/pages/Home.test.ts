@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalDate, formatMoney, money, monthKey, parseDiscount, revenueValue, seedData } from "./Home";
+import { canonicalDate, formatMoney, money, monthKey, parseDiscount, revenueValue, seedData, stockProfitValue } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -32,6 +32,11 @@ describe("accounting data helpers", () => {
     expect(revenueValue({ id: "1", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "未稅" })).toBe(1000);
     expect(revenueValue({ id: "2", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "含稅" })).toBe(1050);
     expect(revenueValue({ id: "3", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "tax-included" })).toBe(1050);
+  });
+
+  it("includes cash dividend in stock KPI profit", () => {
+    expect(stockProfitValue({ id: "stock-1", realizedProfit: 1300, dividend: 360 })).toBe(1660);
+    expect(stockProfitValue({ id: "stock-2", realizedProfit: 1300 })).toBe(1300);
   });
 
   it("seeds every required report with unique stable ids", () => {

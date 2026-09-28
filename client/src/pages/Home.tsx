@@ -65,7 +65,7 @@ const configs: Record<Exclude<PageKey, "dashboard">, Config> = {
   supplies: { title: "專案物資單", eyebrow: "PROJECT / SUPPLIES", description: "管理活動與香氛專案的物料需求、數量與採購狀態。", kind: "supply", columns: [
     { key: "date", label: "日期", type: "date", width: "8%" }, { key: "project", label: "專案", type: "text", width: "13%" }, { key: "item", label: "品項", type: "text", width: "9%" }, { key: "itemName", label: "物資名稱", type: "text", width: "14%" }, { key: "quantity", label: "數量", type: "number", width: "6%" }, { key: "size", label: "尺寸", type: "text", width: "8%" }, { key: "website", label: "網站", type: "text", width: "13%" }, { key: "price", label: "價錢", type: "currency", width: "8%" }, { key: "status", label: "狀態", type: "select", options: ["待採購", "已採購", "已入庫"], width: "8%" }, { key: "checked", label: "已檢查", type: "select", options: ["未檢查", "已檢查"], width: "8%" }, { key: "toolboxNo", label: "工具箱號碼", type: "text", width: "9%" }
   ], amountKey: "price", dateKey: "date", addLabel: "新增物資" },
-  stocks: { title: "股票投資報表", eyebrow: "PORTFOLIO / P&L", description: "追蹤股票交易損益；儀表板 KPI 不納入現金股利與股票股利。", kind: "stock", columns: [
+  stocks: { title: "股票投資報表", eyebrow: "PORTFOLIO / P&L", description: "追蹤股票交易損益；儀表板 KPI 納入已實現損益與現金股利。", kind: "stock", columns: [
     { key: "date", label: "交易日期", type: "date", width: "12%" }, { key: "ticker", label: "股票代號", type: "text", width: "11%" }, { key: "name", label: "股票名稱", type: "text", width: "17%" }, { key: "shares", label: "股數", type: "number", width: "9%" }, { key: "buyPrice", label: "買入價", type: "currency", width: "11%" }, { key: "sellPrice", label: "賣出價", type: "currency", width: "11%" }, { key: "realizedProfit", label: "已實現損益", type: "currency", width: "14%" }, { key: "dividend", label: "現金股利", type: "currency", width: "11%" }
   ], amountKey: "realizedProfit", dateKey: "date", addLabel: "新增交易" },
   receipts: { title: "每月紙本憑證圖庫", eyebrow: "ARCHIVE / RECEIPTS", description: "以月份整理紙本憑證，支援 JPG、JPEG 與 PDF。", kind: "receipt", columns: [
@@ -114,6 +114,10 @@ export function revenueValue(row: Row) {
   const base = money(row.preTaxAmount ?? row.amount ?? row.totalAmount ?? row.discountedPrice ?? row.finalPrice);
   const inclusive = money(row.inclusiveAmount ?? Math.round(base * 1.05));
   return String(row.taxMode) === "含稅" || String(row.taxMode) === "tax-included" ? inclusive : base;
+}
+
+export function stockProfitValue(row: Row) {
+  return money(row.realizedProfit) + money(row.dividend);
 }
 
 function revenueTaxAmount(row: Row) {
@@ -327,7 +331,7 @@ export default function Home() {
   const activityCost = dashboardRows("activityCost").reduce((sum, row) => sum + money(row.amount), 0); const fragranceCost = dashboardRows("fragranceCost").reduce((sum, row) => sum + money(row.amount), 0);
   const activityRevenue = dashboardRows("activityRevenue").reduce((sum, row) => sum + revenueValue(row), 0); const fragranceRevenue = dashboardRows("fragranceRevenue").reduce((sum, row) => sum + revenueValue(row), 0);
   const eligible = [...dashboardRows("activityCost"), ...dashboardRows("fragranceCost")].filter(row => row.invoiceType !== "紙本收據" && row.category !== "餐飲膳食費").reduce((sum, row) => sum + money(row.amount), 0);
-  const vat = Math.round(eligible * 0.05); const advances = [...dashboardRows("activityAdvance"), ...dashboardRows("fragranceAdvance")].reduce((sum, row) => sum + money(row.amount), 0); const stockProfit = dashboardRows("stocks").reduce((sum, row) => sum + money(row.realizedProfit), 0);
+  const vat = Math.round(eligible * 0.05); const advances = [...dashboardRows("activityAdvance"), ...dashboardRows("fragranceAdvance")].reduce((sum, row) => sum + money(row.amount), 0); const stockProfit = dashboardRows("stocks").reduce((sum, row) => sum + stockProfitValue(row), 0);
   const monthOptions = useMemo(() => Array.from(new Set([...data.activityCost, ...data.fragranceCost, ...data.activityRevenue, ...data.fragranceRevenue].map(row => String(row.date || "").slice(0, 7)).filter(Boolean))).sort().reverse(), [data]);
   const costChart = (key: "activityCost" | "fragranceCost") => { const sums: Record<string, number> = {}; dashboardRows(key).forEach(row => { const category = String(row.category || "未分類"); sums[category] = (sums[category] || 0) + money(row.amount); }); return Object.entries(sums).sort((a, b) => b[1] - a[1]).slice(0, 6); };
 
