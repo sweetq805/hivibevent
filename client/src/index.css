@@ -316,3 +316,14 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .page-supplies table { min-width: 1400px !important; }
   .page-stocks table { min-width: 1100px !important; }
 }
+
+
+/* Mobile-only amount input width: fits seven digits without changing other fields. */
+@media (max-width: 900px) {
+  .screen-table td .currency-input {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+    text-align: right;
+  }
+}
