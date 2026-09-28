@@ -197,3 +197,31 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   body.printing-receipt .receipt-print-layer img { max-width: 100%; max-height: 90vh; display: block; margin: auto; }
   body.printing-receipt .receipt-print-layer iframe { width: 100%; height: 90vh; border: 0; }
 }
+
+/* v3: report print context, serials, in-app PDF options, and contained charts */
+.report-context-title { min-width: 0; flex: 0 1 auto; color: #6d5650; font-size: 13px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.print-report-header { display: none; }
+.print-only { display: none; }
+.tax-amount-screen { display: inline-block; white-space: nowrap; font-size: 12px; font-weight: 700; color: #5f514b; }
+.viewer-modal { width: min(900px, 100%); }
+.receipt-viewer { min-height: 300px; max-height: 65vh; display: grid; place-items: center; overflow: auto; border: 1px solid #edd6cf; border-radius: 12px; background: #f8eee9; padding: 12px; }
+.receipt-viewer img { max-width: 100%; max-height: 62vh; object-fit: contain; }
+.receipt-viewer iframe { width: 100%; height: 62vh; border: 0; background: #fff; }
+.bar-track { overflow: hidden; }
+.bar-track b { right: 7px; top: 1px; transform: none; color: #5f514b; background: rgba(255,255,255,.62); padding: 0 3px; border-radius: 4px; }
+@media (max-width: 900px) {
+  .report-context-title { width: 100%; order: 0; }
+  .report-toolbar { align-items: flex-start; }
+  .toolbar-actions { width: 100%; }
+}
+@media print {
+  @page { margin: 12mm 14mm; }
+  .print-report-header { display: flex !important; align-items: center; justify-content: space-between; padding: 0 0 8mm; color: #111 !important; font-size: 14px !important; }
+  .print-report-header strong { font-size: 18px !important; }
+  .print-report-header span { font-size: 12px !important; }
+  .print-only { display: table-cell !important; }
+  col.serial-col-width { display: table-column !important; width: 42px !important; }
+  .serial-col { text-align: center; font-weight: 700; color: #111 !important; }
+  .tax-amount-screen { display: none !important; }
+  .report-context-title { display: none !important; }
+}
