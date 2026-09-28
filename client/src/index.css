@@ -524,3 +524,17 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     white-space: nowrap !important;
   }
 }
+
+/* Mobile-only stock dividend alignment and fragrance discount width. */
+@media (max-width: 900px) {
+  .page-stocks td:nth-child(10) .currency-input {
+    text-align: left !important;
+  }
+  .page-fragranceRevenue col:nth-child(7),
+  .page-fragranceRevenue th:nth-child(7),
+  .page-fragranceRevenue td:nth-child(7) {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+  }
+}
