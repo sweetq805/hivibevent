@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalDate, deletedIdsStillPresent, formatMoney, mergeDraftRows, money, monthKey, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
+import { canonicalDate, deletedIdsStillPresent, formatMoney, mergeDraftRows, money, monthKey, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue, findImportHeaderIndex } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -37,6 +37,11 @@ describe("accounting data helpers", () => {
   it("includes cash dividend in stock KPI profit", () => {
     expect(stockProfitValue({ id: "stock-1", realizedProfit: 1300, dividend: 360 })).toBe(1660);
     expect(stockProfitValue({ id: "stock-2", realizedProfit: 1300 })).toBe(1300);
+  });
+
+  it("maps cost import company names to seller name instead of seller tax id", () => {
+    expect(findImportHeaderIndex(["日期", "買方統編", "賣方統編", "公司名稱", "金額"], { key: "vendor", label: "賣方名稱", type: "text" } as any)).toBe(3);
+    expect(findImportHeaderIndex(["賣方統編", "賣方名稱"], { key: "sellerTaxId", label: "賣方統編", type: "text" } as any)).toBe(0);
   });
 
 

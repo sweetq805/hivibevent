@@ -139,6 +139,28 @@ export function stockProfitValue(row: Row) {
   return money(row.realizedProfit) + money(row.dividend);
 }
 
+const IMPORT_HEADER_ALIASES: Record<string, string[]> = {
+  invoiceType: ["發票種類", "發票類型", "憑證類型"],
+  invoiceNo: ["發票號碼", "發票編號", "憑證號碼"],
+  date: ["日期", "交易日期", "憑證日期"],
+  buyerTaxId: ["買方統編", "買方統一編號", "買方稅號"],
+  sellerTaxId: ["賣方統編", "賣方統一編號", "賣方稅號"],
+  category: ["用途品項", "用途", "成本分類", "分類"],
+  vendor: ["賣方名稱", "公司名稱", "供應商名稱", "廠商名稱"],
+  amount: ["金額", "金額 (NT$)", "金額（NT$）", "總額"],
+};
+
+function normalizedHeader(value: unknown) {
+  return String(value ?? "").trim().replace(/[（(]/g, "(").replace(/[）)]/g, ")").replace(/\s+/g, "");
+}
+
+export function findImportHeaderIndex(headers: unknown[], column: Column) {
+  const normalizedHeaders = headers.map(normalizedHeader);
+  const aliases = IMPORT_HEADER_ALIASES[column.key] || [column.label, column.key];
+  const candidates = [column.label, column.key, ...aliases].map(normalizedHeader);
+  return normalizedHeaders.findIndex(header => candidates.includes(header));
+}
+
 export function shouldUseLegacyMigration(remoteHasRows: boolean, version: number, completed: boolean) {
   return !completed && !remoteHasRows && version === 1;
 }
@@ -414,7 +436,7 @@ export default function Home() {
   const eligible = [...dashboardRows("activityCost"), ...dashboardRows("fragranceCost")].filter(row => row.invoiceType !== "紙本收據" && row.category !== "餐飲膳食費").reduce((sum, row) => sum + money(row.amount), 0);
   const vat = Math.round(eligible * 0.05); const advances = [...dashboardRows("activityAdvance"), ...dashboardRows("fragranceAdvance")].reduce((sum, row) => sum + money(row.amount), 0); const stockProfit = dashboardRows("stocks").reduce((sum, row) => sum + stockProfitValue(row), 0);
   const monthOptions = useMemo(() => Array.from(new Set([...data.activityCost, ...data.fragranceCost, ...data.activityRevenue, ...data.fragranceRevenue].map(row => String(row.date || "").slice(0, 7)).filter(Boolean))).sort().reverse(), [data]);
-  const costChart = (key: "activityCost" | "fragranceCost") => { const sums: Record<string, number> = {}; dashboardRows(key).forEach(row => { const category = String(row.category || "未分類"); sums[category] = (sums[category] || 0) + money(row.amount); }); return Object.entries(sums).sort((a, b) => b[1] - a[1]).slice(0, 6); };
+  const costChart = (key: "activityCost" | "fragranceCost") => { const sums: Record<string, number> = {}; dashboardRows(key).forEach(row => { const category = String(row.category || "未分類"); sums[category] = (sums[category] || 0) + money(row.amount); }); return Object.entries(sums).sort((a, b) => b[1] - a[1]); };
 
   const classifyCost = (row: Row, memory: Row[]) => { const name = String(row.vendor ?? row.sellerName ?? "").trim(); const taxId = String(row.sellerTaxId ?? "").trim(); const byName = name ? memory.find(item => String(item.sellerName || "").trim() === name) : undefined; const byTaxId = taxId ? memory.find(item => String(item.sellerTaxId || "").trim() === taxId) : undefined; return { ...row, category: byName?.category ?? byTaxId?.category ?? row.category }; };
   const updateMemory = (memory: Row[], row: Row) => { const name = String(row.vendor ?? row.sellerName ?? "").trim(); const taxId = String(row.sellerTaxId ?? "").trim(); const category = String(row.category || "").trim(); if (!category || (!name && !taxId)) return memory; const index = name ? memory.findIndex(item => String(item.sellerName || "").trim() === name) : -1; const fallback = index >= 0 ? index : taxId ? memory.findIndex(item => String(item.sellerTaxId || "").trim() === taxId) : -1; const record = { id: fallback >= 0 ? memory[fallback].id : id(), sellerTaxId: taxId, sellerName: name, category, note: "由成本明細自動記憶" }; if (fallback >= 0) return memory.map((item, itemIndex) => itemIndex === fallback ? { ...item, ...record } : item); return [record, ...memory]; };
@@ -430,6 +452,7 @@ export default function Home() {
       const latestPayload = await latestResponse.json() as CloudStorePayload;
       if (!latestResponse.ok || latestPayload.success !== true || !latestPayload.store || !Number.isInteger(Number(latestPayload.version))) throw new Error(latestPayload.error?.message || "無法取得 Cloudflare D1 最新資料");
       const cloudNext = normalizeStore(latestPayload.store);
+      const receiptRowsToDelete = entries.filter(entry => entry.page === "receipts").map(entry => cloudNext.receipts.find(row => String(row.id) === entry.id)).filter((row): row is Row => Boolean(row));
       const next = normalizeStore({ ...cloudNext, [page]: cloudNext[page].filter(row => !entries.some(entry => entry.page === page && entry.id === String(row.id))) });
       const response = await fetch("/api/store", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ store: { ...next, customCategories: Array.isArray(latestPayload.store.customCategories) ? latestPayload.store.customCategories : customCategories }, expected_version: Number(latestPayload.version), deleted_entries: entries, client_mutation_id: crypto.randomUUID() }) });
       const payload = await response.json() as CloudStorePayload;
@@ -437,6 +460,14 @@ export default function Home() {
       const savedStore = normalizeStore(payload.store);
       const missing = deletedIdsStillPresent(savedStore, entries);
       if (missing.length || (payload.verification?.missing_after_delete?.length || 0) > 0) throw new Error("D1 read-back 仍找到要刪除的資料，刪除未完成");
+      for (const row of receiptRowsToDelete) {
+        if (row.r2Key) {
+          const response = await fetch(`/api/receipt-objects/${encodeURIComponent(String(row.r2Key))}`, { method: "DELETE" });
+          const result = await response.json().catch(() => ({})) as { success?: boolean; error?: { message?: string } };
+          if (!response.ok || result.success !== true) throw new Error(result.error?.message || "R2 檔案刪除失敗，資料尚未完成刪除");
+        }
+        if (row.fileKey) await removeReceiptBlob(String(row.fileKey));
+      }
       const displayStore = mergeDraftRows(savedStore, draftBeforeDelete, entries);
       setData(displayStore);
       setCloudVersion(Number(payload.version));
@@ -483,7 +514,7 @@ export default function Home() {
     return column.type === "currency" ? formatMoney(row[column.key]) : String(row[column.key] ?? "—") || "—";
   };
   const exportPdf = () => { window.print(); setToast("已開啟 Chrome 原生列印工作框，請在其中選擇直向或橫向並另存為 PDF"); };
-  const importCsv = async (file: File) => { try { if (page === "dashboard") { setToast("請先進入要匯入的明細分頁"); return; } const isCsv = file.name.toLowerCase().endsWith(".csv"); const source = isCsv ? await file.text() : await file.arrayBuffer(); const workbook = XLSX.read(source, { type: isCsv ? "string" : "array", raw: false, cellDates: false, codepage: 65001 }); const sheet = workbook.Sheets[workbook.SheetNames[0]]; const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: false }) as unknown[][]; if (matrix.length < 2) { setToast("匯入檔案沒有可用資料"); return; } const headers = (matrix[0] || []).map(value => String(value).trim()); const targetConfig = configs[importTarget]; const imported = matrix.slice(1).filter(row => row.some(Boolean)).map(values => { const row: Row = { id: id() }; targetConfig.columns.forEach((column, index) => { const headerIndex = headers.findIndex(header => header === column.label || header === column.key); const raw = values[headerIndex >= 0 ? headerIndex : index] ?? ""; if (column.type === "currency" || column.type === "number") row[column.key] = money(raw); else if (column.type === "date") { const text = String(raw); const parsed = new Date(text); row[column.key] = /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : Number.isNaN(parsed.getTime()) ? text : parsed.toISOString().slice(0, 10); } else row[column.key] = String(raw); }); return importTarget === "activityCost" || importTarget === "fragranceCost" ? classifyCost(row, data.memory || []) : row; }); const nextMemory = imported.filter(row => importTarget === "activityCost" || importTarget === "fragranceCost").reduce((memory, row) => updateMemory(memory, row), data.memory || []); setData(current => normalizeStore({ ...current, [importTarget]: [...imported, ...current[importTarget]], memory: nextMemory })); setDirty(true); setToast(`已匯入 ${imported.length} 筆至${targetConfig.title}草稿`); } catch { setToast("Excel 匯入失敗，請確認檔案欄位與格式"); } };
+  const importCsv = async (file: File) => { try { if (page === "dashboard") { setToast("請先進入要匯入的明細分頁"); return; } const isCsv = file.name.toLowerCase().endsWith(".csv"); const source = isCsv ? await file.text() : await file.arrayBuffer(); const workbook = XLSX.read(source, { type: isCsv ? "string" : "array", raw: false, cellDates: false, codepage: 65001 }); const sheet = workbook.Sheets[workbook.SheetNames[0]]; const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: false }) as unknown[][]; if (matrix.length < 2) { setToast("匯入檔案沒有可用資料"); return; } const headers = (matrix[0] || []).map(value => String(value).trim()); const targetConfig = configs[importTarget]; const imported = matrix.slice(1).filter(row => row.some(Boolean)).map(values => { const row: Row = { id: id() }; targetConfig.columns.forEach(column => { const headerIndex = findImportHeaderIndex(headers, column); const raw = headerIndex >= 0 ? values[headerIndex] ?? "" : ""; if (column.type === "currency" || column.type === "number") row[column.key] = money(raw); else if (column.type === "date") { const text = String(raw); const parsed = new Date(text); row[column.key] = /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : Number.isNaN(parsed.getTime()) ? text : parsed.toISOString().slice(0, 10); } else row[column.key] = String(raw); }); return importTarget === "activityCost" || importTarget === "fragranceCost" ? classifyCost(row, data.memory || []) : row; }); const nextMemory = imported.filter(row => importTarget === "activityCost" || importTarget === "fragranceCost").reduce((memory, row) => updateMemory(memory, row), data.memory || []); setData(current => normalizeStore({ ...current, [importTarget]: [...imported, ...current[importTarget]], memory: nextMemory })); setDirty(true); setToast(`已匯入 ${imported.length} 筆至${targetConfig.title}草稿`); } catch { setToast("Excel 匯入失敗，請確認檔案欄位與格式"); } };
 
   const createGroup = (value: string) => {
     if (!currentConfig) return;
@@ -497,10 +528,10 @@ export default function Home() {
     else row = { id: id(), date: `${normalized}-01`, invoiceType: "電子發票", invoiceNo: "", buyerTaxId: "", sellerTaxId: "", category: categories[0], vendor: "", amount: 0 };
     commit({ ...data, [page]: [row, ...baseRows] }); setAddOpen(false); setToast(`已新增${currentConfig.kind === "supply" ? "專案" : "月份"}草稿`);
   };
-  const addReceipt = (row: Row) => { commit({ ...data, receipts: [row, ...baseRows] }); setAddOpen(false); setToast("紙本憑證已加入草稿"); };
+  const addReceipt = (row: Row) => { commit({ ...data, receipts: [row, ...baseRows] }); setAddOpen(false); setToast("紙本憑證已加入草稿，請按儲存寫入 D1"); };
   const openReceipt = (row: Row) => setReceiptViewId(String(row.id));
   const printReceipt = (row: Row) => { const popup = window.open("about:blank", "_blank"); if (!popup) { setToast("Chrome 阻擋了新視窗，請允許此網站開啟彈出視窗後再試一次"); return; } const filename = String(row.filename || row.fileName || "憑證"); const load = async () => { try { const blob = await loadReceiptBlob(row); const source = blob ? URL.createObjectURL(blob) : String(row.fileDataUrl || ""); if (!source) { popup.close(); setToast("找不到憑證檔案內容"); return; } popup.location.href = source; window.setTimeout(() => { if (blob) URL.revokeObjectURL(source); }, 60000); } catch { popup.close(); setToast(`無法開啟 ${filename}，請重新上傳檔案`); } }; void load(); };
-  const deleteReceipt = (row: Row) => { if (!window.confirm("確定刪除這個憑證檔案？")) return; if (row.fileKey) void removeReceiptBlob(String(row.fileKey)); if (row.r2Key) void fetch(`/api/receipt-objects/${encodeURIComponent(String(row.r2Key))}`, { method: "DELETE" }); commit({ ...data, receipts: baseRows.filter(item => String(item.id) !== String(row.id)) }); setToast("憑證已移除（草稿）"); };
+  const deleteReceipt = (row: Row) => { if (!window.confirm("確定刪除這個憑證檔案？此動作會立即同步至 Cloudflare D1 與 R2。")) return; void deletePersisted([{ page: "receipts", id: String(row.id) }]); };
   const tableCell = (row: Row, column: Column) => {
     if (column.key === "taxAmount") return <><span className="print-value">{revenueTaxAmount(row)}</span><strong className="tax-amount-screen">{revenueTaxAmount(row)}</strong></>;
     const rawValue = String(row[column.key] ?? ""); const options = column.key === "category" ? categories : column.options || categories; const value = column.type === "select" ? (column.key === "category" ? categoryText(rawValue) : rawValue) : rawValue; const printText = column.key === "itemsSummary" ? value : column.type === "currency" ? formatMoney(row[column.key]) : value || "—";
@@ -535,5 +566,5 @@ function Dashboard({ period, setPeriod, monthOptions, activityCost, fragranceCos
 }
 
 function BarChart({ title, data, color }: { title: string; data: [string, number][]; color: string }) {
-  const max = Math.max(...data.map(item => item[1]), 1); return <div className="dash-card bar-card"><div className="card-heading"><div><span className="eyebrow">COST BY CATEGORY</span><h3>{title}</h3></div><BarChart3 size={18} /></div>{data.length ? <div className="bars">{data.map(([label, value]) => <div className="bar-row" key={label}><span>{label}</span><div className="bar-track"><i style={{ width: `${Math.max(4, (value / max) * 100)}%`, background: color }} /><b>{Math.round(value / 1000)}k</b></div></div>)}</div> : <div className="chart-empty">目前沒有可視化資料</div>}</div>;
+  const max = Math.max(...data.map(item => item[1]), 1); return <div className="dash-card bar-card"><div className="card-heading"><div><span className="eyebrow">COST BY CATEGORY</span><h3>{title}</h3></div><BarChart3 size={18} /></div>{data.length ? <div className="bars">{data.map(([label, value]) => <div className="bar-row" key={label}><span title={label}>{label}</span><div className="bar-track"><i style={{ width: `${Math.max(4, (value / max) * 100)}%`, background: color }} /><b>{formatMoney(value).replace(/^NT\$\s*/, "")}</b></div></div>)}</div> : <div className="chart-empty">目前沒有可視化資料</div>}</div>;
 }
