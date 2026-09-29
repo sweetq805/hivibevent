@@ -40,7 +40,7 @@ describe("accounting data helpers", () => {
   });
 
   it("maps cost import company names to seller name instead of seller tax id", () => {
-    expect(findImportHeaderIndex(["日期", "買方統編", "賣方統編", "公司名稱", "金額"], { key: "vendor", label: "賣方名稱", type: "text" } as any)).toBe(3);
+    expect(findImportHeaderIndex(["日期", "買方統編", "賣方統編", "客戶名稱", "金額"], { key: "vendor", label: "賣方名稱", type: "text" } as any)).toBe(3);
     expect(findImportHeaderIndex(["賣方統編", "賣方名稱"], { key: "sellerTaxId", label: "賣方統編", type: "text" } as any)).toBe(0);
   });
 

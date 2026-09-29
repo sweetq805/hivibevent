@@ -146,7 +146,7 @@ const IMPORT_HEADER_ALIASES: Record<string, string[]> = {
   buyerTaxId: ["買方統編", "買方統一編號", "買方稅號"],
   sellerTaxId: ["賣方統編", "賣方統一編號", "賣方稅號"],
   category: ["用途品項", "用途", "成本分類", "分類"],
-  vendor: ["賣方名稱", "公司名稱", "供應商名稱", "廠商名稱"],
+  vendor: ["賣方名稱", "公司名稱", "公司", "客戶名稱", "供應商名稱", "廠商名稱"],
   amount: ["金額", "金額 (NT$)", "金額（NT$）", "總額"],
 };
 
