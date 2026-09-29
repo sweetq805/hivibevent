@@ -382,25 +382,6 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
 }
 
 
-
-/* Desktop-only requested amount alignment and compact field widths. */
-@media (min-width: 901px) {
-  .page-activityCost td:nth-child(10) .currency-input,
-  .page-activityRevenue td:nth-child(6) .currency-input,
-  .page-activityAdvance td:nth-child(7) .currency-input,
-  .page-fragranceCost td:nth-child(10) .currency-input,
-  .page-fragranceRevenue td:nth-child(6) .currency-input,
-  .page-fragranceRevenue td:nth-child(8) .currency-input,
-  .page-fragranceAdvance td:nth-child(7) .currency-input,
-  .page-supplies td:nth-child(10) .currency-input,
-  .page-stocks td:nth-child(7) .currency-input,
-  .page-stocks td:nth-child(8) .currency-input,
-  .page-stocks td:nth-child(9) .currency-input { text-align: left !important; }
-  .page-fragranceRevenue th:nth-child(4), .page-fragranceRevenue td:nth-child(4) { width: 22% !important; min-width: 220px !important; }
-  .page-supplies th:nth-child(3), .page-supplies td:nth-child(3) { width: 150px !important; min-width: 150px !important; max-width: 150px !important; }
-  .page-fragranceRevenue td:nth-child(4) .items-summary { white-space: pre-line; word-break: keep-all; overflow-wrap: normal; }
-}
-
 /* Mobile-only amount input width: fits seven digits without changing other fields. */
 @media (max-width: 900px) {
   .screen-table td .currency-input {
@@ -562,10 +543,10 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
 @media (max-width: 900px) {
   .page-activityCost td:nth-child(10) .currency-input,
   .page-activityRevenue td:nth-child(6) .currency-input,
-  .page-activityAdvance td:nth-child(7) .currency-input,
+  .page-activityAdvance td:nth-child(6) .currency-input,
   .page-fragranceCost td:nth-child(10) .currency-input,
   .page-fragranceRevenue td:nth-child(8) .currency-input,
-  .page-fragranceAdvance td:nth-child(7) .currency-input,
+  .page-fragranceAdvance td:nth-child(6) .currency-input,
   .page-supplies td:nth-child(10) .currency-input,
   .page-stocks td:nth-child(7) .currency-input,
   .page-stocks td:nth-child(8) .currency-input,
