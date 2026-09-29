@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalDate, comparePayee, classifyCostRow, deletedIdsStillPresent, findMemoryMatch, formatMoney, mergeDraftRows, money, monthKey, sumReportAmount, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
+import { canonicalDate, comparePayee, classifyCostRow, deletedIdsStillPresent, findMemoryMatch, formatMoney, mergeDraftRows, money, monthKey, sumReportAmount, sumRevenueTaxAmount, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -49,6 +49,10 @@ describe("accounting data helpers", () => {
     expect(revenueValue({ id: "1", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "未稅" })).toBe(1000);
     expect(revenueValue({ id: "2", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "含稅" })).toBe(1050);
     expect(revenueValue({ id: "3", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "tax-included" })).toBe(1050);
+    expect(sumRevenueTaxAmount([
+      { id: "1", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "未稅" },
+      { id: "2", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "含稅" },
+    ] as any)).toBe(2050);
   });
 
   it("includes cash dividend in stock KPI profit", () => {
