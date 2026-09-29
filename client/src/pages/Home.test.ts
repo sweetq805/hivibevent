@@ -34,6 +34,12 @@ describe("accounting data helpers", () => {
 
   it("keeps Excel dates on the displayed calendar day without UTC month shifts", () => { expect(canonicalDate("2026-09-01 00:00:00")).toBe("2026-09-01"); expect(canonicalDate("2026-09-05 14:35:27")).toBe("2026-09-05"); expect(canonicalDate("2026年9月1日")).toBe("2026-09-01"); expect(canonicalDate("115/09/01")).toBe("2026-09-01"); });
   it("classifies vendor names by exact or longest contained memory name", () => { const memory = [{ id: "a", sellerName: "全家", category: "其他營業雜支" }, { id: "b", sellerName: "全家便利商店", category: "國內交通費" }] as any; const row = { id: "r", vendor: "全家便利商店股份有限公司新竹縣第一三二分公司", category: "" } as any; expect(findMemoryMatch(memory, row)).toBe(1); expect(classifyCostRow(row, memory).category).toBe("國內交通費"); });
+  it("uses a manually entered fragrance discounted price and preserves gift text", () => {
+    const manual = { id: "fragrance-1", discountedPrice: 24000, preTaxAmount: 24000, inclusiveAmount: 25200, taxMode: "含稅", gift: "香氛小樣" } as any;
+    expect(revenueValue(manual)).toBe(25200);
+    expect(manual.gift).toBe("香氛小樣");
+  });
+
   it("uses each revenue row's selected tax mode for dashboard totals", () => {
     expect(revenueValue({ id: "1", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "未稅" })).toBe(1000);
     expect(revenueValue({ id: "2", preTaxAmount: 1000, inclusiveAmount: 1050, taxMode: "含稅" })).toBe(1050);

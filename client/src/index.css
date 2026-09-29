@@ -581,3 +581,36 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
     word-break: break-word !important;
   }
 }
+
+/* Fragrance revenue gift column: preserve the current PDF table width and use horizontal scrolling on narrow screens. */
+@media (min-width: 901px) {
+  .page-fragranceRevenue table { min-width: 1420px; }
+  .page-fragranceRevenue th:nth-child(4), .page-fragranceRevenue td:nth-child(4) { min-width: 125px; }
+  .page-fragranceRevenue th:nth-child(5), .page-fragranceRevenue td:nth-child(5) { min-width: 250px; }
+  .page-fragranceRevenue th:nth-child(6), .page-fragranceRevenue td:nth-child(6) { min-width: 150px; }
+  .page-fragranceRevenue th:nth-child(7), .page-fragranceRevenue td:nth-child(7) { min-width: 105px; }
+  .page-fragranceRevenue th:nth-child(8), .page-fragranceRevenue td:nth-child(8) { min-width: 90px; }
+  .page-fragranceRevenue th:nth-child(9), .page-fragranceRevenue td:nth-child(9) { min-width: 125px; }
+  .page-fragranceRevenue th:nth-child(10), .page-fragranceRevenue td:nth-child(10) { min-width: 100px; }
+  .page-fragranceRevenue th:nth-child(11), .page-fragranceRevenue td:nth-child(11) { min-width: 145px; }
+  .page-fragranceRevenue th:nth-child(12), .page-fragranceRevenue td:nth-child(12) { min-width: 120px; }
+  .page-fragranceRevenue th:nth-child(13), .page-fragranceRevenue td:nth-child(13) { min-width: 58px; }
+}
+@media print {
+  .print-table table { table-layout: fixed !important; }
+  .print-table th, .print-table td { overflow-wrap: anywhere !important; word-break: break-word !important; }
+}
+@media (max-width: 900px) {
+  .page-fragranceRevenue table { min-width: 1390px !important; }
+  .page-fragranceRevenue th:nth-child(4), .page-fragranceRevenue td:nth-child(4) { width: 125px !important; min-width: 125px !important; max-width: 125px !important; }
+  .page-fragranceRevenue th:nth-child(5), .page-fragranceRevenue td:nth-child(5) { width: 220px !important; min-width: 220px !important; max-width: 220px !important; }
+  .page-fragranceRevenue th:nth-child(6), .page-fragranceRevenue td:nth-child(6) { width: 150px !important; min-width: 150px !important; max-width: 150px !important; }
+  .page-fragranceRevenue th:nth-child(7), .page-fragranceRevenue td:nth-child(7) { width: 105px !important; min-width: 105px !important; max-width: 105px !important; }
+  .page-fragranceRevenue th:nth-child(8), .page-fragranceRevenue td:nth-child(8) { width: 90px !important; min-width: 90px !important; max-width: 90px !important; }
+  .page-fragranceRevenue th:nth-child(9), .page-fragranceRevenue td:nth-child(9) { width: 125px !important; min-width: 125px !important; max-width: 125px !important; }
+  .page-fragranceRevenue th:nth-child(10), .page-fragranceRevenue td:nth-child(10) { width: 100px !important; min-width: 100px !important; max-width: 100px !important; }
+  .page-fragranceRevenue th:nth-child(11), .page-fragranceRevenue td:nth-child(11) { width: 145px !important; min-width: 145px !important; max-width: 145px !important; }
+  .page-fragranceRevenue th:nth-child(12), .page-fragranceRevenue td:nth-child(12) { width: 120px !important; min-width: 120px !important; max-width: 120px !important; }
+  .page-fragranceRevenue th:nth-child(13), .page-fragranceRevenue td:nth-child(13) { width: 58px !important; min-width: 58px !important; max-width: 58px !important; }
+  .page-fragranceRevenue td:nth-child(6) .cell-input { white-space: pre-wrap; overflow-wrap: anywhere; }
+}
