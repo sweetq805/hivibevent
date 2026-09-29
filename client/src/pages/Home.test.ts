@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalDate, classifyCostRow, deletedIdsStillPresent, findMemoryMatch, formatMoney, mergeDraftRows, money, monthKey, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
+import { canonicalDate, classifyCostRow, deletedIdsStillPresent, findMemoryMatch, formatMoney, mergeDraftRows, money, monthKey, sumReportAmount, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -8,6 +8,10 @@ describe("accounting data helpers", () => {
     expect(money(undefined)).toBe(0);
   });
 
+  it("sums only the selected report amount field", () => {
+    expect(sumReportAmount([{ id: "a", amount: "NT$ 1,200" }, { id: "b", amount: 350 }, { id: "c", amount: "" }] as any, "amount")).toBe(1550);
+    expect(sumReportAmount([{ id: "a", price: 12000 }, { id: "b", price: "3,000" }] as any, "price")).toBe(15000);
+  });
   it("formats dashboard and table amounts as rounded NT dollars", () => {
     expect(formatMoney("NT$ 12,345.6")).toBe("NT$ 12,346");
     expect(formatMoney(0)).toBe("NT$ 0");
