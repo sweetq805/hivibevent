@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalDate, classifyCostRow, deletedIdsStillPresent, findMemoryMatch, formatMoney, mergeDraftRows, money, monthKey, sumReportAmount, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
+import { canonicalDate, comparePayee, classifyCostRow, deletedIdsStillPresent, findMemoryMatch, formatMoney, mergeDraftRows, money, monthKey, sumReportAmount, parseDiscount, revenueValue, seedData, shouldUseLegacyMigration, stockProfitValue } from "./Home";
 
 describe("accounting data helpers", () => {
   it("parses NT dollar strings with commas and whitespace", () => {
@@ -24,6 +24,11 @@ describe("accounting data helpers", () => {
     expect(parseDiscount("84折")).toBe(0.84);
     expect(parseDiscount("80%")).toBe(0.8);
     expect(parseDiscount("0.84")).toBe(0.84);
+  });
+
+  it("sorts advance payees in A-Z and Z-A order", () => {
+    expect(["Nita", "Rok", "Amy"].sort((a, b) => comparePayee(a, b, "asc"))).toEqual(["Amy", "Nita", "Rok"]);
+    expect(["Nita", "Rok", "Amy"].sort((a, b) => comparePayee(a, b, "desc"))).toEqual(["Rok", "Nita", "Amy"]);
   });
 
   it("normalizes slash, ISO, and Excel-like dates to one month key", () => {

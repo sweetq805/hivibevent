@@ -614,3 +614,33 @@ input[type="checkbox"] { accent-color: #9e7770; width: 16px; height: 16px; curso
   .page-fragranceRevenue th:nth-child(13), .page-fragranceRevenue td:nth-child(13) { width: 58px !important; min-width: 58px !important; max-width: 58px !important; }
   .page-fragranceRevenue td:nth-child(6) .cell-input { white-space: pre-wrap; overflow-wrap: anywhere; }
 }
+
+/* Desktop-only fragrance revenue minimum columns and horizontal scrolling. */
+@media (min-width: 901px) {
+  .screen-table.page-fragranceRevenue { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .screen-table.page-fragranceRevenue table { width: 100% !important; min-width: 1186px !important; table-layout: auto !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(1),
+  .screen-table.page-fragranceRevenue th:nth-child(1), .screen-table.page-fragranceRevenue td:nth-child(1) { width: 42px !important; min-width: 42px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(3),
+  .screen-table.page-fragranceRevenue th:nth-child(3), .screen-table.page-fragranceRevenue td:nth-child(3) { width: 110px !important; min-width: 110px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(4),
+  .screen-table.page-fragranceRevenue th:nth-child(4), .screen-table.page-fragranceRevenue td:nth-child(4) { width: 110px !important; min-width: 110px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(5),
+  .screen-table.page-fragranceRevenue th:nth-child(5), .screen-table.page-fragranceRevenue td:nth-child(5) { width: 170px !important; min-width: 170px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(6),
+  .screen-table.page-fragranceRevenue th:nth-child(6), .screen-table.page-fragranceRevenue td:nth-child(6) { width: 130px !important; min-width: 130px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(7),
+  .screen-table.page-fragranceRevenue th:nth-child(7), .screen-table.page-fragranceRevenue td:nth-child(7) { width: 90px !important; min-width: 90px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(8),
+  .screen-table.page-fragranceRevenue th:nth-child(8), .screen-table.page-fragranceRevenue td:nth-child(8) { width: 70px !important; min-width: 70px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(9),
+  .screen-table.page-fragranceRevenue th:nth-child(9), .screen-table.page-fragranceRevenue td:nth-child(9) { width: 90px !important; min-width: 90px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(10),
+  .screen-table.page-fragranceRevenue th:nth-child(10), .screen-table.page-fragranceRevenue td:nth-child(10) { width: 90px !important; min-width: 90px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(11),
+  .screen-table.page-fragranceRevenue th:nth-child(11), .screen-table.page-fragranceRevenue td:nth-child(11) { width: 130px !important; min-width: 130px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(12),
+  .screen-table.page-fragranceRevenue th:nth-child(12), .screen-table.page-fragranceRevenue td:nth-child(12) { width: 90px !important; min-width: 90px !important; }
+  .screen-table.page-fragranceRevenue col:nth-child(13),
+  .screen-table.page-fragranceRevenue th:nth-child(13), .screen-table.page-fragranceRevenue td:nth-child(13) { width: 64px !important; min-width: 64px !important; }
+}
